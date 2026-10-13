@@ -1279,6 +1279,40 @@ var COMBOS=[
   {combo:"xc",som:"/ʃ/（后接e/i）",ex:["excelente 优秀的","exceção 例外","excesso 过量"]}
 ];
 
+
+/* ===== 性能优化：预构建索引（一次构建，多处复用） ===== */
+var WORD_BY_ID={},WORDS_BY_LEVEL={},_conjIdxBuilt=false,CONJ_INDEX={};
+function buildIndex(){
+  if(WORD_BY_ID.__built)return;
+  WORD_BY_ID.__built=true;
+  for(var _i=0;_i<WORDS.length;_i++){
+    var _w=WORDS[_i];
+    WORD_BY_ID[_w.id]=_w;
+    var _lv=_w.level||"A1";
+    if(!WORDS_BY_LEVEL[_lv])WORDS_BY_LEVEL[_lv]=[];
+    WORDS_BY_LEVEL[_lv].push(_w);
+  }
+}
+function getConjIndex(){
+  if(_conjIdxBuilt)return CONJ_INDEX;
+  _conjIdxBuilt=true;
+  var _allV=getAllVerbs();
+  for(var _v=0;_v<_allV.length;_v++){
+    var _vb=_allV[_v];
+    for(var _t=0;_t<TENSES.length;_t++){
+      var _tt=TENSES[_t],_arr=_vb.tenses[_tt.id];
+      if(!_arr)continue;
+      for(var _p=0;_p<6;_p++){
+        var _c=_arr[_p],_cl=_c.toLowerCase();
+        if(_cl.length>=2){
+          if(!CONJ_INDEX[_cl])CONJ_INDEX[_cl]=[];
+          CONJ_INDEX[_cl].push({verb:_vb,conj:_c,tense:_tt.name,pron:PRONS[_p]});
+        }
+      }
+    }
+  }
+  return CONJ_INDEX;
+}
 var GRAMMAR=[{level:"A1",t:"名词的性与数",b:"葡语名词分阴阳性：以 -o 结尾多为阳性（o livro 书），以 -a 结尾多为阴性（a casa 房子）。复数一般加 -s；以 -r/-z/-s 结尾加 -es；以 -l 结尾变 -is。",ex:[["O livro está na mesa.","书在桌上。"],["As casas são bonitas.","这些房子很漂亮。"],["Os estudantes chegam cedo.","学生们到得早。"]],quiz:[{q:"“casa”（房子）的定冠词是？",opts:["o","a","os","as"],a:1},{q:"“animal”（动物）的复数形式是？",opts:["animais","animales","animalis","animals"],a:0},{q:"“professor”（老师）的阴性形式是？",opts:["professor","professora","professoro","professore"],a:1},{q:"“cão”（狗）的复数形式是？",opts:["cãos","cães","cães","cães"],a:1},{q:"以 -l 结尾的名词变复数时？",opts:["直接加 -s","变 -l 为 -is","加 -es","不变"],a:1}],fill:[{q:"A ___ (casa) é grande.",a:"casa",hint:"房子（阴性单数）"},{q:"Os ___ (livro) são novos.",a:"livros",hint:"书（阳性复数）"}]},
 ,{level:"A1",t:"定冠词 o / a / os / as",b:"定冠词随名词的性和数变化，相当于中文的“这个/那个”。阳性单数 o，阴性单数 a，阳性复数 os，阴性复数 as。注意：以元音开头的阴性名词仍用 a（a água）。",ex:[["O café é bom.","这咖啡很好。"],["A água está fria.","这水是冷的。"],["Os alunos estudam muito.","这些学生学习很努力。"]],quiz:[{q:"“os”用于什么名词？",opts:["阴性单数","阳性单数","阳性复数","阴性复数"],a:2},{q:"“as escolas”表示？",opts:["这所学校","这些学校（阴性复数）","那个学校","那些学校（阳性）"],a:1},{q:"“as”用于什么名词？",opts:["阳性单数","阴性单数","阳性复数","阴性复数"],a:3},{q:"“os livros”表示？",opts:["这本书","这些书（阳性复数）","那本书","那些书（阴性）"],a:1},{q:"阴性名词“água”（水）的定冠词是？",opts:["o","a","os","as"],a:1}],fill:[{q:"___ café está bom.",a:"O",hint:"阳性单数定冠词"},{q:"___ águas estão frias.",a:"As",hint:"阴性复数定冠词"}]},
 ,{level:"A1",t:"ser 与 estar 的区别",b:"ser 表示本质、身份、国籍、职业、时间等持久特征；estar 表示暂时的状态、情绪、健康或所在位置。ser 也用于被动语态，estar 用于进行时（estar a + 动词原形）。",ex:[["Eu sou professor.","我是老师（身份）。"],["Estou cansado.","我很累（状态）。"],["Ele está em Lisboa.","他在里斯本（位置）。"]],quiz:[{q:"“我是学生”应该用？",opts:["Eu estou estudante.","Eu sou estudante.","Eu tenho estudante.","Eu faço estudante."],a:1},{q:"“我在家”应该用？",opts:["Sou em casa.","Estou em casa.","Tenho em casa.","Fico em casa."],a:1},{q:"“他是老师”应该用？",opts:["Ele está professor.","Ele é professor.","Ele tem professor.","Ele faz professor."],a:1},{q:"“她很累”应该用？",opts:["Ela é cansada.","Ela está cansada.","Ela tem cansada.","Ela fica cansada."],a:1},{q:"表示国籍用哪个动词？",opts:["estar","ser","ter","fazer"],a:1}],fill:[{q:"Eu ___ estudante.",a:"sou",hint:"身份用ser"},{q:"Eu ___ cansado.",a:"estou",hint:"状态用estar"}]},
@@ -1581,12 +1615,12 @@ function todayWords(){var today=todayStr();if(_todayWordsCache.date===today)retu
     var got=0;
     // 1. 该级别到期复习词（未记住，星标优先、到期早优先）
     var due=[];
-    for(var k in state.srs){var s=state.srs[k];if(s.d&&s.d<=today&&!state.learned[k]){var w=WORDS.find(function(x){return String(x.id)===String(k);});if(w&&g.levels.indexOf(w.level)>-1)due.push({w:w,star:state.starred[k]?1:0,d:s.d});}}
+    for(var k in state.srs){var s=state.srs[k];if(s.d&&s.d<=today&&!state.learned[k]){var w=WORD_BY_ID[k];if(w&&g.levels.indexOf(w.level)>-1)due.push({w:w,star:state.starred[k]?1:0,d:s.d});}}
     due.sort(function(a,b){if(a.star!==b.star)return b.star-a.star;return a.d<b.d?-1:(a.d>b.d?1:0);});
     due.forEach(function(it){if(got<g.n&&add(it.w))got++;});
     // 2. 新词（无复习记录，未记住）按级别加权随机补足，避免连续3个同类别；多词长短语尽量少出现
     if(got<g.n){
-      var fresh=WORDS.filter(function(w){return g.levels.indexOf(w.level)>-1&&!state.srs[String(w.id)]&&!state.learned[String(w.id)];});
+      buildIndex();var fresh=(WORDS_BY_LEVEL[g.levels[0]]||[]).concat(g.levels.length>1?(WORDS_BY_LEVEL[g.levels[1]]||[]):[]).filter(function(w){return !state.srs[String(w.id)]&&!state.learned[String(w.id)];});
       var weighted=fresh.map(function(w,i){
         var ww=(levelWeight[w.level]||1)*(0.5+seededRandom(i));
         var nw=(String(w.pt).match(/ /g)||[]).length+1;
@@ -1605,7 +1639,7 @@ function todayWords(){var today=todayStr();if(_todayWordsCache.date===today)retu
     // 3. 还不够：该级别未到期复习词（未记住）按到期近补
     if(got<g.n){
       var notDue=[];
-      for(var k2 in state.srs){var s2=state.srs[k2];if(s2.d&&s2.d>today&&!state.learned[k2]){var w3=WORDS.find(function(x){return String(x.id)===String(k2);});if(w3&&g.levels.indexOf(w3.level)>-1)notDue.push(w3);}}
+      for(var k2 in state.srs){var s2=state.srs[k2];if(s2.d&&s2.d>today&&!state.learned[k2]){var w3=WORD_BY_ID[k2];if(w3&&g.levels.indexOf(w3.level)>-1)notDue.push(w3);}}
       notDue.sort(function(a,b){
         var na=(String(a.pt).match(/ /g)||[]).length+1,nb=(String(b.pt).match(/ /g)||[]).length+1;
         var pa=na>=3?1e9:(na===2?1e6:0),pb=nb>=3?1e9:(nb===2?1e6:0);
@@ -1616,7 +1650,7 @@ function todayWords(){var today=todayStr();if(_todayWordsCache.date===today)retu
     }
   });
   // 4. 兜底：仍不足10个时，从任意未记住的词补（跳过3词以上长短语）
-  if(out.length<10){var all=shuffle(WORDS.filter(function(w){return !state.learned[String(w.id)]&&!picked[w.id]&&((String(w.pt).match(/ /g)||[]).length+1)<3;}));for(var m=0;m<all.length&&out.length<10;m++)add(all[m]);}
+  if(out.length<10){buildIndex();var _pool=[];for(var _l in WORDS_BY_LEVEL){_pool=_pool.concat(WORDS_BY_LEVEL[_l]);}var all=shuffle(_pool.filter(function(w){return !state.learned[String(w.id)]&&!picked[w.id]&&((String(w.pt).match(/ /g)||[]).length+1)<3;}));for(var m=0;m<all.length&&out.length<10;m++)add(all[m]);}
   _todayWordsCache={date:today,words:out};
   return out;}
 var _activeAudio=null;
@@ -1698,7 +1732,7 @@ function toast(msg){var t=document.getElementById("toast");t.textContent=msg;t.c
 function shuffle(a){a=a.slice();for(var i=a.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=a[i];a[i]=a[j];a[j]=t;}return a;}
 function weightedPickWords(n,level){
   level=level||"all";
-  var pool=level==="all"?WORDS:WORDS.filter(function(w){return (w.level||"A1")===level;});
+  buildIndex();var pool=level==="all"?WORDS:(WORDS_BY_LEVEL[level]||[]);
   if(pool.length<n)n=pool.length;
   var weights=pool.map(function(w){
     var weight=1;
@@ -1771,8 +1805,12 @@ function srsRecord(id,correct){
   return s;
 }
 function srsDueWords(){
-  var today=todayStr(),res=[];
-  WORDS.forEach(function(w){var s=state.srs[String(w.id)];if(s&&s.d&&s.d<=today)res.push(w);});
+  buildIndex();
+  var today=todayStr(),res=[],ks=Object.keys(state.srs);
+  for(var _k=0;_k<ks.length;_k++){
+    var s=state.srs[ks[_k]],w=WORD_BY_ID[ks[_k]];
+    if(s&&s.d&&s.d<=today&&w)res.push(w);
+  }
   res.sort(function(a,b){var sa=state.srs[String(a.id)],sb=state.srs[String(b.id)];var sta=state.starred[a.id]?1:0,stb=state.starred[b.id]?1:0;if(sta!==stb)return stb-sta;return sa.d<sb.d?-1:(sa.d>sb.d?1:0);});
   return res;
 }
@@ -1863,20 +1901,21 @@ function renderHome(){
     // 变位形式搜索（输入长度>=3）
     var conjMatches=[];
     if(q.length>=3){
-      var allV=getAllVerbs();
       var matchedInf={};
       results.forEach(function(w){if(w.pos&&w.pos.indexOf("动词")>-1)matchedInf[w.pt.toLowerCase()]=true;});
-      allV.forEach(function(v){
-        if(matchedInf[v.inf])return;
-        TENSES.forEach(function(t){
-          for(var i=0;i<6;i++){
-            var conj=v.tenses[t.id][i].toLowerCase();
-            if(conj===q||conj.indexOf(q)>-1){
-              conjMatches.push({verb:v,conj:v.tenses[t.id][i],tense:t.name,pron:PRONS[i]});
-            }
+      var _ci=getConjIndex(),_cks=Object.keys(_ci);
+      for(var _ci2=0;_ci2<_cks.length;_ci2++){
+        if(_cks[_ci2].indexOf(q)>-1){
+          var _lst=_ci[_cks[_ci2]];
+          for(var _li=0;_li<_lst.length;_li++){
+            var _cm=_lst[_li];
+            if(matchedInf[_cm.verb.inf])continue;
+            conjMatches.push(_cm);
+            if(conjMatches.length>=50)break;
           }
-        });
-      });
+          if(conjMatches.length>=50)break;
+        }
+      }
     }
     if(results.length===0&&conjMatches.length===0){hsr.innerHTML='<div class="muted" style="text-align:center;padding:20px">未找到匹配的单词<br><br><a class="btn primary" href="https://www.infopedia.pt/dicionarios/portugues/'+encodeURIComponent(q)+'" target="_blank" rel="noopener">去 infopedia.pt 查「'+q+'」</a></div>';return;}
     var h='';
@@ -3068,20 +3107,21 @@ function renderDict(){
 // 变位形式搜索
 var conjMatches=[];
 if(q.length>=3){
-  var allV=getAllVerbs();
   var matchedInf={};
   results.forEach(function(w){if(w.pos&&w.pos.indexOf("动词")>-1)matchedInf[w.pt.toLowerCase()]=true;});
-  allV.forEach(function(v){
-    if(matchedInf[v.inf])return;
-    TENSES.forEach(function(t){
-      for(var i=0;i<6;i++){
-        var conj=v.tenses[t.id][i].toLowerCase();
-        if(conj===q||conj.indexOf(q)>-1){
-          conjMatches.push({verb:v,conj:v.tenses[t.id][i],tense:t.name,pron:PRONS[i]});
-        }
+  var _ci=getConjIndex(),_cks=Object.keys(_ci);
+  for(var _ci2=0;_ci2<_cks.length;_ci2++){
+    if(_cks[_ci2].indexOf(q)>-1){
+      var _lst=_ci[_cks[_ci2]];
+      for(var _li=0;_li<_lst.length;_li++){
+        var _cm=_lst[_li];
+        if(matchedInf[_cm.verb.inf])continue;
+        conjMatches.push(_cm);
+        if(conjMatches.length>=50)break;
       }
-    });
-  });
+      if(conjMatches.length>=50)break;
+    }
+  }
 }
 var box=document.getElementById("dict-results");
 if(results.length===0&&conjMatches.length===0){box.innerHTML='<div class="muted" style="text-align:center;padding:30px">本地词库未找到匹配的单词<br><br><a class="btn primary" href="https://www.infopedia.pt/dicionarios/portugues/'+encodeURIComponent(q)+'" target="_blank" rel="noopener">去 infopedia.pt 查「'+q+'」</a></div>';return;}
