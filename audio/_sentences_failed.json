@@ -1,0 +1,32 @@
+[
+  {
+    "index": 423,
+    "sentence": "Acordo às sete horas da manhã. Primeiro, tomo um duche e visto-me. Depois, vou para a cozinha e tomo o pequeno-almoço: café com leite e pão com manteiga. Às oito e meia, saio de casa e vou para o trabalho de autocarro. Trabalho das nove às cinco e meia. Ao meio-dia, almoço no restaurante perto do escritório. Chego a casa às seis e meia. Janto com a minha família às oito horas. Depois do jantar, vejo televisão ou leio um livro. Deito-me às onze e meia. Gosto muito da minha rotina diária!",
+    "error": "HTTP 400"
+  },
+  {
+    "index": 425,
+    "sentence": "No mês passado, fui passar três dias a Lisboa com os meus amigos. Fomos de comboio e a viagem durou três horas. Ficámos num hostel muito perto do centro histórico. No primeiro dia, visitámos a Torre de Belém e o Mosteiro dos Jerónimos. À tarde, fomos até ao miradouro da Senhora do Monte e vimos a cidade toda. A vista era deslumbrante! No segundo dia, andámos de elétrico pela cidade e almoçamos um pastel de bacalhau numa tasca típica. À noite, fomos ouvir fado num restaurante de Alfama. A música era muito bonita e emocionante. No último dia, compramos recordações e voltámos para casa. Adorei Lisboa e quero voltar em breve!",
+    "error": "HTTP 400"
+  },
+  {
+    "index": 426,
+    "sentence": "A gastronomia portuguesa é uma das mais ricas da Europa. Os pratos típicos são simples mas muito saborosos. O bacalhau é o peixe mais famoso: há mais de 365 maneiras de o cozinhar! O bacalhau à brás, com batatas e ovos, é um dos meus preferidos. Outro prato muito popular é a francesinha, do Porto: um sanduíche com carne, presunto e queijo, coberto com molho picante. Para sobremesa, os pastéis de nata são imperdíveis! Estes pequenos pastéis de nata com canela são conhecidos no mundo inteiro. Os portugueses também gostam muito de sardinhas grelhadas no verão, especialmente nas festas de Santo António, em Lisboa. E não podemos esquecer o vinho verde e o vinho do Porto, que acompanham muito bem estas refeições. Quem visita Portugal tem mesmo de provar tudo isto!",
+    "error": "HTTP 400"
+  },
+  {
+    "index": 424,
+    "sentence": "A minha família é pequena mas muito unida. Somos quatro pessoas: o meu pai, a minha mãe, a minha irmã e eu. O meu pai chama-se Carlos e tem 45 anos. Ele é engenheiro e trabalha numa empresa de construção. A minha mãe chama-se Sofia e tem 42 anos. Ela é professora de matemática numa escola secundária. A minha irmã chama-se Beatriz e tem 16 anos. Ela gosta muito de música e toca piano. Eu tenho 20 anos e estudo medicina na universidade. Ao fim de semana, costumamos almoçar juntos e ir passear ao parque. Adoro a minha família!",
+    "error": "HTTP 400"
+  },
+  {
+    "index": 427,
+    "sentence": "Portugal tem muitas festas populares ao longo do ano, cheias de música, comida e tradição. As mais famosas são as Festas de Lisboa, em junho, dedicadas a Santo António. Durante estes dias, as ruas de Alfama e da Mouraria decoram-se com guirlandas de papel e luzes. Há marchas populares, concertos e fogo de artifício. As pessoas comem sardinhas grelhadas e bebem vinho tinto nas ruas. No Porto, as Festas de São João acontecem a 24 de junho. A tradição mais engraçada é bater com martelos de plástico na cabeça das pessoas! Também há muita música, comida e fogo de artifício sobre o rio Douro. No verão, há ainda as festas de Nossa Senhora da Agonia, em Viana do Castelo, com trajes típicos e procissões muito bonitas. No inverno, o Natal é celebrado com muita família e comida: o bacalhau, o cabrito assado e os doces conventuais. As festas portuguesas são uma ótima maneira de conhecer a cultura e o povo deste país!",
+    "error": "HTTP 400"
+  },
+  {
+    "index": 428,
+    "sentence": "O fado é a música tradicional de Portugal, considerada Património Imaterial da Humanidade pela UNESCO em 2011. A palavra \"fado\" vem do latim \"fatum\", que significa destino. O fado nasceu em Lisboa, no século XIX, nas ruas de Alfama, Mouraria e Bairro Alto. Era cantado por pessoas simples: marinheiros, trabalhadores e prostitutas, que expressavam a sua saudade, tristeza e amor. Hoje, o fado é cantado em todo o mundo e tem artistas famosos como Amália Rodrigues, a \"Rainha do Fado\", e mais recentemente Mariza e Carminho. Uma casa de fado típica é um restaurante pequeno e intimista, com luzes suaves, onde as pessoas jantam enquanto ouvem o fado. O acompanhamento é geralmente feito por uma guitarra portuguesa e uma viola. As canções falam de amor, saudade, Lisboa, o mar e a vida simples. Quem vai a Lisboa tem mesmo de ouvir fado numa casa de fado tradicional — é uma experiência inesquecível!",
+    "error": "HTTP 400"
+  }
+]
