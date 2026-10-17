@@ -16,6 +16,8 @@
 <style>
 :root{--azul:#6C9BD2;--azul-deep:#4A7FBF;--azul-light:#E8F1FB;--tile:#FFF5E6;--card:#FFFFFF;--terra:#FF8A65;--terra-deep:#F06E45;--sea:#4ECDC4;--sea-deep:#38B5AC;--lilac:#B39DDB;--pink:#F48FB1;--yellow:#FFD54F;--green:#81C784;--line:#FFE4C4;--line-soft:#FFF0DC;--ink:#3D405B;--mut:#8D99AE;--ok:#66BB6A;--err:#EF5350;--shadow:0 4px 0 #FFD3B6,0 8px 20px rgba(255,138,101,.18);--shadow-lg:0 6px 0 #FFD3B6,0 12px 28px rgba(255,138,101,.22);--radius:24px;--radius-sm:16px;--bounce:cubic-bezier(.34,1.56,.64,1)}
 *{box-sizing:border-box;margin:0;padding:0}
+html{-webkit-text-size-adjust:100%;-moz-text-size-adjust:100%;text-size-adjust:100%}
+input,select,textarea{font-size:16px}
 body{font-family:'Noto Sans SC','PingFang SC','Segoe UI',Arial,sans-serif;background:linear-gradient(160deg,#FFF8F0 0%,#FFEDEB 35%,#FFE8F0 60%,#E8F4F8 100%);color:var(--ink);line-height:1.6;padding-bottom:90px;min-height:100vh;position:relative;overflow-x:hidden}
 body::before{content:"";position:fixed;top:-120px;right:-100px;width:420px;height:420px;background:radial-gradient(circle,rgba(255,138,101,.14),transparent 65%);border-radius:50%;pointer-events:none;z-index:0}
 body::after{content:"";position:fixed;bottom:-80px;left:-100px;width:460px;height:460px;background:radial-gradient(circle,rgba(78,205,196,.12),transparent 65%);border-radius:50%;pointer-events:none;z-index:0}
@@ -67,6 +69,7 @@ h2.sect::before{content:"";width:6px;height:20px;background:linear-gradient(180d
 .stat span{font-size:12px;color:var(--mut)}
 .wordlist{display:flex;flex-direction:column;gap:10px}
 .word{display:flex;align-items:center;gap:12px;background:var(--card);border:2px solid var(--line-soft);border-radius:18px;padding:13px 15px;transition:transform .18s var(--bounce),box-shadow .18s ease,border-color .18s ease}
+.word>div:nth-child(2){flex:1;min-width:0;overflow-wrap:anywhere;word-break:break-word}
 .word:hover{transform:translateX(4px);box-shadow:0 4px 14px rgba(108,155,210,.12);border-color:var(--azul-light)}
 .word .flag{width:38px;height:38px;flex:none;border-radius:12px;background:linear-gradient(135deg,var(--azul),var(--azul-deep));color:#fff;display:flex;align-items:center;justify-content:center;font-family:'Lora',serif;font-weight:700;font-size:16px;box-shadow:0 3px 8px rgba(108,155,210,.3)}
 .word .w-pt{font-size:16px;font-weight:700;font-family:'Lora',serif}
@@ -200,7 +203,34 @@ input[type=file]{display:none}
 .drawer-item .dname{font-size:14px;font-weight:700;color:var(--text)}
 .drawer-item .ddesc{font-size:11px;color:var(--mut);margin-top:1px}
 .hamburger-btn{background:rgba(255,255,255,.18);color:#fff;border:none;border-radius:10px;padding:8px 12px;font-size:14px;cursor:pointer;display:inline-flex;align-items:center;gap:6px;font-weight:600}
-@media (max-width:480px){main{padding:14px 12px 24px}.face.front .pt{font-size:32px}}
+@media (max-width:480px){
+main{padding:14px 12px 24px}.face.front .pt{font-size:32px}
+header.app{padding:14px 14px calc(14px + env(safe-area-inset-top));border-radius:0 0 24px 24px}
+header.app h1{font-size:18px}
+header.app .sub{font-size:12px}
+h2.sect{margin:18px 4px 10px;font-size:16px}
+.word{gap:8px;padding:11px 10px;border-radius:15px}
+.word .flag{width:34px;height:34px;font-size:14px;border-radius:10px}
+.word .w-pt{font-size:15px}
+.word .w-cn{font-size:12.5px}
+.word .right{gap:4px}
+.word .right button{width:36px;height:36px;border-radius:10px}
+.word .right button svg{width:17px;height:17px}
+nav.tabbar{left:10px;right:10px;bottom:10px;border-radius:24px}
+nav.tabbar button{font-size:11px;min-height:50px}
+.card{padding:13px;border-radius:20px}
+.btn{padding:11px 14px;font-size:14px;min-height:44px}
+.qbox .qverb{font-size:26px}
+.resultcard .score{font-size:36px}
+.face.front .tip{font-size:12px}
+}
+@media (max-width:380px){
+.word .right{gap:3px}
+.word .right button{width:32px;height:32px}
+.word .right button svg{width:16px;height:16px}
+nav.tabbar button svg{width:20px;height:20px}
+nav.tabbar button{font-size:10.5px}
+}
 .chatbox{display:flex;flex-direction:column;height:min(62vh,560px);border:1px solid var(--line);border-radius:16px;overflow:hidden;background:var(--card)}
 .chat-head{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:12px 14px;background:linear-gradient(150deg,var(--azul),var(--azul-deep));color:#fff;font-family:Lora,serif;font-size:15px;font-weight:700}
 .chat-head .btn{background:rgba(255,255,255,.2);color:#fff;font-size:12px;padding:6px 12px;border-radius:999px;min-height:32px}
