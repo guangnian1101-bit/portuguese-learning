@@ -3224,9 +3224,9 @@ function renderCategories(){
   // 动态计算每个分类的单词数量
   var catCounts={};
   WORDS.forEach(function(w){if(!catCounts[w.cat])catCounts[w.cat]=0;catCounts[w.cat]++;});
-  var validCats=CATS.filter(function(c){return (catCounts[c.id]||0)>0;});
+  var validCats=CATS.filter(function(c){return (catCounts[c.name]||0)>0;});
   var html='<section><h2 class="sect">主题词汇 · 共 '+WORDS.length+' 词 · '+validCats.length+' 个分类</h2><div class="catgrid">';
-  validCats.forEach(function(c){var cnt=catCounts[c.id]||0;html+='<div class="catcard" data-g="cat_'+c.id+'"><div class="cicon">'+c.icon+'</div><div class="cname">'+c.name+'</div><div class="ccount">'+cnt+' 词</div></div>';});
+  validCats.forEach(function(c){var cnt=catCounts[c.name]||0;html+='<div class="catcard" data-g="cat_'+c.id+'"><div class="cicon">'+c.icon+'</div><div class="cname">'+c.name+'</div><div class="ccount">'+cnt+' 词</div></div>';});
   html+='</div></section>';view.innerHTML=html;
   view.querySelectorAll("[data-g]").forEach(function(b){b.addEventListener("click",function(){catMode="browse";location.hash="#/"+b.getAttribute("data-g");});});
   view.querySelectorAll("[data-catwq]").forEach(function(b){b.addEventListener("click",function(){catWqType=b.getAttribute("data-catwq");view.querySelectorAll("[data-catwq]").forEach(function(x){x.classList.toggle("on",x.getAttribute("data-catwq")===catWqType);});});});
@@ -3234,7 +3234,7 @@ function renderCategories(){
 var catQuiz=[],catQuizIdx=0,catQuizRight=0,catQuizAnswered=false,catMode="browse",catWqType="choice";
 function renderCatDetail(catId){
   var cat=CATS.filter(function(c){return c.id===catId;})[0];if(!cat){renderCategories();return;}
-  var words=WORDS.filter(function(w){return w.cat===catId;});
+  var words=WORDS.filter(function(w){return w.cat===cat.name;});
   // 数字分类按数字大小排序，其他分类按字母排序
   if(catId==="numeros"){
     var numOrder={"zero":0,"um":1,"uma":1,"dois":2,"duas":2,"três":3,"quatro":4,"cinco":5,"seis":6,"sete":7,"oito":8,"nove":9,"dez":10,"onze":11,"doze":12,"treze":13,"catorze":14,"quinze":15,"dezasseis":16,"dezassete":17,"dezoito":18,"dezanove":19,"vinte":20,"vinte e um":21,"vinte e dois":22,"trinta":30,"quarenta":40,"cinquenta":50,"sessenta":60,"setenta":70,"oitenta":80,"noventa":90,"cem":100,"cento":100,"duzentos":200,"trezentos":300,"quatrocentos":400,"quinhentos":500,"seiscentos":600,"setecentos":700,"oitocentos":800,"novecentos":900,"mil":1000,"milhão":1000000,"bilhão":1000000000};
