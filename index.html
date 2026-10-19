@@ -339,7 +339,10 @@ var CATS=[
 {id:"pontuacao",name:"标点符号",icon:"✏️",count:0},
 {id:"expressoes",name:"常用表达",icon:"💬",count:0},
 {id:"desporto",name:"体育",icon:"⚽",count:0},
-{id:"nomes",name:"人名",icon:"👤",count:0}
+{id:"nomes",name:"人名",icon:"👤",count:0},
+{id:"adv",name:"副词",icon:"🔁",count:0},
+{id:"subst",name:"名词",icon:"📦",count:0},
+{id:"verbos_abs",name:"动词",icon:"🔨",count:0}
 ];
 
 /* ===================== 符号映射（阿拉伯数字/标点 → 葡语） ===================== */
@@ -3224,8 +3227,24 @@ function drawTr(){
 var CAT_ALIAS={"法律":"法律政治","历史":"时间时代","地理":"地点","欧洲":"地点","情绪情感":"情感心理","医疗":"健康","经济":"商务职场","商务":"商务职场","宗教":"文化艺术","音乐":"文化艺术","教育":"学习教育","植物":"自然","数学":"科学","化学":"科学","日用品":"家居","厨房":"家居","家具":"家居","感官":"身体","体育休闲":"体育","服饰":"衣物","方向":"方向方位","饮料":"食物"};
 var NAME_RE=/专有名词[，,](人名|男性名字|女性名字|男子名|女子名|姓氏|人名或地名)/;
 var NAME_RE2=/；人名[/，]/;
+function classifyPos(cn){
+  if(!cn) return "名词";
+  if(cn.indexOf("副词")>=0 && cn.indexOf("副词")<30) return "副词";
+  if(cn.indexOf("形容词")>=0 && cn.indexOf("形容词")<30) return "形容词";
+  if(cn.indexOf("动词")>=0 && cn.indexOf("动词")<30) return "动词";
+  if(cn.indexOf("名词")>=0 && cn.indexOf("名词")<20) return "名词";
+  var first=cn.split("；")[0].split(";")[0].trim();
+  if(first.endsWith("地")) return "副词";
+  if(first.endsWith("的")) return "形容词";
+  if(first.indexOf("的")>=0 && first.indexOf("地")<0) return "形容词";
+  if(first.indexOf("地")>=0) return "副词";
+  return "名词";
+}
 function mappedCat(cat, cn){
-  if(cat==="抽象概念" && cn && (NAME_RE.test(cn)||NAME_RE2.test(cn))) return "人名";
+  if(cat==="抽象概念"){
+    if(NAME_RE.test(cn)||NAME_RE2.test(cn)) return "人名";
+    return classifyPos(cn);
+  }
   return CAT_ALIAS[cat]||cat;
 }
 function renderCategories(){
