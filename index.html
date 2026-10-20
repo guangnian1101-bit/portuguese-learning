@@ -3900,6 +3900,7 @@ function renderMore(){
   }
   html+='<h2 class="sect">AI 对话设置</h2><div class="card settings-card"><div class="muted" style="font-size:12px">在「智能对话 → 自由聊天」可切换 AI 对话模式（用 Google Gemini 免费接口）。需要先粘贴你的免费 API key：<br>1. 打开 <a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener" style="color:var(--azul-deep)">aistudio.google.com/apikey</a>（Google 账号登录）<br>2. 点「Create API key」创建免费 key<br>3. 粘贴到下方保存。key 仅保存在你本机浏览器，请勿分享。</div><input type="password" id="ai-key-input" placeholder="粘贴 Gemini API key…" value="'+state.aiKey+'" style="padding:11px 12px;border:1px solid var(--line);border-radius:12px;font-size:14px;box-sizing:border-box"><button class="btn primary block" id="ai-key-save">保存 key</button><div class="muted" style="font-size:12px">当前状态：'+(state.aiKey?'✅ 已配置（'+(state.aiKey.length>10?state.aiKey.slice(0,8)+"…":state.aiKey)+'）':'❌ 未配置')+'</div></div>';
   html+='<h2 class="sect">换设备转移进度</h2><div class="card settings-card"><div class="muted">旧设备上「导出进度」保存一个文件；新设备打开本网页后「导入进度」选择该文件即可。进度包括：已学单词、星标单词、智能复习记录、连续打卡、测试记录。</div><button class="btn primary block" id="do-export">导出进度（下载文件）</button><label class="btn ghost block" for="import-file">导入进度（选择文件）</label><input type="file" id="import-file" accept=".json,application/json"><button class="btn ghost block" id="do-clear" style="color:var(--err)">清空全部进度</button></div>';
+  html+='<h2 class="sect">下载 APP</h2><div class="card" style="background:linear-gradient(150deg,var(--azul),var(--azul-deep));color:#fff;border:none"><div style="display:flex;align-items:center;gap:14px;margin-bottom:12px"><div style="width:48px;height:48px;border-radius:12px;background:rgba(255,255,255,.15);display:flex;align-items:center;justify-content:center;font-size:24px">📱</div><div><div style="font-weight:700;font-size:15px">安装到桌面</div><div style="font-size:12px;color:rgba(255,255,255,.75);margin-top:2px">像原生 App 一样离线使用，无需浏览器</div></div></div><button class="btn block" id="install-btn" style="background:#fff;color:var(--azul-deep);font-weight:700">安装 APP</button><div class="muted" style="font-size:11px;color:rgba(255,255,255,.6);margin-top:10px;line-height:1.5">iOS：用 Safari 打开 → 分享按钮 → 添加到主屏幕<br>Android/桌面：点上方按钮即可安装</div></div>';
   html+='<h2 class="sect">关于</h2><div class="card" style="font-size:13px;color:#444">本应用面向欧洲葡语（Português Europeu）学习者。功能：智能复习（间隔重复）、每日必背单词、背单词（翻转卡片+练习测试）、动词变位（300+动词×4时态）、听力、语法（含练习题）、翻译练习、字典、主题词汇、葡语视频（RTP Play）、每日测试、星标收藏。所有数据保存在你当前浏览器本地。</div>';
   html+='</section>';view.innerHTML=html;
   document.getElementById("do-export").addEventListener("click",exportProgress);
@@ -3920,6 +3921,15 @@ function renderMore(){
   if(statStarred)statStarred.addEventListener("click",function(){moreShowStarred=!moreShowStarred;renderMore();});
   view.querySelectorAll("[data-toggle]").forEach(function(h){h.addEventListener("click",function(){var t=h.getAttribute("data-toggle");if(t==="starred")moreShowStarred=!moreShowStarred;else if(t==="learned")moreShowLearned=!moreShowLearned;renderMore();});});
   view.querySelectorAll("[data-g]").forEach(function(b){b.addEventListener("click",function(){location.hash="#/"+b.getAttribute("data-g");});});
+  var installBtn=document.getElementById("install-btn");
+  if(installBtn){
+    if(!deferredPrompt){installBtn.textContent="已安装或不支持";installBtn.disabled=true;installBtn.style.opacity=".5";}
+    installBtn.addEventListener("click",function(){
+      if(!deferredPrompt){toast("请用浏览器菜单「添加到主屏幕/安装应用」");return;}
+      deferredPrompt.prompt();
+      deferredPrompt.userChoice.then(function(){deferredPrompt=null;installBtn.textContent="已安装";installBtn.disabled=true;});
+    });
+  }
 }
 
 function buildStarQuiz(n){
@@ -4029,6 +4039,10 @@ navigate();
 </script>
 <script>
 if('serviceWorker' in navigator&&location.protocol==='https:'){window.addEventListener('load',function(){navigator.serviceWorker.register('./sw.js').then(function(){}).catch(function(e){console.warn('SW register failed',e);});});}
+/* PWA 安装 */
+var deferredPrompt=null;
+window.addEventListener('beforeinstallprompt',function(e){e.preventDefault();deferredPrompt=e;});
+window.addEventListener('appinstalled',function(){deferredPrompt=null;toast('APP 已安装到桌面');});
 </script>
 </body>
 </html>
