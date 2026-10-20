@@ -73,8 +73,11 @@ body { padding-bottom: calc(90px + env(safe-area-inset-bottom)); }
 /* 2. 勾选联动：选项选中/正确/错误状态 */
 .opt-card { transition: all .25s cubic-bezier(.22,1,.36,1); }
 .opt-card.selected { transform: scale(1.02); border-color: var(--azul) !important; box-shadow: 0 4px 20px rgba(62,44,28,.15); }
-.opt-card.correct { background: #f0fff0 !important; border-color: #52C41A !important; color: #389e0d; }
-.opt-card.wrong { background: #fff2f0 !important; border-color: #ff4d4f !important; color: #cf1322; animation: shake .4s; }
+.opt-card.correct, .opt.right { background: #f0fff0 !important; border-color: #52C41A !important; color: #389e0d; transform: scale(1.03); }
+.opt-card.wrong, .opt.wrong { background: #fff2f0 !important; border-color: #ff4d4f !important; color: #cf1322; animation: shake .4s; }
+.opt { transition: all .25s cubic-bezier(.22,1,.36,1); }
+.opt:not(.right):not(.wrong) { cursor: pointer; }
+.opt:not(.right):not(.wrong):hover { transform: translateY(-2px); box-shadow: 0 4px 16px rgba(62,44,28,.1); }
 @keyframes shake { 0%,100%{transform:translateX(0)} 25%{transform:translateX(-6px)} 75%{transform:translateX(6px)} }
 
 /* 3. 叠卡展开：今日必背卡片堆叠效果 */
@@ -2186,6 +2189,10 @@ function drawVocabCards(){
   html+='</div></div>';sum.innerHTML=html;sum.style.display="";sum.scrollIntoView({behavior:"smooth",block:"nearest"});}
   fill(0);
   card.addEventListener("click",function(){card.classList.toggle("flipped");});
+  // 触摸滑动切换卡片
+  var touchStartX=0,touchStartY=0,touching=false;
+  card.addEventListener("touchstart",function(e){touchStartX=e.touches[0].clientX;touchStartY=e.touches[0].clientY;touching=true;},{passive:true});
+  card.addEventListener("touchend",function(e){if(!touching)return;touching=false;var dx=e.changedTouches[0].clientX-touchStartX;var dy=e.changedTouches[0].clientY-touchStartY;if(Math.abs(dx)>60&&Math.abs(dx)>Math.abs(dy)*1.5){if(dx<0){if(vocabIdx<vocabList.length-1){vocabIdx++;fill(vocabIdx,'next');}}else{if(vocabIdx>0){vocabIdx--;fill(vocabIdx,'prev');}}}},{passive:true});
   document.getElementById("v-sound").addEventListener("click",function(){speak(vocabList[vocabIdx].pt);});
   document.getElementById("v-star").addEventListener("click",function(){var w=vocabList[vocabIdx];if(state.starred[w.id]){delete state.starred[w.id];toast("已取消星标");}else{state.starred[w.id]=true;toast("已加星标");}save();fill(vocabIdx);});
   document.getElementById("v-prev").addEventListener("click",function(){if(vocabIdx>0){vocabIdx--;fill(vocabIdx,'prev');}});
