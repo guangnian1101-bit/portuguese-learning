@@ -46,27 +46,26 @@ main{max-width:720px;margin:0 auto;padding:16px 16px 30px}
   to { opacity: 1; transform: translateY(0); }
 }
 .page-animate { animation: pageFadeIn .35s cubic-bezier(.4,.2,.2,1); }
-.card{background:var(--card);border:1px solid var(--line-soft);border-radius:var(--radius);padding:16px;box-shadow:var(--shadow);transition:transform .2s var(--bounce),box-shadow .2s ease,border-color .2s ease;position:relative;overflow:hidden}
-.card:hover{transform:translateY(-2px);box-shadow:var(--shadow-lg);border-color:var(--line)}
+.card{background:var(--card);border:1px solid var(--line-soft);border-radius:24px;padding:20px;box-shadow:0 2px 16px rgba(120,100,70,.06);transition:transform .25s var(--bounce),box-shadow .25s ease,border-color .25s ease;position:relative;overflow:hidden}
+.card:hover{transform:translateY(-2px);box-shadow:0 8px 28px rgba(120,100,70,.1);border-color:var(--line)}
 h2.sect{font-size:17px;font-weight:700;margin:24px 4px 12px;display:flex;align-items:center;gap:10px}
 h2.sect::before{content:"";width:6px;height:20px;background:linear-gradient(180deg,var(--azul),var(--sea));border-radius:4px;box-shadow:0 2px 6px rgba(91,168,119,.25)}
 
 .muted{color:var(--mut);font-size:13px}
-.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;border:none;border-radius:14px;cursor:pointer;font-family:inherit;font-weight:700;padding:13px 18px;font-size:15px;min-height:48px;transition:transform .15s var(--bounce),box-shadow .15s ease,filter .15s ease;box-shadow:0 3px 0 rgba(0,0,0,.12)}
-.btn:hover{transform:translateY(-2px);box-shadow:0 5px 0 rgba(0,0,0,.12),0 8px 16px rgba(0,0,0,.1)}
-.btn:active{transform:translateY(1px) scale(.98);box-shadow:0 1px 0 rgba(0,0,0,.12)}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;border:none;border-radius:999px;cursor:pointer;font-family:inherit;font-weight:600;padding:13px 24px;font-size:15px;min-height:48px;transition:transform .2s var(--bounce),box-shadow .2s ease,filter .2s ease;box-shadow:0 2px 8px rgba(120,100,70,.1)}
+.btn:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(120,100,70,.15)}
 .btn:active{transform:scale(.97)}
-.btn.primary{background:linear-gradient(135deg,var(--azul),var(--azul-deep));color:#fff;box-shadow:0 3px 0 #3A6FAF,0 4px 12px rgba(108,155,210,.3)}
-.btn.primary:hover{box-shadow:0 5px 0 #3A6FAF,0 8px 20px rgba(108,155,210,.35)}
-.btn.terra{background:linear-gradient(135deg,var(--terra),var(--terra-deep));color:#fff;box-shadow:0 3px 0 #D45A35,0 4px 12px rgba(255,138,101,.3)}
-.btn.terra:hover{box-shadow:0 5px 0 #D45A35,0 8px 20px rgba(255,138,101,.35)}
-.btn.ghost{background:var(--tile);color:var(--azul-deep)}.btn.ok{background:var(--ok);color:#fff}
+.btn.primary{background:linear-gradient(135deg,var(--azul),var(--azul-deep));color:#fff;box-shadow:0 4px 14px rgba(91,168,119,.35)}
+.btn.primary:hover{box-shadow:0 6px 24px rgba(91,168,119,.45)}
+.btn.terra{background:linear-gradient(135deg,var(--terra),var(--terra-deep));color:#fff;box-shadow:0 4px 14px rgba(232,168,124,.35)}
+.btn.terra:hover{box-shadow:0 6px 24px rgba(232,168,124,.45)}
+.btn.ghost{background:rgba(255,255,255,.6);color:var(--azul-deep);border:1px solid var(--line-soft)}.btn.ok{background:var(--ok);color:#fff;box-shadow:0 4px 14px rgba(91,168,119,.3)}
 .btn.block{width:100%}.btn:disabled{opacity:.45;cursor:not-allowed}
 .row{display:flex;gap:10px;flex-wrap:wrap}.grow{flex:1}
 .stats{display:flex;gap:10px;flex-wrap:wrap;margin:14px 0}
-.stat{flex:1 1 90px;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px;text-align:center}
-.stat b{display:block;font-size:22px;font-family:'Lora',serif;color:var(--azul)}
-.stat span{font-size:12px;color:var(--mut)}
+.stat{flex:1 1 90px;background:var(--card);border:1px solid var(--line-soft);border-radius:18px;padding:16px;text-align:center;box-shadow:0 2px 12px rgba(120,100,70,.05)}
+.stat b{display:block;font-size:24px;font-family:'Lora',serif;color:var(--azul);font-weight:700}
+.stat span{font-size:12px;color:var(--mut);margin-top:2px;display:block}
 .wordlist{display:flex;flex-direction:column;gap:10px}
 .word{display:flex;align-items:center;gap:12px;background:var(--card);border:2px solid var(--line-soft);border-radius:18px;padding:13px 15px;transition:transform .18s var(--bounce),box-shadow .18s ease,border-color .18s ease}
 .word>div:nth-child(2){flex:1;min-width:0;overflow-wrap:anywhere;word-break:break-word}
