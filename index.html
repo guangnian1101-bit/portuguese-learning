@@ -47,6 +47,25 @@ main{max-width:720px;margin:0 auto;padding:16px 16px 30px}
 }
 .page-animate { animation: pageFadeIn .4s cubic-bezier(.22,1,.36,1); }
 
+/* finesse-ui 高级感改进 */
+:root { --ease-out: cubic-bezier(.22,.9,.28,1); }
+* { -webkit-tap-highlight-color: transparent; }
+/* 隐藏滚动条但保留滚动 */
+::-webkit-scrollbar { width: 0; height: 0; }
+/* 按钮按压缩放 */
+.btn:active, button:active { transform: scale(.96); transition: transform .1s ease; }
+/* 卡片悬浮效果 */
+.card:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(62,44,28,.12); }
+.card { transition: transform .25s var(--ease-out), box-shadow .25s var(--ease-out); }
+/* 减少动画偏好 */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; }
+}
+/* 毛玻璃TabBar */
+.tabbar { backdrop-filter: blur(22px); -webkit-backdrop-filter: blur(22px); background: rgba(255,255,255,.82) !important; }
+/* 安全区域 */
+body { padding-bottom: calc(90px + env(safe-area-inset-bottom)); }
+
 /* 1. 完成反馈按钮：点击后打勾动画 */
 @keyframes btnSuccess { 0%{transform:scale(1)} 40%{transform:scale(1.1)} 100%{transform:scale(1)} }
 .btn-success { animation: btnSuccess .4s ease; background: #52C41A !important; color: #fff !important; }
