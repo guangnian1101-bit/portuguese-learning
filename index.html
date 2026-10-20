@@ -3280,7 +3280,7 @@ var box=document.getElementById("dict-results");
 if(results.length===0&&conjMatches.length===0){box.innerHTML='<div class="muted" style="text-align:center;padding:30px">本地词库未找到匹配的单词<br><br><a class="btn primary" href="https://www.infopedia.pt/dicionarios/portugues/'+encodeURIComponent(q)+'" target="_blank" rel="noopener">去 infopedia.pt 查「'+q+'」</a></div>';return;}
 var h='';
 if(results.length>0){
-  h+='<div class="muted" style="margin-bottom:10px">找到 '+results.length+' 个结果</div><div class="wordlist">';
+  h+='<div class="muted" style="margin-bottom:10px">找到 '+results.length+' 个结果 · 点击单词查看完整释义</div><div class="wordlist">';
   results.slice(0,50).forEach(function(w){
     h+='<div class="word" data-wdetail="'+w.id+'" style="cursor:pointer">'+(w.img?'<img class="wimg" src="'+w.img+'" alt="'+w.pt+'">':'<div class="flag">'+w.pt.charAt(0).toUpperCase()+'</div>')+'<div><div class="w-pt">'+w.pt+(w.level?' <span style="font-size:10px;background:var(--azul-light);color:var(--azul-deep);padding:1px 6px;border-radius:8px;font-weight:600">'+w.level+'</span>':'')+'</div><div class="w-cn">'+shortCn(w)+'</div><div class="w-meta" style="font-size:11px;color:var(--mut);margin-top:2px">'+w.pos+' · '+catName(w.cat)+'</span></div>'+(w.ex?'<div style="font-size:12px;color:#888;margin-top:2px;font-family:Lora,serif">'+w.ex+'</div>':'')+'</div><div class="right"><button title="播放发音" data-sp="'+w.pt+'">'+ICONS.sound+'</button><a title="查 infopedia" href="https://www.infopedia.pt/dicionarios/portugues/'+encodeURIComponent(w.pt)+'" target="_blank" rel="noopener" style="text-decoration:none;color:var(--azul-deep);font-size:18px;padding:8px;cursor:pointer">🔗</a></div></div>';
   });
