@@ -2074,8 +2074,20 @@ function renderHome(){
   var tw=todayWords();var learnedCount=Object.keys(state.learned).length;
   var srsStat=srsStats();var dueWords=srsDueWords();
   var testToday=state.tests.filter(function(x){return x.date===todayStr();}).pop();
+  // 今日已学单词数
+  var todayLearned=tw.filter(function(w){return state.learned[w.id]===todayStr();}).length;
+  var todayTarget=tw.length;
+  var todayPct=todayTarget>0?Math.round(todayLearned/todayTarget*100):0;
+  // 个性化问候
+  var hour=new Date().getHours();
+  var greet=hour<12?"Bom dia":(hour<18?"Boa tarde":"Boa noite");
+  var streakMsg=state.streak>0?'连续打卡 <b>'+state.streak+'</b> 天':"今天开始第一天打卡吧";
+  var progressMsg=todayPct>=100?"今日任务全部完成，太棒了！":"今天已学 "+todayLearned+"/"+todayTarget+" 词，继续加油";
   var html='<section>';
-  html+='<div class="card" style="background:linear-gradient(150deg,var(--azul),var(--azul-deep));color:#fff;border:none;display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap"><div style="flex:1;min-width:200px"><div style="font-family:Lora,serif;font-size:22px;font-weight:700">Olá!</div><div class="muted" style="color:rgba(255,255,255,.85);font-size:13px;margin-top:4px">今天的学习从「每日必背」开始。'+(state.streak>0?'连续打卡 '+state.streak+' 天。':'')+'</div><div class="row" style="margin-top:14px;flex-wrap:wrap"><button class="hamburger-btn" id="open-drawer-btn">&#9776; 全部功能</button><button class="btn primary" style="background:rgba(255,255,255,.18);color:#fff" data-g="vocab">开始背单词</button><button class="btn primary" style="background:var(--terra);color:#fff" data-g="test">每日测试</button></div></div><div style="text-align:right;min-width:110px"><div class="muted" style="color:rgba(255,255,255,.8);font-size:13px">词库总量</div><div style="font-family:Lora,serif;font-size:36px;font-weight:700;line-height:1.1;margin-top:2px">'+WORDS.length+'</div></div></div>';
+  html+='<div class="card" style="background:linear-gradient(150deg,var(--azul),var(--azul-deep));color:#fff;border:none;display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap"><div style="flex:1;min-width:200px"><div style="font-family:Lora,serif;font-size:22px;font-weight:700">'+greet+'!</div><div class="muted" style="color:rgba(255,255,255,.85);font-size:13px;margin-top:4px">'+streakMsg+' · '+progressMsg+'</div>';
+  // 今日进度条
+  html+='<div style="margin-top:12px;background:rgba(255,255,255,.15);border-radius:10px;height:8px;overflow:hidden"><div style="height:100%;background:linear-gradient(90deg,#52C41A,#73D13D);width:'+todayPct+'%;transition:width .5s cubic-bezier(.22,.9,.28,1);border-radius:10px"></div></div>';
+  html+='<div class="row" style="margin-top:14px;flex-wrap:wrap"><button class="hamburger-btn" id="open-drawer-btn">&#9776; 全部功能</button><button class="btn primary" style="background:rgba(255,255,255,.18);color:#fff" data-g="vocab">开始背单词</button><button class="btn primary" style="background:var(--terra);color:#fff" data-g="test">每日测试</button></div></div><div style="text-align:right;min-width:110px"><div class="muted" style="color:rgba(255,255,255,.8);font-size:13px">词库总量</div><div style="font-family:Lora,serif;font-size:36px;font-weight:700;line-height:1.1;margin-top:2px">'+WORDS.length+'</div></div></div>';
   var dueN=0,newN=0;tw.forEach(function(w){if(srsGet(w.id))dueN++;else newN++;});
   if(dueWords.length>0){html+='<div class="card" style="background:linear-gradient(150deg,var(--terra),#c96a3a);color:#fff;border:none;margin-bottom:16px"><div style="font-family:Lora,serif;font-size:17px;font-weight:700">🧠 智能复习 · '+dueWords.length+' 个单词待复习</div><div class="muted" style="color:rgba(255,255,255,.9);font-size:13px;margin:4px 0 10px">这些单词按遗忘曲线今天该复习了，趁还没忘记再巩固一遍。</div><button class="btn" style="background:#fff;color:var(--terra);font-weight:700" data-g="review">开始复习</button></div>';}
   html+='<h2 class="sect">今日必背 · '+tw.length+' 词'+(dueN>0?' · <span style="color:var(--terra)">'+dueN+' 个复习</span>':'')+(newN>0?' · '+newN+' 个新词':'')+'</h2><div class="wordlist">';
