@@ -1749,7 +1749,7 @@ function speak(text){
     for(var wi=0;wi<WORDS.length;wi++){
       if(WORDS[wi]&&WORDS[wi].pt&&WORDS[wi].pt.toLowerCase()===norm){
         var a=new Audio('audio/'+WORDS[wi].id+'.mp3');
-        a.volume=0.95;
+        a.volume=0.95;a.playbackRate=0.75;
         _activeAudio=a;
         a.onended=function(){if(_activeAudio===a)_activeAudio=null;};
         a.play().then(function(){}).catch(function(){_activeAudio=null;trySentenceAudio(t);});
@@ -1766,7 +1766,7 @@ function trySentenceAudio(t){
     if(SENTENCE_AUDIO_MAP&&SENTENCE_AUDIO_MAP[norm]){
       stopSpeaking();
       var sa=new Audio('audio/'+SENTENCE_AUDIO_MAP[norm]+'.mp3');
-      sa.volume=0.95;
+      sa.volume=0.95;sa.playbackRate=0.75;
       _activeAudio=sa;
       sa.onended=function(){if(_activeAudio===sa)_activeAudio=null;};
       sa.play().then(function(){}).catch(function(){_activeAudio=null;tryOnlineTTS(t);});
@@ -1780,7 +1780,7 @@ function tryOnlineTTS(t){
     stopSpeaking();
     var url='https://translate.google.com/translate_tts?ie=UTF-8&q='+encodeURIComponent(t)+'&tl=pt-PT&client=tw-ob';
     var ga=new Audio(url);
-    ga.volume=0.95;
+    ga.volume=0.95;ga.playbackRate=0.75;
     _activeAudio=ga;
     ga.onended=function(){if(_activeAudio===ga)_activeAudio=null;};
     ga.play().then(function(){}).catch(function(){_activeAudio=null;fallbackTTS(t);});
@@ -1793,7 +1793,7 @@ function fallbackTTS(text){
   try{
     stopSpeaking();
     var u=new SpeechSynthesisUtterance(text);
-    u.lang="pt-PT";u.rate=0.78;u.pitch=0.95;u.volume=0.9;
+    u.lang="pt-PT";u.rate=0.75;u.pitch=0.95;u.volume=0.9;
     var voices=window.speechSynthesis.getVoices();
     var femaleNames=["maria","ana","joana","sofia","beatriz","carolina","mariana","inês","diana","patrícia","vanessa","sandra","rita","catarina","bruna","daniela","patricia","female","woman"];
     var chosen=null;
@@ -2809,7 +2809,7 @@ function renderAlphabet(){
     var fname=key.toLowerCase().split("/")[0];
     var file="audio/"+fname+".mp3";
     var a=new Audio(file);
-    a.volume=0.95;
+    a.volume=0.95;a.playbackRate=0.75;
     a.play().then(function(){}).catch(function(){speak(fname);});
   });});
 }
