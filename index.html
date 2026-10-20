@@ -42,10 +42,36 @@ nav.tabbar button svg{width:22px;height:22px;stroke:currentColor;fill:none;strok
 nav.tabbar button.on{color:#fff;font-weight:700;background:linear-gradient(135deg,var(--azul),var(--azul-deep));transform:translateY(-3px);box-shadow:0 4px 12px rgba(91,168,119,.35)}
 main{max-width:720px;margin:0 auto;padding:16px 16px 30px}
 @keyframes pageFadeIn {
-  from { opacity: 0; transform: translateY(12px); }
+  from { opacity: 0; transform: translateY(16px); }
   to { opacity: 1; transform: translateY(0); }
 }
-.page-animate { animation: pageFadeIn .35s cubic-bezier(.4,.2,.2,1); }
+.page-animate { animation: pageFadeIn .4s cubic-bezier(.22,1,.36,1); }
+
+/* 微交互：按钮涟漪 */
+@keyframes ripple { to { transform: scale(4); opacity: 0; } }
+.ripple { position: relative; overflow: hidden; }
+.ripple::after { content:""; position: absolute; width: 8px; height: 8px; background: rgba(255,255,255,.4); border-radius: 50%; transform: scale(0); opacity: 1; pointer-events: none; }
+.ripple:active::after { animation: ripple .5s ease-out; }
+
+/* 微交互：列表项滑入 */
+@keyframes listItemIn { from { opacity: 0; transform: translateX(-8px); } to { opacity: 1; transform: translateX(0); } }
+.list-in { animation: listItemIn .3s ease both; }
+.list-in:nth-child(1){animation-delay:.02s} .list-in:nth-child(2){animation-delay:.05s}
+.list-in:nth-child(3){animation-delay:.08s} .list-in:nth-child(4){animation-delay:.11s}
+.list-in:nth-child(5){animation-delay:.14s} .list-in:nth-child(6){animation-delay:.17s}
+.list-in:nth-child(7){animation-delay:.20s} .list-in:nth-child(8){animation-delay:.23s}
+
+/* 微交互：星标弹跳 */
+@keyframes starPop { 0%{transform:scale(1)} 40%{transform:scale(1.4) rotate(15deg)} 70%{transform:scale(.9)} 100%{transform:scale(1)} }
+.star-pop { animation: starPop .4s cubic-bezier(.34,1.56,.64,1); display:inline-block; }
+
+/* 微交互：按钮按压缩放 */
+.btn:active, .catcard:active, .word:active, .tritem:active { transform: scale(.97); }
+
+/* 微交互：成功打勾 */
+@keyframes checkDraw { to { stroke-dashoffset: 0; } }
+@keyframes scaleIn { from { transform: scale(.5); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+.success-pop { animation: scaleIn .35s cubic-bezier(.34,1.56,.64,1); }
 .card{background:var(--card);border:1px solid var(--line-soft);border-radius:24px;padding:20px;box-shadow:0 2px 16px rgba(120,100,70,.06);transition:transform .25s var(--bounce),box-shadow .25s ease,border-color .25s ease;position:relative;overflow:hidden}
 .card:hover{transform:translateY(-2px);box-shadow:0 8px 28px rgba(120,100,70,.1);border-color:var(--line)}
 h2.sect{font-size:17px;font-weight:700;margin:24px 4px 12px;display:flex;align-items:center;gap:10px}
