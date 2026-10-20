@@ -3282,7 +3282,7 @@ var h='';
 if(results.length>0){
   h+='<div class="muted" style="margin-bottom:10px">找到 '+results.length+' 个结果</div><div class="wordlist">';
   results.slice(0,50).forEach(function(w){
-    h+='<div class="word">'+(w.img?'<img class="wimg" src="'+w.img+'" alt="'+w.pt+'">':'<div class="flag">'+w.pt.charAt(0).toUpperCase()+'</div>')+'<div><div class="w-pt">'+w.pt+(w.level?' <span style="font-size:10px;background:var(--azul-light);color:var(--azul-deep);padding:1px 6px;border-radius:8px;font-weight:600">'+w.level+'</span>':'')+'</div><div class="w-cn">'+shortCn(w)+'</div><div class="w-meta" style="font-size:11px;color:var(--mut);margin-top:2px">'+w.pos+' · '+catName(w.cat)+'</span></div>'+(w.ex?'<div style="font-size:12px;color:#888;margin-top:2px;font-family:Lora,serif">'+w.ex+'</div>':'')+'</div><div class="right"><button title="播放发音" data-sp="'+w.pt+'">'+ICONS.sound+'</button><a title="查 infopedia" href="https://www.infopedia.pt/dicionarios/portugues/'+encodeURIComponent(w.pt)+'" target="_blank" rel="noopener" style="text-decoration:none;color:var(--azul-deep);font-size:18px;padding:8px;cursor:pointer">🔗</a></div></div>';
+    h+='<div class="word" data-wdetail="'+w.id+'" style="cursor:pointer">'+(w.img?'<img class="wimg" src="'+w.img+'" alt="'+w.pt+'">':'<div class="flag">'+w.pt.charAt(0).toUpperCase()+'</div>')+'<div><div class="w-pt">'+w.pt+(w.level?' <span style="font-size:10px;background:var(--azul-light);color:var(--azul-deep);padding:1px 6px;border-radius:8px;font-weight:600">'+w.level+'</span>':'')+'</div><div class="w-cn">'+shortCn(w)+'</div><div class="w-meta" style="font-size:11px;color:var(--mut);margin-top:2px">'+w.pos+' · '+catName(w.cat)+'</span></div>'+(w.ex?'<div style="font-size:12px;color:#888;margin-top:2px;font-family:Lora,serif">'+w.ex+'</div>':'')+'</div><div class="right"><button title="播放发音" data-sp="'+w.pt+'">'+ICONS.sound+'</button><a title="查 infopedia" href="https://www.infopedia.pt/dicionarios/portugues/'+encodeURIComponent(w.pt)+'" target="_blank" rel="noopener" style="text-decoration:none;color:var(--azul-deep);font-size:18px;padding:8px;cursor:pointer">🔗</a></div></div>';
   });
   h+='</div>';
 }
@@ -3296,6 +3296,7 @@ if(conjMatches.length>0){
 }
 box.innerHTML=h;
 box.querySelectorAll("[data-sp]").forEach(function(b){b.addEventListener("click",function(){speak(b.getAttribute("data-sp"));});});
+box.querySelectorAll("[data-wdetail]").forEach(function(c){c.addEventListener("click",function(e){if(e.target.closest("button,a"))return;showWordDetail(parseInt(c.getAttribute("data-wdetail")));});});
 box.querySelectorAll("[data-csp]").forEach(function(b){b.addEventListener("click",function(){speak(b.getAttribute("data-csp"));});});
 box.querySelectorAll("[data-dconj]").forEach(function(b){b.addEventListener("click",function(){location.hash="#/verbs";});});
 }
