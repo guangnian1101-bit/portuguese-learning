@@ -213,6 +213,18 @@ input[type=file]{display:none}
 .funccard .fdesc{font-size:11px;color:var(--mut);margin-top:2px}
 #side-overlay{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:998;opacity:0;pointer-events:none;transition:opacity .25s}
 #side-overlay.show{opacity:1;pointer-events:auto}
+/* 单词详情弹窗 */
+#wd-overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:1001;opacity:0;pointer-events:none;transition:opacity .25s;display:flex;align-items:flex-end;justify-content:center}
+#wd-overlay.show{opacity:1;pointer-events:auto}
+#wd-panel{background:var(--card);width:100%;max-width:560px;max-height:85vh;border-radius:24px 24px 0 0;padding:24px 22px 28px;overflow-y:auto;transform:translateY(100%);transition:transform .3s cubic-bezier(.22,1,.36,1)}
+#wd-overlay.show #wd-panel{transform:translateY(0)}
+#wd-close{position:sticky;top:0;float:right;background:var(--azul-light);border:none;width:32px;height:32px;border-radius:50%;cursor:pointer;font-size:16px;color:var(--azul-deep);z-index:2}
+#wd-pt{font-family:Lora,serif;font-size:28px;font-weight:700;color:var(--azul-deep);margin:8px 0 4px;line-height:1.2}
+#wd-tags{display:flex;gap:6px;flex-wrap:wrap;margin:8px 0 14px}
+#wd-tags span{font-size:11px;font-weight:600;padding:2px 10px;border-radius:10px;background:var(--azul-light);color:var(--azul-deep)}
+#wd-cn-full{font-size:15px;line-height:1.7;color:var(--ink);white-space:pre-wrap}
+#wd-actions{display:flex;gap:10px;margin-top:18px;flex-wrap:wrap}
+#wd-actions button{flex:1;min-width:100px;padding:12px;border:none;border-radius:12px;font-size:14px;font-weight:600;cursor:pointer}
 #side-drawer{position:fixed;top:0;left:0;height:100%;width:280px;max-width:82vw;background:#fff;z-index:999;transform:translateX(-105%);transition:transform .28s cubic-bezier(.4,0,.2,1);box-shadow:4px 0 24px rgba(0,0,0,.15);display:flex;flex-direction:column}
 #side-drawer.show{transform:translateX(0)}
 .drawer-head{display:flex;align-items:center;justify-content:space-between;padding:16px 18px;border-bottom:1px solid var(--line);background:linear-gradient(150deg,var(--azul),var(--azul-deep));color:#fff}
@@ -311,6 +323,7 @@ nav.tabbar button{font-size:10.5px}
 <main id="view"></main>
 <nav class="tabbar" id="tabbar"></nav>
 <div id="side-overlay"></div>
+<div id="wd-overlay"><div id="wd-panel"><button id="wd-close">✕</button><div id="wd-pt"></div><div id="wd-tags"></div><div id="wd-cn-full"></div><div id="wd-actions"><button id="wd-sound" style="background:var(--azul-light);color:var(--azul-deep)">🔊 发音</button><button id="wd-star" style="background:var(--azul-light);color:var(--azul-deep)">☆ 收藏</button><button id="wd-infopedia" style="background:var(--azul-light);color:var(--azul-deep)">📖 infopedia</button></div></div></div>
 <aside id="side-drawer" aria-hidden="true">
   <div class="drawer-head"><span>全部功能</span><button id="drawer-close" aria-label="close">X</button></div>
   <div id="drawer-list"></div>
@@ -1796,6 +1809,54 @@ function fallbackTTS(text){
   }catch(e){toast("语音播放失败");}
 }
 function toast(msg){var t=document.getElementById("toast");t.textContent=msg;t.classList.add("show");clearTimeout(t._timer);t._timer=setTimeout(function(){t.classList.remove("show");},1800);}
+/* 提取简短翻译：取第一个；或。之前的部分 */
+function shortCn(w){
+  if(!w||!w.cn) return "";
+  var s=w.cn;
+  // 先按中文分号切
+  var idx=s.indexOf("；");
+  if(idx<0) idx=s.indexOf(";");
+  // 再按中文句号切（但要小心"。"后面还有内容）
+  var idx2=s.indexOf("。");
+  if(idx2>0 && (idx<0 || idx2<idx)) idx=idx2;
+  if(idx>0) s=s.substring(0,idx);
+  // 如果太长（>20字），截断
+  if(s.length>24) s=s.substring(0,24)+"…";
+  return s;
+}
+/* 单词详情弹窗 */
+var _wdCurrent=null;
+function showWordDetail(id){
+  var w=WORDS.find(function(x){return x.id===id;});
+  if(!w) return;
+  _wdCurrent=w;
+  document.getElementById("wd-pt").textContent=w.pt;
+  var tags=[];
+  if(w.level) tags.push(w.level);
+  if(w.pos) tags.push(w.pos);
+  if(w.cat) tags.push(catName(w.cat)||w.cat);
+  document.getElementById("wd-tags").innerHTML=tags.map(function(t){return "<span>"+t+"</span>";}).join("");
+  document.getElementById("wd-cn-full").textContent=w.cn||"";
+  var starBtn=document.getElementById("wd-star");
+  starBtn.textContent=state.starred[w.id]?"⭐ 已收藏":"☆ 收藏";
+  document.getElementById("wd-overlay").classList.add("show");
+}
+function closeWordDetail(){document.getElementById("wd-overlay").classList.remove("show");_wdCurrent=null;}
+document.addEventListener("DOMContentLoaded",function(){
+  var ov=document.getElementById("wd-overlay");
+  document.getElementById("wd-close").addEventListener("click",closeWordDetail);
+  ov.addEventListener("click",function(e){if(e.target===ov)closeWordDetail();});
+  document.getElementById("wd-sound").addEventListener("click",function(){if(_wdCurrent)speak(_wdCurrent.pt);});
+  document.getElementById("wd-star").addEventListener("click",function(){
+    if(!_wdCurrent)return;
+    if(state.starred[_wdCurrent.id]){delete state.starred[_wdCurrent.id];this.textContent="☆ 收藏";toast("已取消收藏");}
+    else{state.starred[_wdCurrent.id]=true;this.textContent="⭐ 已收藏";toast("已加收藏");}
+    save();
+  });
+  document.getElementById("wd-infopedia").addEventListener("click",function(){
+    if(_wdCurrent)window.open("https://www.infopedia.pt/dicionarios/portugues/"+encodeURIComponent(_wdCurrent.pt),"_blank");
+  });
+});
 function shuffle(a){a=a.slice();for(var i=a.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=a[i];a[i]=a[j];a[j]=t;}return a;}
 function weightedPickWords(n,level){
   level=level||"all";
@@ -1943,7 +2004,7 @@ function renderHome(){
   var dueN=0,newN=0;tw.forEach(function(w){if(srsGet(w.id))dueN++;else newN++;});
   if(dueWords.length>0){html+='<div class="card" style="background:linear-gradient(150deg,var(--terra),#c96a3a);color:#fff;border:none;margin-bottom:16px"><div style="font-family:Lora,serif;font-size:17px;font-weight:700">🧠 智能复习 · '+dueWords.length+' 个单词待复习</div><div class="muted" style="color:rgba(255,255,255,.9);font-size:13px;margin:4px 0 10px">这些单词按遗忘曲线今天该复习了，趁还没忘记再巩固一遍。</div><button class="btn" style="background:#fff;color:var(--terra);font-weight:700" data-g="review">开始复习</button></div>';}
   html+='<h2 class="sect">今日必背 · '+tw.length+' 词'+(dueN>0?' · <span style="color:var(--terra)">'+dueN+' 个复习</span>':'')+(newN>0?' · '+newN+' 个新词':'')+'</h2><div class="wordlist">';
-  tw.forEach(function(w){var done=!!state.learned[w.id];var starred=!!state.starred[w.id];html+='<div class="word">'+(w.img?'<img class="wimg" src="'+w.img+'" alt="'+w.pt+'">':'<div class="flag">'+w.pt.charAt(0).toUpperCase()+'</div>')+'<div><div class="w-pt">'+w.pt+(w.level?' <span style="font-size:10px;background:var(--azul-light);color:var(--azul-deep);padding:1px 6px;border-radius:8px;font-weight:600">'+w.level+'</span>':'')+(starred?' <span style="color:#F5A623">⭐</span>':'')+'</div><div class="w-cn">'+w.cn+' · <span class="w-meta">'+w.pos+'</span></div></div><div class="right"><button title="星标收藏" class="'+(starred?'starred':'')+'" data-star="'+w.id+'" style="font-size:16px">'+(starred?'⭐':'☆')+'</button><button title="播放发音" data-sp="'+w.pt+'">'+ICONS.sound+'</button><a title="查 infopedia" href="https://www.infopedia.pt/dicionarios/portugues/'+encodeURIComponent(w.pt)+'" target="_blank" rel="noopener" style="text-decoration:none;color:var(--azul-deep);font-size:18px;padding:8px;cursor:pointer">🔗</a><button title="标记已记" class="'+(done?'learned':'')+'" data-learn="'+w.id+'">'+ICONS.check+'</button></div></div>';});
+  tw.forEach(function(w){var done=!!state.learned[w.id];var starred=!!state.starred[w.id];html+='<div class="word" data-wdetail="'+w.id+'" style="cursor:pointer">'+(w.img?'<img class="wimg" src="'+w.img+'" alt="'+w.pt+'">':'<div class="flag">'+w.pt.charAt(0).toUpperCase()+'</div>')+'<div><div class="w-pt">'+w.pt+(w.level?' <span style="font-size:10px;background:var(--azul-light);color:var(--azul-deep);padding:1px 6px;border-radius:8px;font-weight:600">'+w.level+'</span>':'')+(starred?' <span style="color:#F5A623">⭐</span>':'')+'</div><div class="w-cn">'+shortCn(w)+'</div></div><div class="right"><button title="星标收藏" class="'+(starred?'starred':'')+'" data-star="'+w.id+'" style="font-size:16px">'+(starred?'⭐':'☆')+'</button><button title="播放发音" data-sp="'+w.pt+'">'+ICONS.sound+'</button><a title="查 infopedia" href="https://www.infopedia.pt/dicionarios/portugues/'+encodeURIComponent(w.pt)+'" target="_blank" rel="noopener" style="text-decoration:none;color:var(--azul-deep);font-size:18px;padding:8px;cursor:pointer">🔗</a><button title="标记已记" class="'+(done?'learned':'')+'" data-learn="'+w.id+'">'+ICONS.check+'</button></div></div>';});
   html+='</div>';
   html+='<h2 class="sect">搜索单词</h2><div class="card" style="margin-bottom:16px"><div class="searchbox"><input type="text" id="home-search" placeholder="输入中文或葡语搜索单词…" style="font-size:15px"><button class="btn primary" id="home-search-btn">搜索</button></div><div class="muted" style="margin-top:8px;font-size:12px">支持葡语和中文双向搜索，共 '+WORDS.length+' 词（A1-C2）</div><div id="home-search-results" style="margin-top:12px"></div></div>';
   html+='<h2 class="sect">每日测试</h2><div class="card">';
@@ -1955,6 +2016,7 @@ function renderHome(){
   view.querySelectorAll("[data-sp]").forEach(function(b){b.addEventListener("click",function(){speak(b.getAttribute("data-sp"));});});
   view.querySelectorAll("[data-star]").forEach(function(b){b.addEventListener("click",function(){var id=b.getAttribute("data-star");if(state.starred[id]){delete state.starred[id];b.classList.remove("starred");b.textContent="☆";toast("已取消星标");}else{state.starred[id]=true;b.classList.add("starred");b.textContent="⭐";toast("已加星标");}save();});});
   view.querySelectorAll("[data-learn]").forEach(function(b){b.addEventListener("click",function(){var id=b.getAttribute("data-learn");if(state.learned[id]){delete state.learned[id];b.classList.remove("learned");toast("已取消记住");}else{state.learned[id]=todayStr();b.classList.add("learned");toast("已标记记住");}markActive();save();});});
+  view.querySelectorAll("[data-wdetail]").forEach(function(c){c.addEventListener("click",function(e){if(e.target.closest("button,a"))return;showWordDetail(parseInt(c.getAttribute("data-wdetail")));});});
   var odb=document.getElementById("open-drawer-btn");
   if(odb)odb.addEventListener("click",openDrawer);
   // 首页搜索功能
@@ -1995,7 +2057,7 @@ function renderHome(){
       h+='<div class="muted" style="margin-bottom:8px">找到 '+results.length+' 个结果</div><div class="wordlist">';
       results.slice(0,30).forEach(function(w){
         var starred=!!state.starred[w.id];
-        h+='<div class="word">'+(w.img?'<img class="wimg" src="'+w.img+'" alt="'+w.pt+'">':'<div class="flag">'+w.pt.charAt(0).toUpperCase()+'</div>')+'<div><div class="w-pt">'+w.pt+(w.level?' <span style="font-size:10px;background:var(--azul-light);color:var(--azul-deep);padding:1px 6px;border-radius:8px;font-weight:600">'+w.level+'</span>':'')+(starred?' <span style="color:#F5A623">⭐</span>':'')+'</div><div class="w-cn">'+w.cn+' · <span class="w-meta">'+w.pos+'</span></div>'+(w.ex?'<div style="font-size:12px;color:#888;margin-top:2px;font-family:Lora,serif">'+w.ex+'</div>':'')+'</div><div class="right"><button title="星标收藏" class="'+(starred?'starred':'')+'" data-hstar="'+w.id+'" style="font-size:16px">'+(starred?'⭐':'☆')+'</button><button title="播放发音" data-hsp="'+w.pt+'">'+ICONS.sound+'</button><a title="查 infopedia" href="https://www.infopedia.pt/dicionarios/portugues/'+encodeURIComponent(w.pt)+'" target="_blank" rel="noopener" style="text-decoration:none;color:var(--azul-deep);font-size:18px;padding:8px;cursor:pointer">🔗</a></div></div>';
+        h+='<div class="word">'+(w.img?'<img class="wimg" src="'+w.img+'" alt="'+w.pt+'">':'<div class="flag">'+w.pt.charAt(0).toUpperCase()+'</div>')+'<div><div class="w-pt">'+w.pt+(w.level?' <span style="font-size:10px;background:var(--azul-light);color:var(--azul-deep);padding:1px 6px;border-radius:8px;font-weight:600">'+w.level+'</span>':'')+(starred?' <span style="color:#F5A623">⭐</span>':'')+'</div><div class="w-cn">'+shortCn(w)+'</div><div class="w-meta" style="font-size:11px;color:var(--mut);margin-top:2px">'+w.pos+'</span></div>'+(w.ex?'<div style="font-size:12px;color:#888;margin-top:2px;font-family:Lora,serif">'+w.ex+'</div>':'')+'</div><div class="right"><button title="星标收藏" class="'+(starred?'starred':'')+'" data-hstar="'+w.id+'" style="font-size:16px">'+(starred?'⭐':'☆')+'</button><button title="播放发音" data-hsp="'+w.pt+'">'+ICONS.sound+'</button><a title="查 infopedia" href="https://www.infopedia.pt/dicionarios/portugues/'+encodeURIComponent(w.pt)+'" target="_blank" rel="noopener" style="text-decoration:none;color:var(--azul-deep);font-size:18px;padding:8px;cursor:pointer">🔗</a></div></div>';
       });
       h+='</div>';
       if(results.length>30){h+='<div class="muted" style="text-align:center;margin-top:8px;font-size:12px">仅显示前30条，去字典页面查看全部</div>';}
@@ -2038,23 +2100,14 @@ function renderVocab(){
 function drawVocabCards(){
   var body=document.getElementById("vocab-body");if(!body)return;
   var html='<div class="muted" style="margin:0 4px 10px">随机 8 词，点击卡片看释义</div>';
-  html+='<div class="flipwrap"><div class="flipcard" id="flipcard"><div class="face front" id="f-front"></div><div class="face back"><div class="cn" id="f-cn"></div><div class="pos" id="f-pos"></div><div class="ex" id="f-ex"></div><div class="excn" id="f-excn"></div></div></div></div>';
+  html+='<div class="flipwrap"><div class="flipcard" id="flipcard"><div class="face front" id="f-front"></div><div class="face back"><div class="cn" id="f-cn"></div><div class="pos" id="f-pos"></div><div id="f-detail" style="margin-top:12px;font-size:13px;color:var(--azul);cursor:pointer;text-decoration:underline">查看完整释义 →</div></div></div></div>';
   html+='<div style="display:flex;justify-content:space-between;align-items:center;margin:12px 4px 2px"><span class="muted" id="v-progress"></span><div style="display:flex;gap:8px;align-items:center"><button class="linkbtn" id="v-star" style="font-size:20px" title="星标">☆</button><button class="linkbtn" id="v-sound" title="播放发音" style="font-size:20px">🔊</button></div></div>';
   html+='<div class="row" style="margin-top:6px"><button class="btn ghost grow" id="v-prev" disabled>上一个</button><button class="btn primary grow" id="v-know">记住了</button><button class="btn ghost grow" id="v-forget" style="background:#fff3f3;color:var(--err)">没记住</button><button class="btn ghost grow" id="v-next">下一个</button></div>';
   html+='<div class="row" style="margin-top:8px"><button class="btn terra grow" id="v-done" style="display:none">完成 · 查看本批单词</button><button class="btn ghost grow" id="v-new">再来一轮（全新单词）</button></div>';
   html+='<div id="v-summary" style="display:none;margin-top:14px"></div>';
   body.innerHTML=html;
   var card=document.getElementById("flipcard");
-  var animDir='next';function fill(i,dir){var w=vocabList[i];if(dir)animDir=dir;var front=document.getElementById("f-front");front.innerHTML=(w.img?'<img src="'+w.img+'" alt="'+w.pt+'">':'')+'<div class="pt">'+w.pt+'</div><div class="tip">点击卡片看释义</div>';var cnEl=document.getElementById("f-cn");
-if(w.cn&&w.cn.indexOf("动词")!==-1&&w.cn.indexOf("（")!==-1){
-  var firstParen=w.cn.indexOf("（");
-  var lastParen=w.cn.lastIndexOf("）");
-  var vm=w.cn.substring(0,firstParen);
-  var vt=w.cn.substring(firstParen+1,lastParen>firstParen?lastParen:w.cn.length);
-  cnEl.innerHTML='<div style="font-size:18px;font-weight:600;margin-bottom:10px;line-height:1.4">'+vm+'</div><div style="font-size:12.5px;color:var(--mut);background:rgba(27,94,140,.08);padding:7px 14px;border-radius:10px;display:inline-block;line-height:1.5">'+vt+'</div>';
-}else{
-  cnEl.textContent=w.cn;
-}document.getElementById("f-pos").textContent=w.pos+(w.cat?' · '+catName(w.cat):'');document.getElementById("f-ex").textContent=w.ex?"“"+w.ex+"”":"";document.getElementById("f-excn").textContent=w.excn||"";document.getElementById("v-progress").textContent=(i+1)+" / "+vocabList.length;document.getElementById("v-prev").disabled=i===0;var nextBtn=document.getElementById("v-next");var doneBtn=document.getElementById("v-done");if(i===vocabList.length-1){nextBtn.style.display="none";doneBtn.style.display="";}else{nextBtn.style.display="";doneBtn.style.display="none";}var sb=document.getElementById("v-star");if(sb)sb.textContent=state.starred[w.id]?"⭐":"☆";card.classList.remove("flipped");card.classList.remove("animate-next","animate-prev");void card.offsetWidth;card.classList.add(animDir==='prev'?'animate-prev':'animate-next');}
+  var animDir='next';function fill(i,dir){var w=vocabList[i];if(dir)animDir=dir;var front=document.getElementById("f-front");front.innerHTML=(w.img?'<img src="'+w.img+'" alt="'+w.pt+'">':'')+'<div class="pt">'+w.pt+'</div><div class="tip">点击卡片看翻译</div>';var cnEl=document.getElementById("f-cn");cnEl.innerHTML='<div style="font-size:20px;font-weight:600;line-height:1.4">'+shortCn(w)+'</div>';document.getElementById("f-pos").textContent=w.pos+(w.cat?' · '+catName(w.cat):'');var fd=document.getElementById("f-detail");fd.onclick=function(e){e.stopPropagation();showWordDetail(w.id);};document.getElementById("v-progress").textContent=(i+1)+" / "+vocabList.length;document.getElementById("v-prev").disabled=i===0;var nextBtn=document.getElementById("v-next");var doneBtn=document.getElementById("v-done");if(i===vocabList.length-1){nextBtn.style.display="none";doneBtn.style.display="";}else{nextBtn.style.display="";doneBtn.style.display="none";}var sb=document.getElementById("v-star");if(sb)sb.textContent=state.starred[w.id]?"⭐":"☆";card.classList.remove("flipped");card.classList.remove("animate-next","animate-prev");void card.offsetWidth;card.classList.add(animDir==='prev'?'animate-prev':'animate-next');}
   function showSummary(){var sum=document.getElementById("v-summary");var html='<div class="card" style="padding:14px"><div style="font-weight:700;font-size:15px;margin-bottom:10px">📋 本批 '+vocabList.length+' 个单词</div><div style="display:grid;grid-template-columns:1fr 1fr;gap:6px 14px">';
   vocabList.forEach(function(w,idx){var cnShort=w.cn.split("；")[0].split(";")[0];html+='<div style="display:flex;align-items:baseline;gap:6px;border-bottom:1px dashed rgba(0,0,0,.08);padding:4px 0"><span style="color:var(--mut);font-size:11px;min-width:18px">'+(idx+1)+'.</span><span style="font-weight:600;font-size:13.5px;min-width:90px">'+w.pt+'</span><span style="font-size:12.5px;color:var(--mut)">'+cnShort+'</span></div>';});
   html+='</div></div>';sum.innerHTML=html;sum.style.display="";sum.scrollIntoView({behavior:"smooth",block:"nearest"});}
@@ -2558,7 +2611,7 @@ function renderListen(){
     html+='<div class="wordlist">';
     wordPool.slice(0,200).forEach(function(w){
       var done=!!state.learned[w.id];var starred=!!state.starred[w.id];
-      html+='<div class="word"><div class="flag">'+w.pt.charAt(0).toUpperCase()+'</div><div><div class="w-pt">'+w.pt+(w.level?' <span style="font-size:10px;background:var(--azul-light);color:var(--azul-deep);padding:1px 6px;border-radius:8px;font-weight:600">'+w.level+'</span>':'')+(starred?' <span style="color:#F5A623">⭐</span>':'')+'</div><div class="w-cn">'+w.cn+' · <span class="w-meta">'+w.pos+'</span></div></div><div class="right"><button title="播放发音" data-lwsp="'+w.pt.replace(/"/g,"&quot;")+'">'+ICONS.sound+'</button><a title="查 infopedia" href="https://www.infopedia.pt/dicionarios/portugues/'+encodeURIComponent(w.pt)+'" target="_blank" rel="noopener" style="text-decoration:none;color:var(--azul-deep);font-size:18px;padding:8px;cursor:pointer">🔗</a></div></div>';
+      html+='<div class="word"><div class="flag">'+w.pt.charAt(0).toUpperCase()+'</div><div><div class="w-pt">'+w.pt+(w.level?' <span style="font-size:10px;background:var(--azul-light);color:var(--azul-deep);padding:1px 6px;border-radius:8px;font-weight:600">'+w.level+'</span>':'')+(starred?' <span style="color:#F5A623">⭐</span>':'')+'</div><div class="w-cn">'+shortCn(w)+'</div><div class="w-meta" style="font-size:11px;color:var(--mut);margin-top:2px">'+w.pos+'</span></div></div><div class="right"><button title="播放发音" data-lwsp="'+w.pt.replace(/"/g,"&quot;")+'">'+ICONS.sound+'</button><a title="查 infopedia" href="https://www.infopedia.pt/dicionarios/portugues/'+encodeURIComponent(w.pt)+'" target="_blank" rel="noopener" style="text-decoration:none;color:var(--azul-deep);font-size:18px;padding:8px;cursor:pointer">🔗</a></div></div>';
     });
     if(wordPool.length>200){html+='<div class="muted" style="text-align:center;padding:10px;font-size:12px">共 '+wordPool.length+' 词，仅显示前 200 个。可在首页搜索任意单词。</div>';}
     html+='</div>';
@@ -3055,7 +3108,7 @@ function drawReading(){
   html+='<div id="word-tip" style="display:none;margin:10px 0;padding:10px 14px;background:var(--azul-light);border-radius:10px;font-size:13px"></div>';
   html+='<div id="read-cn-box" style="display:none;margin-top:14px;padding-top:14px;border-top:1px dashed var(--line);font-size:14px;line-height:1.8;color:#555">'+r.cn+'</div>';
   html+='<h3 style="font-size:14px;margin:16px 0 8px;color:var(--azul-deep)">重点词汇（可星标收藏）</h3><div class="wordlist">';
-  r.words.forEach(function(w){var st=state.starred[w.pt]?"⭐":"☆";html+='<div class="word"><div class="flag">'+w.pt.charAt(0).toUpperCase()+'</div><div><div class="w-pt">'+w.pt+'</div><div class="w-cn">'+w.cn+'</div></div><div class="right"><button title="星标收藏" data-rstar="'+w.pt+'" style="font-size:18px;padding:6px 8px;cursor:pointer;background:none;border:none">'+st+'</button><button title="播放发音" data-rwsp="'+w.pt+'">'+ICONS.sound+'</button></div></div>';});
+  r.words.forEach(function(w){var st=state.starred[w.pt]?"⭐":"☆";html+='<div class="word"><div class="flag">'+w.pt.charAt(0).toUpperCase()+'</div><div><div class="w-pt">'+w.pt+'</div><div class="w-cn">'+shortCn(w)+'</div></div><div class="right"><button title="星标收藏" data-rstar="'+w.pt+'" style="font-size:18px;padding:6px 8px;cursor:pointer;background:none;border:none">'+st+'</button><button title="播放发音" data-rwsp="'+w.pt+'">'+ICONS.sound+'</button></div></div>';});
   html+='</div>';
   html+='<h3 style="font-size:14px;margin:16px 0 8px;color:var(--azul-deep)">阅读理解</h3>';
   r.quiz.forEach(function(q,qi){html+='<div style="margin-bottom:14px"><div style="font-size:13px;font-weight:600;margin-bottom:6px">'+(qi+1)+'. '+q.q+'</div><div class="opts" style="margin-top:6px">';q.opts.forEach(function(o,oi){html+='<button class="opt" style="font-size:14px;min-height:44px;padding:10px" data-rq="'+qi+'_'+oi+'">'+o+'</button>';});html+='</div><div class="gq-result" id="rqr_'+qi+'" style="font-size:12px;margin-top:4px"></div></div>';});
@@ -3202,7 +3255,7 @@ var h='';
 if(results.length>0){
   h+='<div class="muted" style="margin-bottom:10px">找到 '+results.length+' 个结果</div><div class="wordlist">';
   results.slice(0,50).forEach(function(w){
-    h+='<div class="word">'+(w.img?'<img class="wimg" src="'+w.img+'" alt="'+w.pt+'">':'<div class="flag">'+w.pt.charAt(0).toUpperCase()+'</div>')+'<div><div class="w-pt">'+w.pt+(w.level?' <span style="font-size:10px;background:var(--azul-light);color:var(--azul-deep);padding:1px 6px;border-radius:8px;font-weight:600">'+w.level+'</span>':'')+'</div><div class="w-cn">'+w.cn+' · <span class="w-meta">'+w.pos+' · '+catName(w.cat)+'</span></div>'+(w.ex?'<div style="font-size:12px;color:#888;margin-top:2px;font-family:Lora,serif">'+w.ex+'</div>':'')+'</div><div class="right"><button title="播放发音" data-sp="'+w.pt+'">'+ICONS.sound+'</button><a title="查 infopedia" href="https://www.infopedia.pt/dicionarios/portugues/'+encodeURIComponent(w.pt)+'" target="_blank" rel="noopener" style="text-decoration:none;color:var(--azul-deep);font-size:18px;padding:8px;cursor:pointer">🔗</a></div></div>';
+    h+='<div class="word">'+(w.img?'<img class="wimg" src="'+w.img+'" alt="'+w.pt+'">':'<div class="flag">'+w.pt.charAt(0).toUpperCase()+'</div>')+'<div><div class="w-pt">'+w.pt+(w.level?' <span style="font-size:10px;background:var(--azul-light);color:var(--azul-deep);padding:1px 6px;border-radius:8px;font-weight:600">'+w.level+'</span>':'')+'</div><div class="w-cn">'+shortCn(w)+'</div><div class="w-meta" style="font-size:11px;color:var(--mut);margin-top:2px">'+w.pos+' · '+catName(w.cat)+'</span></div>'+(w.ex?'<div style="font-size:12px;color:#888;margin-top:2px;font-family:Lora,serif">'+w.ex+'</div>':'')+'</div><div class="right"><button title="播放发音" data-sp="'+w.pt+'">'+ICONS.sound+'</button><a title="查 infopedia" href="https://www.infopedia.pt/dicionarios/portugues/'+encodeURIComponent(w.pt)+'" target="_blank" rel="noopener" style="text-decoration:none;color:var(--azul-deep);font-size:18px;padding:8px;cursor:pointer">🔗</a></div></div>';
   });
   h+='</div>';
 }
@@ -3302,12 +3355,13 @@ function renderCatDetail(catId){
   html+='</div>';
   if(words.length>=4){html+='<div class="modetabs" style="margin-bottom:12px"><button class="modetab '+(catWqType==="choice"?"on":"")+'" data-catwq="choice">选择题</button><button class="modetab '+(catWqType==="spell"?"on":"")+'" data-catwq="spell">拼写题</button><button class="modetab '+(catWqType==="mix"?"on":"")+'" data-catwq="mix">混合</button></div>';}
   html+='<div class="wordlist">';
-  words.forEach(function(w,i){var done=!!state.learned[w.id];var starred=!!state.starred[w.id];html+='<div class="word">'+(w.img?'<img class="wimg" src="'+w.img+'" alt="'+w.pt+'">':'<div class="flag" style="font-size:12px;font-weight:700;min-width:28px">'+(i+1)+'</div>')+'<div><div class="w-pt">'+w.pt+(w.level?' <span style="font-size:10px;background:var(--azul-light);color:var(--azul-deep);padding:1px 6px;border-radius:8px;font-weight:600">'+w.level+'</span>':'')+(starred?' <span style="color:#F5A623">⭐</span>':'')+(done?' <span style="font-size:10px;background:#d4edda;color:#155724;padding:1px 6px;border-radius:8px;font-weight:600">已记住</span>':'')+'</div><div class="w-cn">'+w.cn+' · <span class="w-meta">'+w.pos+'</span></div>'+(w.ex?'<div style="font-size:12px;color:#888;margin-top:2px;font-family:Lora,serif">'+w.ex+'</div>':'')+'</div><div class="right"><button title="星标收藏" class="'+(starred?'starred':'')+'" data-cstar="'+w.id+'" style="font-size:16px">'+(starred?'⭐':'☆')+'</button><button title="播放发音" data-sp="'+w.pt+'">'+ICONS.sound+'</button><a title="查 infopedia" href="https://www.infopedia.pt/dicionarios/portugues/'+encodeURIComponent(w.pt)+'" target="_blank" rel="noopener" style="text-decoration:none;color:var(--azul-deep);font-size:18px;padding:8px;cursor:pointer">🔗</a><button title="标记已记" class="'+(done?'learned':'')+'" data-learn="'+w.id+'">'+ICONS.check+'</button></div></div>';});
+  words.forEach(function(w,i){var done=!!state.learned[w.id];var starred=!!state.starred[w.id];html+='<div class="word">'+(w.img?'<img class="wimg" src="'+w.img+'" alt="'+w.pt+'">':'<div class="flag" style="font-size:12px;font-weight:700;min-width:28px">'+(i+1)+'</div>')+'<div><div class="w-pt">'+w.pt+(w.level?' <span style="font-size:10px;background:var(--azul-light);color:var(--azul-deep);padding:1px 6px;border-radius:8px;font-weight:600">'+w.level+'</span>':'')+(starred?' <span style="color:#F5A623">⭐</span>':'')+(done?' <span style="font-size:10px;background:#d4edda;color:#155724;padding:1px 6px;border-radius:8px;font-weight:600">已记住</span>':'')+'</div><div class="w-cn">'+shortCn(w)+'</div><div class="w-meta" style="font-size:11px;color:var(--mut);margin-top:2px">'+w.pos+'</span></div>'+(w.ex?'<div style="font-size:12px;color:#888;margin-top:2px;font-family:Lora,serif">'+w.ex+'</div>':'')+'</div><div class="right"><button title="星标收藏" class="'+(starred?'starred':'')+'" data-cstar="'+w.id+'" style="font-size:16px">'+(starred?'⭐':'☆')+'</button><button title="播放发音" data-sp="'+w.pt+'">'+ICONS.sound+'</button><a title="查 infopedia" href="https://www.infopedia.pt/dicionarios/portugues/'+encodeURIComponent(w.pt)+'" target="_blank" rel="noopener" style="text-decoration:none;color:var(--azul-deep);font-size:18px;padding:8px;cursor:pointer">🔗</a><button title="标记已记" class="'+(done?'learned':'')+'" data-learn="'+w.id+'">'+ICONS.check+'</button></div></div>';});
   html+='</div></section>';view.innerHTML=html;
   view.querySelectorAll("[data-g]").forEach(function(b){b.addEventListener("click",function(){catMode="browse";location.hash="#/"+b.getAttribute("data-g");});});
   view.querySelectorAll("[data-catwq]").forEach(function(b){b.addEventListener("click",function(){catWqType=b.getAttribute("data-catwq");view.querySelectorAll("[data-catwq]").forEach(function(x){x.classList.toggle("on",x.getAttribute("data-catwq")===catWqType);});});});
   view.querySelectorAll("[data-sp]").forEach(function(b){b.addEventListener("click",function(){speak(b.getAttribute("data-sp"));});});
   view.querySelectorAll("[data-learn]").forEach(function(b){b.addEventListener("click",function(){var id=b.getAttribute("data-learn");if(state.learned[id]){delete state.learned[id];b.classList.remove("learned");toast("已取消记住");}else{state.learned[id]=todayStr();b.classList.add("learned");toast("已标记记住");}markActive();save();});});
+  view.querySelectorAll("[data-wdetail]").forEach(function(c){c.addEventListener("click",function(e){if(e.target.closest("button,a"))return;showWordDetail(parseInt(c.getAttribute("data-wdetail")));});});
   view.querySelectorAll("[data-cstar]").forEach(function(b){b.addEventListener("click",function(){var id=b.getAttribute("data-cstar");if(state.starred[id]){delete state.starred[id];b.classList.remove("starred");b.textContent="☆";toast("已取消星标");}else{state.starred[id]=true;b.classList.add("starred");b.textContent="⭐";toast("已加星标");}save();});});
   var qs=document.getElementById("cat-quiz-start");if(qs)qs.addEventListener("click",function(){buildCatQuiz(words,Math.min(8,words.length));catMode="quiz";drawCatQuiz(cat,words);});
 }
@@ -3685,7 +3739,7 @@ function drawReviewResult(){
   html+='<h2 class="sect">本轮复习回顾</h2><div class="wordlist">';
   rvList.forEach(function(w,i){
     var starred=!!state.starred[w.id];
-    html+='<div class="word"><div class="flag">'+(i+1)+'</div><div><div class="w-pt">'+w.pt+(starred?' <span style="color:#F5A623">⭐</span>':'')+'</div><div class="w-cn">'+w.cn+' · <span class="w-meta">'+w.pos+'</span></div></div><div class="right"><button title="星标" class="'+(starred?'starred':'')+'" data-rvstar="'+w.id+'" style="font-size:16px">'+(starred?'⭐':'☆')+'</button><button title="播放发音" data-rvsp="'+w.pt+'">'+ICONS.sound+'</button></div></div>';
+    html+='<div class="word"><div class="flag">'+(i+1)+'</div><div><div class="w-pt">'+w.pt+(starred?' <span style="color:#F5A623">⭐</span>':'')+'</div><div class="w-cn">'+shortCn(w)+'</div><div class="w-meta" style="font-size:11px;color:var(--mut);margin-top:2px">'+w.pos+'</span></div></div><div class="right"><button title="星标" class="'+(starred?'starred':'')+'" data-rvstar="'+w.id+'" style="font-size:16px">'+(starred?'⭐':'☆')+'</button><button title="播放发音" data-rvsp="'+w.pt+'">'+ICONS.sound+'</button></div></div>';
   });
   html+='</div></section>';
   view.innerHTML=html;
@@ -3707,7 +3761,7 @@ function renderWrongs(){
     html+='<div class="wordlist">';
     list.forEach(function(it){
       var w=it.w,wn=it.wrong;
-      html+='<div class="word">'+(w.img?'<img class="wimg" src="'+w.img+'" alt="'+w.pt+'">':'<div class="flag">'+w.pt.charAt(0).toUpperCase()+'</div>')+'<div><div class="w-pt">'+w.pt+(w.level?' <span style="font-size:10px;background:var(--azul-light);color:var(--azul-deep);padding:1px 6px;border-radius:8px;font-weight:600">'+w.level+'</span>':'')+' <span style="font-size:10px;background:#ffe3e3;color:#C0392B;padding:1px 6px;border-radius:8px;font-weight:600">错 '+wn.t+' 次</span></div><div class="w-cn">'+w.cn+' · <span class="w-meta">'+w.pos+' · '+catName(w.cat)+'</span></div><div class="muted" style="font-size:11px;margin-top:2px">最近出错 '+wn.last+'</div></div><div class="right"><button title="播放发音" data-wsp="'+w.pt+'">'+ICONS.sound+'</button><button title="标记记住并移出" data-wknow="'+w.id+'" style="font-size:16px">✓</button><button title="移出错词本" data-wrm="'+w.id+'" style="font-size:14px;color:var(--err)">✕</button></div></div>';
+      html+='<div class="word">'+(w.img?'<img class="wimg" src="'+w.img+'" alt="'+w.pt+'">':'<div class="flag">'+w.pt.charAt(0).toUpperCase()+'</div>')+'<div><div class="w-pt">'+w.pt+(w.level?' <span style="font-size:10px;background:var(--azul-light);color:var(--azul-deep);padding:1px 6px;border-radius:8px;font-weight:600">'+w.level+'</span>':'')+' <span style="font-size:10px;background:#ffe3e3;color:#C0392B;padding:1px 6px;border-radius:8px;font-weight:600">错 '+wn.t+' 次</span></div><div class="w-cn">'+shortCn(w)+'</div><div class="w-meta" style="font-size:11px;color:var(--mut);margin-top:2px">'+w.pos+' · '+catName(w.cat)+'</span></div><div class="muted" style="font-size:11px;margin-top:2px">最近出错 '+wn.last+'</div></div><div class="right"><button title="播放发音" data-wsp="'+w.pt+'">'+ICONS.sound+'</button><button title="标记记住并移出" data-wknow="'+w.id+'" style="font-size:16px">✓</button><button title="移出错词本" data-wrm="'+w.id+'" style="font-size:14px;color:var(--err)">✕</button></div></div>';
     });
     html+='</div>';
   }
@@ -3795,7 +3849,7 @@ function renderMore(){
       html+='<div class="card" style="margin-bottom:14px"><div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px"><div><b style="font-size:15px;color:var(--azul-deep)">⭐ 标星单词测试</b><div class="muted" style="font-size:12px;margin-top:2px">从 '+starredCount+' 个标星单词中随机抽 '+Math.min(20,starredCount)+' 题，选择/拼写/听力混合</div></div><button class="btn terra" id="star-quiz-start" style="min-height:44px">开始测试（'+Math.min(20,starredCount)+'题）</button></div></div>';
       html+='<div class="wordlist">';
       var starredWords=WORDS.filter(function(w){return state.starred[w.id];});
-      starredWords.forEach(function(w){html+='<div class="word">'+(w.img?'<img class="wimg" src="'+w.img+'" alt="'+w.pt+'">':'<div class="flag">'+w.pt.charAt(0).toUpperCase()+'</div>')+'<div><div class="w-pt">'+w.pt+(w.level?' <span style="font-size:10px;background:var(--azul-light);color:var(--azul-deep);padding:1px 6px;border-radius:8px;font-weight:600">'+w.level+'</span>':'')+' <span style="color:#F5A623">⭐</span></div><div class="w-cn">'+w.cn+' · <span class="w-meta">'+w.pos+' · '+catName(w.cat)+'</span></div></div><div class="right"><button title="播放发音" data-msp="'+w.pt+'">'+ICONS.sound+'</button><button title="取消星标" class="starred" data-mstar="'+w.id+'" style="font-size:16px">⭐</button></div></div>';});
+      starredWords.forEach(function(w){html+='<div class="word">'+(w.img?'<img class="wimg" src="'+w.img+'" alt="'+w.pt+'">':'<div class="flag">'+w.pt.charAt(0).toUpperCase()+'</div>')+'<div><div class="w-pt">'+w.pt+(w.level?' <span style="font-size:10px;background:var(--azul-light);color:var(--azul-deep);padding:1px 6px;border-radius:8px;font-weight:600">'+w.level+'</span>':'')+' <span style="color:#F5A623">⭐</span></div><div class="w-cn">'+shortCn(w)+'</div><div class="w-meta" style="font-size:11px;color:var(--mut);margin-top:2px">'+w.pos+' · '+catName(w.cat)+'</span></div></div><div class="right"><button title="播放发音" data-msp="'+w.pt+'">'+ICONS.sound+'</button><button title="取消星标" class="starred" data-mstar="'+w.id+'" style="font-size:16px">⭐</button></div></div>';});
       html+='</div>';
     }
   } else {
@@ -3810,7 +3864,7 @@ function renderMore(){
       learnedWords.forEach(function(w){
         var isLearned=!!state.learned[w.id];
         var isStarred=!!state.starred[w.id];
-        html+='<div class="word">'+(w.img?'<img class="wimg" src="'+w.img+'" alt="'+w.pt+'">':'<div class="flag">'+w.pt.charAt(0).toUpperCase()+'</div>')+'<div><div class="w-pt">'+w.pt+(w.level?' <span style="font-size:10px;background:var(--azul-light);color:var(--azul-deep);padding:1px 6px;border-radius:8px;font-weight:600">'+w.level+'</span>':'')+(isStarred?' <span style="color:#F5A623">⭐</span>':'')+(isLearned?' <span style="font-size:10px;background:#d4edda;color:#155724;padding:1px 6px;border-radius:8px;font-weight:600">已记住</span>':'')+'</div><div class="w-cn">'+w.cn+' · <span class="w-meta">'+w.pos+' · '+catName(w.cat)+'</span></div></div><div class="right"><button title="播放发音" data-mlsp="'+w.pt+'">'+ICONS.sound+'</button><button title="取消已学" data-mlearn="'+w.id+'" style="font-size:13px;color:var(--mut);padding:6px 10px;cursor:pointer;background:none;border:none">取消</button></div></div>';
+        html+='<div class="word">'+(w.img?'<img class="wimg" src="'+w.img+'" alt="'+w.pt+'">':'<div class="flag">'+w.pt.charAt(0).toUpperCase()+'</div>')+'<div><div class="w-pt">'+w.pt+(w.level?' <span style="font-size:10px;background:var(--azul-light);color:var(--azul-deep);padding:1px 6px;border-radius:8px;font-weight:600">'+w.level+'</span>':'')+(isStarred?' <span style="color:#F5A623">⭐</span>':'')+(isLearned?' <span style="font-size:10px;background:#d4edda;color:#155724;padding:1px 6px;border-radius:8px;font-weight:600">已记住</span>':'')+'</div><div class="w-cn">'+shortCn(w)+'</div><div class="w-meta" style="font-size:11px;color:var(--mut);margin-top:2px">'+w.pos+' · '+catName(w.cat)+'</span></div></div><div class="right"><button title="播放发音" data-mlsp="'+w.pt+'">'+ICONS.sound+'</button><button title="取消已学" data-mlearn="'+w.id+'" style="font-size:13px;color:var(--mut);padding:6px 10px;cursor:pointer;background:none;border:none">取消</button></div></div>';
       });
       html+='</div>';
     }
