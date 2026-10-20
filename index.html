@@ -1826,6 +1826,28 @@ function shortCn(w){
 }
 /* 单词详情弹窗 */
 var _wdCurrent=null;
+function splitCn(cn){
+  if(!cn) return {trans:"",def:"",coll:""};
+  var s=cn;
+  // 找"常用搭配"位置
+  var collIdx=s.indexOf("常用搭配");
+  var coll="";
+  if(collIdx>-1){
+    coll=s.substring(collIdx+4).replace(/^[：:]/,"").trim();
+    s=s.substring(0,collIdx).trim();
+  }
+  // 按第一个；拆分翻译和释义
+  var semiIdx=s.indexOf("；");
+  if(semiIdx<0) semiIdx=s.indexOf(";");
+  var trans="",def="";
+  if(semiIdx>-1){
+    trans=s.substring(0,semiIdx).trim();
+    def=s.substring(semiIdx+1).trim();
+  }else{
+    trans=s.trim();
+  }
+  return {trans:trans,def:def,coll:coll};
+}
 function showWordDetail(id){
   var w=WORDS.find(function(x){return x.id===id;});
   if(!w) return;
@@ -1836,7 +1858,12 @@ function showWordDetail(id){
   if(w.pos) tags.push(w.pos);
   if(w.cat) tags.push(catName(w.cat)||w.cat);
   document.getElementById("wd-tags").innerHTML=tags.map(function(t){return "<span>"+t+"</span>";}).join("");
-  document.getElementById("wd-cn-full").textContent=w.cn||"";
+  var parts=splitCn(w.cn||"");
+  var html="";
+  if(parts.trans) html+='<div style="margin-bottom:10px"><div style="font-size:11px;color:var(--mut);font-weight:600;margin-bottom:3px">翻译</div><div style="font-size:16px;font-weight:600;line-height:1.5">'+parts.trans+'</div></div>';
+  if(parts.def) html+='<div style="margin-bottom:10px"><div style="font-size:11px;color:var(--mut);font-weight:600;margin-bottom:3px">释义</div><div style="font-size:14px;line-height:1.6">'+parts.def+'</div></div>';
+  if(parts.coll) html+='<div style="margin-bottom:10px"><div style="font-size:11px;color:var(--mut);font-weight:600;margin-bottom:3px">常用搭配</div><div style="font-size:13.5px;line-height:1.6;color:var(--azul-deep);background:rgba(62,44,28,.04);padding:10px 12px;border-radius:10px">'+parts.coll+'</div></div>';
+  document.getElementById("wd-cn-full").innerHTML=html;
   var starBtn=document.getElementById("wd-star");
   starBtn.textContent=state.starred[w.id]?"⭐ 已收藏":"☆ 收藏";
   document.getElementById("wd-overlay").classList.add("show");
