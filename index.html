@@ -14,13 +14,13 @@
 <link rel="icon" type="image/png" sizes="512x512" href="./icon-512.png">
 <link rel="stylesheet" href="https://miaoda.feishu.cn/fonts/css2?family=Noto+Sans+SC:wght@400;500;700&family=Lora:wght@500;600;700&display=swap">
 <style>
-:root{--azul:#5BA877;--azul-deep:#4A9065;--azul-light:#E8F5E9;--tile:#FFF8E7;--card:#FFFFFF;--terra:#E8A87C;--terra-deep:#D48B5F;--sea:#7FB8A0;--sea-deep:#5FA085;--lilac:#B39DDB;--pink:#F48FB1;--yellow:#FFD54F;--green:#66BB6A;--line:#E8DDC8;--line-soft:#F5EBD8;--ink:#3D405B;--mut:#8D99AE;--ok:#5BA877;--err:#E57373;--shadow:0 4px 20px rgba(120,100,70,.08);--shadow-lg:0 8px 30px rgba(120,100,70,.12);--radius:24px;--radius-sm:16px;--bounce:cubic-bezier(.34,1.56,.64,1)}
+:root{--azul:#3E2C1C;--azul-deep:#2A1D12;--azul-light:#F0EBE3;--tile:#F5F1EB;--card:#FFFFFF;--terra:#C4956A;--terra-deep:#A87B50;--sea:#7A8471;--sea-deep:#5C6655;--lilac:#8B7355;--pink:#B8956E;--yellow:#C4A265;--green:#6B8E5A;--line:#E0D8CC;--line-soft:#EDE6DA;--ink:#2D2A26;--mut:#8A8278;--ok:#6B8E5A;--err:#B85C4A;--shadow:0 2px 12px rgba(60,45,30,.06);--shadow-lg:0 6px 24px rgba(60,45,30,.1);--radius:20px;--radius-sm:14px;--bounce:cubic-bezier(.34,1.56,.64,1)}
 *{box-sizing:border-box;margin:0;padding:0}
 html{-webkit-text-size-adjust:100%;-moz-text-size-adjust:100%;text-size-adjust:100%}
 input,select,textarea{font-size:16px}
-body{font-family:'Noto Sans SC','PingFang SC','Segoe UI',Arial,sans-serif;background:linear-gradient(160deg,#FFF8E7 0%,#FFEFD5 40%,#FFE8D6 100%);color:var(--ink);line-height:1.6;padding-bottom:90px;min-height:100vh;position:relative;overflow-x:hidden}
-body::before{content:"";position:fixed;top:-120px;right:-100px;width:420px;height:420px;background:radial-gradient(circle,rgba(232,168,124,.10),transparent 65%);border-radius:50%;pointer-events:none;z-index:0}
-body::after{content:"";position:fixed;bottom:-80px;left:-100px;width:460px;height:460px;background:radial-gradient(circle,rgba(127,184,160,.10),transparent 65%);border-radius:50%;pointer-events:none;z-index:0}
+body{font-family:'Noto Sans SC','PingFang SC','Segoe UI',Arial,sans-serif;background:linear-gradient(160deg,#F5F1EB 0%,#EFE9DF 100%);color:var(--ink);line-height:1.6;padding-bottom:90px;min-height:100vh;position:relative;overflow-x:hidden}
+body::before{content:"";position:fixed;top:-120px;right:-100px;width:420px;height:420px;background:radial-gradient(circle,rgba(196,149,106,.08),transparent 65%);border-radius:50%;pointer-events:none;z-index:0}
+body::after{content:"";position:fixed;bottom:-80px;left:-100px;width:460px;height:460px;background:radial-gradient(circle,rgba(122,132,113,.08),transparent 65%);border-radius:50%;pointer-events:none;z-index:0}
 body .bg-wave{position:fixed;left:0;right:0;pointer-events:none;z-index:0}
 body .bg-wave.top{top:0;height:140px;background:linear-gradient(180deg,rgba(255,255,255,.35),transparent)}
 body .bg-wave.bottom{bottom:0;height:160px;background:linear-gradient(0deg,rgba(255,255,255,.3),transparent)}
@@ -155,9 +155,9 @@ h2.sect::before{content:"";width:6px;height:20px;background:linear-gradient(180d
 .modetab{flex:1;padding:10px;border:none;background:transparent;cursor:pointer;font-size:14px;font-family:inherit;font-weight:500;color:var(--mut);border-radius:9px;min-height:42px}
 .modetab.on{background:var(--azul);color:#fff;font-weight:700}
 .catgrid{display:grid;grid-template-columns:1fr;gap:14px}
-.catcard{background:var(--azul-light);border:1px solid rgba(91,168,119,.15);border-radius:20px;padding:18px 20px;cursor:pointer;display:flex;align-items:center;gap:16px;transition:transform .18s var(--bounce),box-shadow .18s ease}
+.catcard{background:var(--azul-light);border:1px solid rgba(62,44,28,.08);border-radius:20px;padding:18px 20px;cursor:pointer;display:flex;align-items:center;gap:16px;transition:transform .18s var(--bounce),box-shadow .18s ease}
 .catcard:active{transform:scale(.98)}
-.catcard .cicon{width:52px;height:52px;flex:none;background:var(--azul);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:26px;box-shadow:0 4px 12px rgba(91,168,119,.3)}
+.catcard .cicon{width:52px;height:52px;flex:none;background:var(--azul);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:26px;box-shadow:0 4px 12px rgba(62,44,28,.2)}
 .catcard .cname{font-size:17px;font-weight:700;color:var(--azul-deep)}
 .catcard .ccount{font-size:13px;color:var(--mut);margin-top:2px}
 .searchbox{display:flex;gap:8px;margin-bottom:14px}
