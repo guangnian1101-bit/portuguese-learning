@@ -1,6 +1,6 @@
 /* 学葡语 · Aprender Português — Service Worker
    预缓存外壳资源；运行时按需缓存音频，支持离线重播。 */
-var CACHE = 'pt-learn-v13';
+var CACHE = 'pt-learn-v14';
 var PRECACHE = ['./', './index.html', './manifest.webmanifest', './icon-192.png', './icon-512.png', './icon-maskable-512.png'];
 
 self.addEventListener('install', function (e) {
