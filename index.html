@@ -181,7 +181,8 @@ h2.sect::before{content:"";width:6px;height:20px;background:linear-gradient(180d
 .word .right{margin-left:auto;display:flex;gap:var(--space-2);align-items:center;flex:none}
 .word .right button{border:none;background:var(--tile);color:var(--azul);border-radius:var(--radius-xs);width:40px;height:40px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s ease}
 .word .right button:hover{background:var(--azul);color:#fff;transform:scale(1.08)}
-.word .right button svg{width:19px;height:19px;stroke:currentColor;fill:none;stroke-width:1.8}
+.word .right button svg{width:19px;height:19px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.word .right button.learned svg,.word .right button.starred svg{fill:currentColor;stroke:none}
 .word .right button.learned{background:rgba(62,142,65,.12);color:var(--ok)}
 .word .right button.learned svg{fill:currentColor}
 .word img.wimg{width:44px;height:44px;border-radius:10px;object-fit:cover;flex:none}
