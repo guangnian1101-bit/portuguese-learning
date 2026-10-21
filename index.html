@@ -144,7 +144,8 @@ body { padding-bottom: calc(90px + env(safe-area-inset-bottom)); }
 .star-pop { animation: starPop .4s cubic-bezier(.34,1.56,.64,1); display:inline-block; }
 
 /* 微交互：按钮按压缩放 */
-.btn:active, .catcard:active, .word:active, .tritem:active { transform: scale(.97); }
+.word { transition: transform .2s cubic-bezier(.34,1.56,.64,1); }
+.word:active { transform: scale(1.05); transition-duration: .05s; }
 
 /* 微交互：成功打勾 */
 @keyframes checkDraw { to { stroke-dashoffset: 0; } }
