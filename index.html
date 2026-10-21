@@ -68,6 +68,12 @@ main{max-width:720px;margin:0 auto;padding:16px 16px 30px}
 .star-pop { animation: starPop .4s cubic-bezier(.22,.9,.28,1); display:inline-block; }
 /* 底部导航滑动切换 */
 .tabbar { transition: transform .3s cubic-bezier(.22,.9,.28,1); }
+/* 水波涟漪效果 */
+.ripple-btn { position:relative; overflow:hidden; }
+.ripple-btn .ripple { position:absolute; border-radius:50%; background:rgba(62,44,28,.15); transform:scale(0); animation:rippleAnim .6s ease-out forwards; pointer-events:none; }
+@keyframes rippleAnim { to { transform:scale(4); opacity:0; } }
+.flipcard { position:relative; overflow:hidden; }
+.flipcard .ripple { position:absolute; border-radius:50%; background:rgba(62,44,28,.12); transform:scale(0); animation:rippleAnim .7s ease-out forwards; pointer-events:none; }
 /* 安全区域 */
 body { padding-bottom: calc(90px + env(safe-area-inset-bottom)); }
 
@@ -2210,7 +2216,10 @@ function drawVocabCards(){
   vocabList.forEach(function(w,idx){var cnShort=w.cn.split("；")[0].split(";")[0];html+='<div style="display:flex;align-items:baseline;gap:6px;border-bottom:1px dashed rgba(0,0,0,.08);padding:4px 0"><span style="color:var(--mut);font-size:11px;min-width:18px">'+(idx+1)+'.</span><span style="font-weight:600;font-size:13.5px;min-width:90px">'+w.pt+'</span><span style="font-size:12.5px;color:var(--mut)">'+cnShort+'</span></div>';});
   html+='</div></div>';sum.innerHTML=html;sum.style.display="";sum.scrollIntoView({behavior:"smooth",block:"nearest"});}
   fill(0);
-  card.addEventListener("click",function(){card.classList.toggle("flipped");});
+  card.addEventListener("click",function(e){card.classList.toggle("flipped");
+    // 水波涟漪效果
+    var rect=card.getBoundingClientRect();var x=e.clientX-rect.left;var y=e.clientY-rect.top;var r=document.createElement("span");r.className="ripple";var size=Math.max(rect.width,rect.height);r.style.width=r.style.height=size+"px";r.style.left=(x-size/2)+"px";r.style.top=(y-size/2)+"px";card.appendChild(r);setTimeout(function(){r.remove();},700);
+  });
   // 触摸滑动切换卡片
   var touchStartX=0,touchStartY=0,touching=false;
   card.addEventListener("touchstart",function(e){touchStartX=e.touches[0].clientX;touchStartY=e.touches[0].clientY;touching=true;},{passive:true});
