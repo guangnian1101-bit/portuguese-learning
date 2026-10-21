@@ -69,11 +69,8 @@ main{max-width:720px;margin:0 auto;padding:16px 16px 30px}
 /* 底部导航滑动切换 */
 .tabbar { transition: transform .3s cubic-bezier(.22,.9,.28,1); }
 /* 水波涟漪效果 */
-.ripple-btn { position:relative; overflow:hidden; }
-.ripple-btn .ripple { position:absolute; border-radius:50%; background:rgba(62,44,28,.15); transform:scale(0); animation:rippleAnim .6s ease-out forwards; pointer-events:none; }
-@keyframes rippleAnim { to { transform:scale(4); opacity:0; } }
-.flipcard { position:relative; overflow:hidden; }
-.flipcard .ripple { position:absolute; border-radius:50%; background:rgba(62,44,28,.12); transform:scale(0); animation:rippleAnim .7s ease-out forwards; pointer-events:none; }
+.ripple-anim { position: absolute; border-radius: 50%; background: rgba(62,44,28,.15); transform: scale(0); animation: rippleAnim .6s ease-out forwards; pointer-events: none; }
+@keyframes rippleAnim { to { transform: scale(2); opacity: 0; } }
 /* 图标按钮高级交互 - 只影响新icon-btn类，不影响原有单词按钮 */
 .icon-btn { width:36px; height:36px; display:inline-flex; align-items:center; justify-content:center; border:none; background:transparent; cursor:pointer; border-radius:10px; transition:all .3s cubic-bezier(.34,1.56,.64,1); color:var(--mut); padding:0; }
 .icon-btn:hover { background:var(--azul-light); transform:scale(1.08); }
@@ -2154,7 +2151,7 @@ function renderHome(){
   view.querySelectorAll("[data-learn]").forEach(function(b){b.addEventListener("click",function(){var id=b.getAttribute("data-learn");if(state.learned[id]){delete state.learned[id];b.classList.remove("learned");b.innerHTML=ICONS.check;toast("已取消记住");}else{state.learned[id]=todayStr();b.classList.add("learned");b.innerHTML='<svg viewBox="0 0 24 24" style="color:#52C41A"><path class="check-draw" d="M5 12l5 5L20 7" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>';toast("已标记记住");}markActive();save();});});
   view.querySelectorAll("[data-wdetail]").forEach(function(c){c.addEventListener("click",function(e){
     if(e.target.closest("button,a"))return;
-    var rect=c.getBoundingClientRect();var x=e.clientX-rect.left;var y=e.clientY-rect.top;var r=document.createElement("span");r.className="ripple";var size=Math.max(rect.width,rect.height);r.style.width=r.style.height=size+"px";r.style.left=(x-size/2)+"px";r.style.top=(y-size/2)+"px";c.appendChild(r);setTimeout(function(){r.remove();},600);
+    var rect=c.getBoundingClientRect();var x=e.clientX-rect.left;var y=e.clientY-rect.top;var r=document.createElement("span");r.className="ripple-anim";var size=Math.max(rect.width,rect.height);r.style.width=r.style.height=size+"px";r.style.left=(x-size/2)+"px";r.style.top=(y-size/2)+"px";c.appendChild(r);setTimeout(function(){r.remove();},600);
     showWordDetail(parseInt(c.getAttribute("data-wdetail")));
   });});
   var odb=document.getElementById("open-drawer-btn");
@@ -3509,7 +3506,7 @@ function renderCatDetail(catId){
   view.querySelectorAll("[data-learn]").forEach(function(b){b.addEventListener("click",function(){var id=b.getAttribute("data-learn");if(state.learned[id]){delete state.learned[id];b.classList.remove("learned");b.innerHTML=ICONS.check;toast("已取消记住");}else{state.learned[id]=todayStr();b.classList.add("learned");b.innerHTML='<svg viewBox="0 0 24 24" style="color:#52C41A"><path class="check-draw" d="M5 12l5 5L20 7" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>';toast("已标记记住");}markActive();save();});});
   view.querySelectorAll("[data-wdetail]").forEach(function(c){c.addEventListener("click",function(e){
     if(e.target.closest("button,a"))return;
-    var rect=c.getBoundingClientRect();var x=e.clientX-rect.left;var y=e.clientY-rect.top;var r=document.createElement("span");r.className="ripple";var size=Math.max(rect.width,rect.height);r.style.width=r.style.height=size+"px";r.style.left=(x-size/2)+"px";r.style.top=(y-size/2)+"px";c.appendChild(r);setTimeout(function(){r.remove();},600);
+    var rect=c.getBoundingClientRect();var x=e.clientX-rect.left;var y=e.clientY-rect.top;var r=document.createElement("span");r.className="ripple-anim";var size=Math.max(rect.width,rect.height);r.style.width=r.style.height=size+"px";r.style.left=(x-size/2)+"px";r.style.top=(y-size/2)+"px";c.appendChild(r);setTimeout(function(){r.remove();},600);
     showWordDetail(parseInt(c.getAttribute("data-wdetail")));
   });});
   view.querySelectorAll("[data-cstar]").forEach(function(b){b.addEventListener("click",function(){var id=b.getAttribute("data-cstar");if(state.starred[id]){delete state.starred[id];b.classList.remove("starred");b.textContent="☆";toast("已取消星标");}else{state.starred[id]=true;b.classList.add("starred");b.textContent="⭐";toast("已加星标");}save();});});
