@@ -2237,7 +2237,7 @@ function drawVocabCards(){
   // 触摸滑动切换卡片
   var touchStartX=0,touchStartY=0,touching=false;
   card.addEventListener("touchstart",function(e){touchStartX=e.touches[0].clientX;touchStartY=e.touches[0].clientY;touching=true;},{passive:true});
-  card.addEventListener("touchend",function(e){if(!touching)return;touching=false;var dx=e.changedTouches[0].clientX-touchStartX;var dy=e.changedTouches[0].clientY-touchStartY;if(Math.abs(dx)>60&&Math.abs(dx)>Math.abs(dy)*1.5){if(dx<0){if(vocabIdx<vocabList.length-1){vocabIdx++;fill(vocabIdx,'next');}}else{if(vocabIdx>0){vocabIdx--;fill(vocabIdx,'prev');}}}},{passive:true});
+  card.addEventListener("touchend",function(e){if(!touching)return;touching=false;var dx=e.changedTouches[0].clientX-touchStartX;var dy=e.changedTouches[0].clientY-touchStartY;if(Math.abs(dx)>40&&Math.abs(dx)>Math.abs(dy)*1.5){if(dx<0){if(vocabIdx<vocabList.length-1){vocabIdx++;fill(vocabIdx,'next');}}else{if(vocabIdx>0){vocabIdx--;fill(vocabIdx,'prev');}}}},{passive:true});
   document.getElementById("v-sound").addEventListener("click",function(){speak(vocabList[vocabIdx].pt);});
   document.getElementById("v-star").addEventListener("click",function(){var w=vocabList[vocabIdx];if(state.starred[w.id]){delete state.starred[w.id];toast("已取消星标");}else{state.starred[w.id]=true;toast("已加星标");}save();fill(vocabIdx);});
   document.getElementById("v-prev").addEventListener("click",function(){if(vocabIdx>0){vocabIdx--;fill(vocabIdx,'prev');}});
