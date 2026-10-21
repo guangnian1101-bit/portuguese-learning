@@ -74,11 +74,11 @@ main{max-width:720px;margin:0 auto;padding:16px 16px 30px}
 @keyframes rippleAnim { to { transform:scale(4); opacity:0; } }
 .flipcard { position:relative; overflow:hidden; }
 .flipcard .ripple { position:absolute; border-radius:50%; background:rgba(62,44,28,.12); transform:scale(0); animation:rippleAnim .7s ease-out forwards; pointer-events:none; }
-/* 图标按钮高级交互 */
-.icon-btn, .word .right button, .word .right a { width:36px; height:36px; display:inline-flex; align-items:center; justify-content:center; border:none; background:transparent; cursor:pointer; border-radius:10px; transition:all .3s cubic-bezier(.34,1.56,.64,1); color:var(--mut); padding:0; }
-.icon-btn:hover, .word .right button:hover, .word .right a:hover { background:var(--azul-light); transform:scale(1.08); }
-.icon-btn:active, .word .right button:active, .word .right a:active { transform:scale(.85); transition-duration:.1s; }
-.icon-btn svg, .word .right svg { width:20px; height:20px; transition:all .3s cubic-bezier(.34,1.56,.64,1); }
+/* 图标按钮高级交互 - 只影响新icon-btn类，不影响原有单词按钮 */
+.icon-btn { width:36px; height:36px; display:inline-flex; align-items:center; justify-content:center; border:none; background:transparent; cursor:pointer; border-radius:10px; transition:all .3s cubic-bezier(.34,1.56,.64,1); color:var(--mut); padding:0; }
+.icon-btn:hover { background:var(--azul-light); transform:scale(1.08); }
+.icon-btn:active { transform:scale(.85); transition-duration:.1s; }
+.icon-btn svg { width:20px; height:20px; transition:all .3s cubic-bezier(.34,1.56,.64,1); }
 /* 星星点亮动画 */
 @keyframes starSparkle { 0%{transform:scale(0) rotate(-180deg);opacity:0} 50%{transform:scale(1.4) rotate(10deg);opacity:1} 100%{transform:scale(1) rotate(0);opacity:1} }
 .star-sparkle { animation: starSparkle .5s cubic-bezier(.22,1,.36,1); display:inline-flex; }
