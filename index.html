@@ -28,7 +28,7 @@ body .bg-dots{display:none}
 main{position:relative;z-index:1}
 .display{font-family:'Lora','Noto Serif SC',Georgia,serif}
 header.app{position:sticky;top:0;z-index:20;background:linear-gradient(135deg,#FFFFFF 0%,#F5EFE0 100%);color:var(--ink);padding:20px 20px calc(20px + env(safe-area-inset-top));box-shadow:0 2px 16px rgba(120,100,70,.06);border-radius:0 0 28px 28px;position:relative;overflow:hidden}
-header.app .brand{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;padding-right:110px}
+header.app .brand{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
 header.app h1{font-size:21px;font-weight:700;letter-spacing:.5px;color:var(--ink)}
 header.app::after{display:none}
 header.app .sub{font-family:'Lora',serif;font-size:13px;color:var(--mut)}
@@ -315,8 +315,8 @@ input[type=file]{display:none}
 .drawer-item .dtext{flex:1;min-width:0}
 .drawer-item .dname{font-size:14px;font-weight:700;color:var(--text)}
 .drawer-item .ddesc{font-size:11px;color:var(--mut);margin-top:1px}
-.hamburger-btn{background:var(--azul);color:#fff;border:none;border-radius:10px;padding:8px 12px;font-size:14px;cursor:pointer;display:inline-flex;align-items:center;gap:6px;font-weight:600;box-shadow:0 2px 8px rgba(27,94,140,.25)}
-#open-drawer-btn{position:absolute;top:16px;right:16px;z-index:5}
+.float-fab{position:fixed;right:14px;top:120px;z-index:900;width:52px;height:52px;border:none;border-radius:50%;background:var(--azul);color:#fff;font-size:13px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 14px rgba(27,94,140,.35);touch-action:none;user-select:none;-webkit-user-select:none;transition:box-shadow .2s,width .2s,height .2s,font-size .2s,opacity .2s}.float-fab:active{box-shadow:0 2px 8px rgba(27,94,140,.3)}.float-fab.dragging{transition:none;box-shadow:0 8px 22px rgba(27,94,140,.45);opacity:.92}.float-fab.hidden{width:24px;height:24px;font-size:0;box-shadow:0 2px 8px rgba(27,94,140,.3);opacity:.85}
+body.fab-dragging,body.fab-dragging *{user-select:none!important;-webkit-user-select:none!important}
 @media (max-width:480px){
 main{padding:14px 12px 24px}.face.front .pt{font-size:32px}
 header.app{padding:14px 14px calc(14px + env(safe-area-inset-top));border-radius:0 0 24px 24px}
@@ -396,11 +396,11 @@ nav.tabbar button{font-size:10.5px}
 <header class="app">
   <div class="brand"><h1 class="display">Aprender Português</h1><span class="sub">学葡语 · 欧洲葡语 EP</span></div>
   <div class="azulejo" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
-<button id="open-drawer-btn" class="hamburger-btn">☰ 全部功能</button>
 </header>
 <main id="view"></main>
 <nav class="tabbar" id="tabbar"></nav>
 <div id="side-overlay"></div>
+<button id="float-fab" class="float-fab" aria-label="功能菜单">功能</button>
 <div id="wd-overlay"><div id="wd-panel"><button id="wd-close">✕</button><div id="wd-pt"></div><div id="wd-tags"></div><div id="wd-cn-full"></div><div id="wd-actions"><button id="wd-sound" style="background:var(--azul-light);color:var(--azul-deep)">🔊 发音</button><button id="wd-star" style="background:var(--azul-light);color:var(--azul-deep)">☆ 收藏</button><button id="wd-infopedia" style="background:var(--azul-light);color:var(--azul-deep)">📖 infopedia</button></div></div></div>
 <aside id="side-drawer" aria-hidden="true">
   <div class="drawer-head"><span>全部功能</span><button id="drawer-close" aria-label="close">X</button></div>
@@ -2156,8 +2156,32 @@ function renderHome(){
     var rect=c.getBoundingClientRect();var x=e.clientX-rect.left;var y=e.clientY-rect.top;var r=document.createElement("span");r.className="ripple-anim";var size=Math.max(rect.width,rect.height);r.style.width=r.style.height=size+"px";r.style.left=(x-size/2)+"px";r.style.top=(y-size/2)+"px";c.appendChild(r);setTimeout(function(){r.remove();},600);
     showWordDetail(parseInt(c.getAttribute("data-wdetail")));
   });});
-  var odb=document.getElementById("open-drawer-btn");
-  if(odb)odb.addEventListener("click",openDrawer);
+  var fab=document.getElementById("float-fab");
+  if(fab){
+    try{var fp=JSON.parse(localStorage.getItem("fab-pos")||"null");if(fp){fab.style.left=fp.x+"px";fab.style.top=fp.y+"px";fab.style.right="auto";}
+      if(localStorage.getItem("fab-hidden")==="1")fab.classList.add("hidden");}catch(e){}
+    var dragging=false,moved=false,longPressed=false,sx=0,sy=0,ox=0,oy=0,pressTimer=null;
+    function fabDown(x,y){dragging=true;moved=false;longPressed=false;sx=x;sy=y;var r=fab.getBoundingClientRect();ox=r.left;oy=r.top;fab.classList.add("dragging");document.body.classList.add("fab-dragging");
+      pressTimer=setTimeout(function(){longPressed=true;fab.classList.toggle("hidden");try{localStorage.setItem("fab-hidden",fab.classList.contains("hidden")?"1":"0");}catch(e){}},500);}
+    function fabMove(x,y){if(!dragging)return;var dx=x-sx,dy=y-sy;if(Math.abs(dx)+Math.abs(dy)>6){moved=true;if(pressTimer){clearTimeout(pressTimer);pressTimer=null;}}if(!moved)return;
+      var nx=Math.min(Math.max(ox+dx,8),window.innerWidth-fab.offsetWidth-8);
+      var ny=Math.min(Math.max(oy+dy,8),window.innerHeight-fab.offsetHeight-8);
+      fab.style.left=nx+"px";fab.style.top=ny+"px";fab.style.right="auto";}
+    function fabUp(){if(!dragging)return;dragging=false;fab.classList.remove("dragging");document.body.classList.remove("fab-dragging");if(pressTimer){clearTimeout(pressTimer);pressTimer=null;}
+      var r=fab.getBoundingClientRect();
+      try{localStorage.setItem("fab-pos",JSON.stringify({x:r.left,y:r.top}));}catch(e){}
+      if(longPressed)return;
+      if(!moved){
+        if(fab.classList.contains("hidden")){fab.classList.remove("hidden");try{localStorage.setItem("fab-hidden","0");}catch(e){}}
+        else{openDrawer();}
+      }}
+    fab.addEventListener("touchstart",function(e){var t=e.touches[0];fabDown(t.clientX,t.clientY);},{passive:true});
+    fab.addEventListener("touchmove",function(e){fabMove(e.touches[0].clientX,e.touches[0].clientY);if(moved)e.preventDefault();},{passive:false});
+    fab.addEventListener("touchend",fabUp);
+    fab.addEventListener("mousedown",function(e){fabDown(e.clientX,e.clientY);e.preventDefault();});
+    document.addEventListener("mousemove",function(e){fabMove(e.clientX,e.clientY);});
+    document.addEventListener("mouseup",fabUp);
+  }
   // 首页搜索功能
   var hsi=document.getElementById("home-search");
   var hsb=document.getElementById("home-search-btn");
