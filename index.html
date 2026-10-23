@@ -28,7 +28,7 @@ body .bg-dots{display:none}
 main{position:relative;z-index:1}
 .display{font-family:'Lora','Noto Serif SC',Georgia,serif}
 header.app{position:sticky;top:0;z-index:20;background:linear-gradient(135deg,#FFFFFF 0%,#F5EFE0 100%);color:var(--ink);padding:20px 20px calc(20px + env(safe-area-inset-top));box-shadow:0 2px 16px rgba(120,100,70,.06);border-radius:0 0 28px 28px;position:relative;overflow:hidden}
-header.app .brand{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
+header.app .brand{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;padding-right:110px}
 header.app h1{font-size:21px;font-weight:700;letter-spacing:.5px;color:var(--ink)}
 header.app::after{display:none}
 header.app .sub{font-family:'Lora',serif;font-size:13px;color:var(--mut)}
@@ -315,7 +315,8 @@ input[type=file]{display:none}
 .drawer-item .dtext{flex:1;min-width:0}
 .drawer-item .dname{font-size:14px;font-weight:700;color:var(--text)}
 .drawer-item .ddesc{font-size:11px;color:var(--mut);margin-top:1px}
-.hamburger-btn{background:rgba(255,255,255,.18);color:#fff;border:none;border-radius:10px;padding:8px 12px;font-size:14px;cursor:pointer;display:inline-flex;align-items:center;gap:6px;font-weight:600}
+.hamburger-btn{background:var(--azul);color:#fff;border:none;border-radius:10px;padding:8px 12px;font-size:14px;cursor:pointer;display:inline-flex;align-items:center;gap:6px;font-weight:600;box-shadow:0 2px 8px rgba(27,94,140,.25)}
+#open-drawer-btn{position:absolute;top:16px;right:16px;z-index:5}
 @media (max-width:480px){
 main{padding:14px 12px 24px}.face.front .pt{font-size:32px}
 header.app{padding:14px 14px calc(14px + env(safe-area-inset-top));border-radius:0 0 24px 24px}
@@ -395,6 +396,7 @@ nav.tabbar button{font-size:10.5px}
 <header class="app">
   <div class="brand"><h1 class="display">Aprender Português</h1><span class="sub">学葡语 · 欧洲葡语 EP</span></div>
   <div class="azulejo" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+<button id="open-drawer-btn" class="hamburger-btn">☰ 全部功能</button>
 </header>
 <main id="view"></main>
 <nav class="tabbar" id="tabbar"></nav>
@@ -2058,7 +2060,7 @@ var tabbar=document.getElementById("tabbar");
 function renderTabbar(active){tabbar.innerHTML=TABS.map(function(t){return '<button data-r="'+t.id+'" class="'+(t.id===active?"on":"")+'">'+ICONS[t.icon]+'<span>'+t.label+'</span></button>';}).join("");tabbar.querySelectorAll("button").forEach(function(b){b.addEventListener("click",function(){location.hash="#/"+b.getAttribute("data-r");});});}
 function navigate(){var hash=location.hash.replace(/^#\/?/,"")||"home";var route=hash.split("?")[0];renderTabbar(route);if(route==="vocab")renderVocab();else if(route==="verbs")renderVerbs();else if(route==="listen")renderListen();
   else if(route==="alphabet")renderAlphabet();else if(route==="roots")renderRoots();
-  else if(route==="grammar")renderGrammar();else if(route==="gpractice")renderGPractice();else if(route==="more")renderMore();else if(route==="test")renderQuizIntro();else if(route==="dict")renderDict();else if(route==="translate")renderTranslate();else if(route==="dialogue")renderDialogue();else if(route==="reading")renderReading();else if(route==="ai")renderAI();else if(route==="categories")renderCategories();else if(route==="review")renderReview();else if(route==="chat")renderChat();else if(route==="video")renderVideo();else if(route==="wrongs")renderWrongs();else if(route==="stats")renderStats();else if(route.indexOf("cat_")===0)renderCatDetail(route.replace("cat_",""));else if(route.indexOf("dialogue_")===0)renderDialogueDetail(parseInt(route.replace("dialogue_","")));else renderHome();var view=document.querySelector("main");if(view){view.classList.remove("page-animate","page-animate-circle");void view.offsetWidth;var tab=document.querySelector(".tabbar .active");if(tab){var r=tab.getBoundingClientRect();view.style.setProperty("--cx",(r.left+r.width/2)+"px");view.style.setProperty("--cy",(r.top+r.height/2)+"px");}view.classList.add("page-animate-circle");}window.scrollTo(0,0);}
+  else if(route==="grammar")renderGrammar();else if(route==="gpractice")renderGPractice();else if(route==="more")renderMore();else if(route==="test")renderQuizIntro();else if(route==="dict")renderDict();else if(route==="translate")renderTranslate();else if(route==="dialogue")renderDialogue();else if(route==="reading")renderReading();else if(route==="ai")renderAI();else if(route==="categories")renderCategories();else if(route==="review")renderReview();else if(route==="chat")renderChat();else if(route==="video")renderVideo();else if(route==="wrongs")renderWrongs();else if(route==="stats")renderStats();else if(route.indexOf("cat_")===0)renderCatDetail(route.replace("cat_",""));else if(route.indexOf("dialogue_")===0)renderDialogueDetail(parseInt(route.replace("dialogue_","")));else renderHome();var view=document.querySelector("main");if(view){view.classList.remove("page-animate","page-animate-circle");void view.offsetWidth;if(view.innerHTML.length<=20000){var tab=document.querySelector(".tabbar .active");if(tab){var r=tab.getBoundingClientRect();view.style.setProperty("--cx",(r.left+r.width/2)+"px");view.style.setProperty("--cy",(r.top+r.height/2)+"px");}view.classList.add("page-animate-circle");}}window.scrollTo(0,0);}
 window.addEventListener("hashchange",navigate);
 // 底部导航左右滑动切换页面
 var tabPages=["home","vocab","verbs","grammar","more"];
