@@ -167,13 +167,15 @@ h2.sect::before{content:"";width:6px;height:20px;background:linear-gradient(180d
 .stat b{display:block;font-size:24px;font-family:'Lora',serif;color:var(--azul);font-weight:700}
 .stat span{font-size:12px;color:var(--mut);margin-top:2px;display:block}
 .wordlist{display:flex;flex-direction:column;gap:10px}
-.word{display:flex;align-items:center;gap:var(--space-3);background:var(--card);border:2px solid var(--line-soft);border-radius:var(--radius-sm);padding:var(--space-3) var(--space-4);transition:transform .2s var(--bounce),box-shadow .18s ease,border-color .18s ease}
+.word{position:relative;overflow:hidden;display:flex;align-items:center;gap:var(--space-3);background:var(--card);border:2px solid var(--line-soft);border-radius:var(--radius-sm);padding:var(--space-3) var(--space-4);transition:transform .2s var(--bounce),box-shadow .18s ease,border-color .18s ease,background .18s ease}
 .word:active{transform:scale(.98);transition-duration:.05s}
 .word>div:nth-child(2){flex:1;min-width:0;white-space:normal;overflow:visible}
-.word:hover{transform:translateX(4px);box-shadow:0 4px 14px rgba(108,155,210,.12);border-color:var(--azul-light)}
+.word:hover{transform:translateX(4px);box-shadow:0 4px 14px rgba(108,155,210,.12);border-color:var(--azul-light);background:var(--azul-light)}
 .word .flag{width:38px;height:38px;flex:none;border-radius:12px;background:linear-gradient(135deg,var(--azul),var(--azul-deep));color:#fff;display:flex;align-items:center;justify-content:center;font-family:'Lora',serif;font-weight:700;font-size:16px;box-shadow:0 3px 8px rgba(108,155,210,.3)}
-.word .w-pt{font-size:var(--fs-md);font-weight:700;font-family:'Lora',serif}
-.word .w-cn{font-size:var(--fs-sm);color:var(--mut)}
+.word .w-pt{font-size:var(--fs-md);font-weight:700;font-family:'Lora',serif;transition:font-size .18s ease,color .18s ease}
+.word .w-cn{font-size:var(--fs-sm);color:var(--mut);transition:font-size .18s ease,color .18s ease}
+.word:hover .w-pt{font-size:18.5px;color:var(--ink)}
+.word:hover .w-cn{color:var(--ink)}
 .word .w-meta{font-size:var(--fs-xs);color:var(--sea);font-weight:500}
 .word .right{margin-left:auto;display:flex;gap:var(--space-2);align-items:center;flex:none}
 .word .right button{border:none;background:var(--tile);color:var(--azul);border-radius:var(--radius-xs);width:40px;height:40px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s ease}
@@ -315,7 +317,7 @@ input[type=file]{display:none}
 .drawer-item .dtext{flex:1;min-width:0}
 .drawer-item .dname{font-size:14px;font-weight:700;color:var(--text)}
 .drawer-item .ddesc{font-size:11px;color:var(--mut);margin-top:1px}
-.float-fab{position:fixed;right:14px;top:120px;z-index:900;width:52px;height:52px;border:none;border-radius:50%;background:var(--azul);color:#fff;font-size:13px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 14px rgba(27,94,140,.35);touch-action:none;user-select:none;-webkit-user-select:none;transition:box-shadow .2s,width .2s,height .2s,font-size .2s,opacity .2s}.float-fab:active{box-shadow:0 2px 8px rgba(27,94,140,.3)}.float-fab.dragging{transition:none;box-shadow:0 8px 22px rgba(27,94,140,.45);opacity:.92}.float-fab.hidden{width:24px;height:24px;font-size:0;box-shadow:0 2px 8px rgba(27,94,140,.3);opacity:.85}
+.float-fab{position:fixed;right:14px;top:120px;z-index:900;width:52px;height:52px;border:none;border-radius:50%;background:var(--azul);color:#fff;font-size:13px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 14px rgba(27,94,140,.35);touch-action:none;user-select:none;-webkit-user-select:none;transition:box-shadow .2s,width .2s,height .2s,font-size .2s,opacity .2s,left .28s cubic-bezier(.22,.9,.28,1),top .28s cubic-bezier(.22,.9,.28,1)}.float-fab:active{box-shadow:0 2px 8px rgba(27,94,140,.3)}.float-fab.dragging{transition:none;box-shadow:0 8px 22px rgba(27,94,140,.45);opacity:.92}.float-fab.hidden{width:24px;height:24px;font-size:0;box-shadow:0 2px 8px rgba(27,94,140,.3);opacity:.85}
 body.fab-dragging,body.fab-dragging *{user-select:none!important;-webkit-user-select:none!important}
 @media (max-width:480px){
 main{padding:14px 12px 24px}.face.front .pt{font-size:32px}
@@ -2148,9 +2150,9 @@ function renderHome(){
   html+='</div></section>';
   view.innerHTML=html;
   view.querySelectorAll("[data-g]").forEach(function(b){b.addEventListener("click",function(){location.hash="#/"+b.getAttribute("data-g");});});
-  view.querySelectorAll("[data-sp]").forEach(function(b){b.addEventListener("click",function(){speak(b.getAttribute("data-sp"));b.classList.add("sound-playing");setTimeout(function(){b.classList.remove("sound-playing");},1500);});});
-  view.querySelectorAll("[data-star]").forEach(function(b){b.addEventListener("click",function(){var id=b.getAttribute("data-star");if(state.starred[id]){delete state.starred[id];b.classList.remove("starred");b.innerHTML=ICONS.star;toast("已取消星标");}else{state.starred[id]=true;b.classList.add("starred","star-sparkle");b.innerHTML=ICONS.starFilled;setTimeout(function(){b.classList.remove("star-sparkle");},500);toast("已加星标");}save();});});
-  view.querySelectorAll("[data-learn]").forEach(function(b){b.addEventListener("click",function(){var id=b.getAttribute("data-learn");if(state.learned[id]){delete state.learned[id];b.classList.remove("learned");b.innerHTML=ICONS.check;toast("已取消记住");}else{state.learned[id]=todayStr();b.classList.add("learned");b.innerHTML='<svg viewBox="0 0 24 24" style="color:#52C41A"><path class="check-draw" d="M5 12l5 5L20 7" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>';toast("已标记记住");}markActive();save();});});
+  view.querySelectorAll("[data-sp]").forEach(function(b){b.addEventListener("click",function(e){e.stopPropagation();speak(b.getAttribute("data-sp"));b.classList.add("sound-playing");setTimeout(function(){b.classList.remove("sound-playing");},1500);});});
+  view.querySelectorAll("[data-star]").forEach(function(b){b.addEventListener("click",function(e){e.stopPropagation();var id=b.getAttribute("data-star");if(state.starred[id]){delete state.starred[id];b.classList.remove("starred");b.innerHTML=ICONS.star;toast("已取消星标");}else{state.starred[id]=true;b.classList.add("starred","star-sparkle");b.innerHTML=ICONS.starFilled;setTimeout(function(){b.classList.remove("star-sparkle");},500);toast("已加星标");}save();});});
+  view.querySelectorAll("[data-learn]").forEach(function(b){b.addEventListener("click",function(e){e.stopPropagation();var id=b.getAttribute("data-learn");if(state.learned[id]){delete state.learned[id];b.classList.remove("learned");b.innerHTML=ICONS.check;toast("已取消记住");}else{state.learned[id]=todayStr();b.classList.add("learned");b.innerHTML='<svg viewBox="0 0 24 24" style="color:#52C41A"><path class="check-draw" d="M5 12l5 5L20 7" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>';toast("已标记记住");}markActive();save();});});
   view.querySelectorAll("[data-wdetail]").forEach(function(c){c.addEventListener("click",function(e){
     if(e.target.closest("button,a"))return;
     var rect=c.getBoundingClientRect();var x=e.clientX-rect.left;var y=e.clientY-rect.top;var r=document.createElement("span");r.className="ripple-anim";var size=Math.max(rect.width,rect.height);r.style.width=r.style.height=size+"px";r.style.left=(x-size/2)+"px";r.style.top=(y-size/2)+"px";c.appendChild(r);setTimeout(function(){r.remove();},600);
@@ -2169,12 +2171,20 @@ function renderHome(){
       fab.style.left=nx+"px";fab.style.top=ny+"px";fab.style.right="auto";}
     function fabUp(){if(!dragging)return;dragging=false;fab.classList.remove("dragging");document.body.classList.remove("fab-dragging");if(pressTimer){clearTimeout(pressTimer);pressTimer=null;}
       var r=fab.getBoundingClientRect();
-      try{localStorage.setItem("fab-pos",JSON.stringify({x:r.left,y:r.top}));}catch(e){}
       if(longPressed)return;
       if(!moved){
+        try{localStorage.setItem("fab-pos",JSON.stringify({x:r.left,y:r.top}));}catch(e){}
         if(fab.classList.contains("hidden")){fab.classList.remove("hidden");try{localStorage.setItem("fab-hidden","0");}catch(e){}}
         else{openDrawer();}
-      }}
+        return;
+      }
+      var wall=8;
+      var top=Math.min(Math.max(r.top,wall),window.innerHeight-fab.offsetHeight-wall);
+      var nearLeft=r.left<=window.innerWidth-r.right;
+      var nx=nearLeft?wall:window.innerWidth-fab.offsetWidth-wall;
+      fab.style.left=nx+"px";fab.style.top=top+"px";fab.style.right="auto";
+      try{localStorage.setItem("fab-pos",JSON.stringify({x:nx,y:top}));}catch(e){}
+      }
     fab.addEventListener("touchstart",function(e){var t=e.touches[0];fabDown(t.clientX,t.clientY);},{passive:true});
     fab.addEventListener("touchmove",function(e){fabMove(e.touches[0].clientX,e.touches[0].clientY);if(moved)e.preventDefault();},{passive:false});
     fab.addEventListener("touchend",fabUp);
@@ -2234,8 +2244,8 @@ function renderHome(){
       if(conjMatches.length>10){h+='<div class="muted" style="text-align:center;margin-top:8px;font-size:12px">仅显示前10个，去动词变位页面查看全部</div>';}
     }
     hsr.innerHTML=h;
-    hsr.querySelectorAll("[data-hsp]").forEach(function(b){b.addEventListener("click",function(){speak(b.getAttribute("data-hsp"));});});
-    hsr.querySelectorAll("[data-hstar]").forEach(function(b){b.addEventListener("click",function(){var id=b.getAttribute("data-hstar");if(state.starred[id]){delete state.starred[id];b.classList.remove("starred");b.innerHTML=ICONS.star;toast("已取消星标");}else{state.starred[id]=true;b.classList.add("starred","star-sparkle");b.innerHTML=ICONS.starFilled;setTimeout(function(){b.classList.remove("star-sparkle");},500);toast("已加星标");}save();});});
+    hsr.querySelectorAll("[data-hsp]").forEach(function(b){b.addEventListener("click",function(e){e.stopPropagation();speak(b.getAttribute("data-hsp"));});});
+    hsr.querySelectorAll("[data-hstar]").forEach(function(b){b.addEventListener("click",function(e){e.stopPropagation();var id=b.getAttribute("data-hstar");if(state.starred[id]){delete state.starred[id];b.classList.remove("starred");b.innerHTML=ICONS.star;toast("已取消星标");}else{state.starred[id]=true;b.classList.add("starred","star-sparkle");b.innerHTML=ICONS.starFilled;setTimeout(function(){b.classList.remove("star-sparkle");},500);toast("已加星标");}save();});});
     hsr.querySelectorAll("[data-hconj]").forEach(function(b){b.addEventListener("click",function(){location.hash="#/verbs";});});
     hsr.querySelectorAll("[data-wdetail]").forEach(function(c){c.addEventListener("click",function(e){if(e.target.closest("button,a"))return;showWordDetail(parseInt(c.getAttribute("data-wdetail")));});});
   }
@@ -3436,9 +3446,9 @@ if(conjMatches.length>0){
   if(conjMatches.length>15){h+='<div class="muted" style="text-align:center;margin-top:8px;font-size:12px">仅显示前15个，去动词变位页面查看全部</div>';}
 }
 box.innerHTML=h;
-box.querySelectorAll("[data-sp]").forEach(function(b){b.addEventListener("click",function(){speak(b.getAttribute("data-sp"));});});
+box.querySelectorAll("[data-sp]").forEach(function(b){b.addEventListener("click",function(e){e.stopPropagation();speak(b.getAttribute("data-sp"));});});
 box.querySelectorAll("[data-wdetail]").forEach(function(c){c.addEventListener("click",function(e){if(e.target.closest("button,a"))return;showWordDetail(parseInt(c.getAttribute("data-wdetail")));});});
-box.querySelectorAll("[data-csp]").forEach(function(b){b.addEventListener("click",function(){speak(b.getAttribute("data-csp"));});});
+box.querySelectorAll("[data-csp]").forEach(function(b){b.addEventListener("click",function(e){e.stopPropagation();speak(b.getAttribute("data-csp"));});});
 box.querySelectorAll("[data-dconj]").forEach(function(b){b.addEventListener("click",function(){location.hash="#/verbs";});});
 }
   document.getElementById("dict-btn").addEventListener("click",doSearch);var searchTimer=null;document.getElementById("dict-input").addEventListener("input",function(){var self=this;clearTimeout(searchTimer);if(this.value.trim().length===0){document.getElementById("dict-results").innerHTML='<div class="muted" style="text-align:center;padding:30px">输入单词或中文意思开始搜索</div>';return;}searchTimer=setTimeout(function(){doSearch();},300);});
@@ -3528,14 +3538,14 @@ function renderCatDetail(catId){
   html+='</div></section>';view.innerHTML=html;
   view.querySelectorAll("[data-g]").forEach(function(b){b.addEventListener("click",function(){catMode="browse";location.hash="#/"+b.getAttribute("data-g");});});
   view.querySelectorAll("[data-catwq]").forEach(function(b){b.addEventListener("click",function(){catWqType=b.getAttribute("data-catwq");view.querySelectorAll("[data-catwq]").forEach(function(x){x.classList.toggle("on",x.getAttribute("data-catwq")===catWqType);});});});
-  view.querySelectorAll("[data-sp]").forEach(function(b){b.addEventListener("click",function(){speak(b.getAttribute("data-sp"));b.classList.add("sound-playing");setTimeout(function(){b.classList.remove("sound-playing");},1500);});});
-  view.querySelectorAll("[data-learn]").forEach(function(b){b.addEventListener("click",function(){var id=b.getAttribute("data-learn");if(state.learned[id]){delete state.learned[id];b.classList.remove("learned");b.innerHTML=ICONS.check;toast("已取消记住");}else{state.learned[id]=todayStr();b.classList.add("learned");b.innerHTML='<svg viewBox="0 0 24 24" style="color:#52C41A"><path class="check-draw" d="M5 12l5 5L20 7" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>';toast("已标记记住");}markActive();save();});});
+  view.querySelectorAll("[data-sp]").forEach(function(b){b.addEventListener("click",function(e){e.stopPropagation();speak(b.getAttribute("data-sp"));b.classList.add("sound-playing");setTimeout(function(){b.classList.remove("sound-playing");},1500);});});
+  view.querySelectorAll("[data-learn]").forEach(function(b){b.addEventListener("click",function(e){e.stopPropagation();var id=b.getAttribute("data-learn");if(state.learned[id]){delete state.learned[id];b.classList.remove("learned");b.innerHTML=ICONS.check;toast("已取消记住");}else{state.learned[id]=todayStr();b.classList.add("learned");b.innerHTML='<svg viewBox="0 0 24 24" style="color:#52C41A"><path class="check-draw" d="M5 12l5 5L20 7" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>';toast("已标记记住");}markActive();save();});});
   view.querySelectorAll("[data-wdetail]").forEach(function(c){c.addEventListener("click",function(e){
     if(e.target.closest("button,a"))return;
     var rect=c.getBoundingClientRect();var x=e.clientX-rect.left;var y=e.clientY-rect.top;var r=document.createElement("span");r.className="ripple-anim";var size=Math.max(rect.width,rect.height);r.style.width=r.style.height=size+"px";r.style.left=(x-size/2)+"px";r.style.top=(y-size/2)+"px";c.appendChild(r);setTimeout(function(){r.remove();},600);
     showWordDetail(parseInt(c.getAttribute("data-wdetail")));
   });});
-  view.querySelectorAll("[data-cstar]").forEach(function(b){b.addEventListener("click",function(){var id=b.getAttribute("data-cstar");if(state.starred[id]){delete state.starred[id];b.classList.remove("starred");b.textContent="☆";toast("已取消星标");}else{state.starred[id]=true;b.classList.add("starred");b.textContent="⭐";toast("已加星标");}save();});});
+  view.querySelectorAll("[data-cstar]").forEach(function(b){b.addEventListener("click",function(e){e.stopPropagation();var id=b.getAttribute("data-cstar");if(state.starred[id]){delete state.starred[id];b.classList.remove("starred");b.textContent="☆";toast("已取消星标");}else{state.starred[id]=true;b.classList.add("starred");b.textContent="⭐";toast("已加星标");}save();});});
   var qs=document.getElementById("cat-quiz-start");if(qs)qs.addEventListener("click",function(){buildCatQuiz(words,Math.min(8,words.length));catMode="quiz";drawCatQuiz(cat,words);});
 }
 function buildCatQuiz(words,n){
