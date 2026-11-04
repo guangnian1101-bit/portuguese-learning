@@ -215,6 +215,10 @@ h2.sect::before{content:"";width:6px;height:20px;background:linear-gradient(180d
 .chip{display:inline-block;background:rgba(27,94,140,.1);color:var(--azul-deep);border-radius:999px;padding:3px 10px;font-size:12px;font-weight:500}
 .flipwrap{perspective:1200px;margin:6px 0}
 .flipcard{
+  position:relative;
+  width:100%;
+  min-height:clamp(240px, 52vh, 320px);
+  cursor:pointer;
   transition:transform .55s cubic-bezier(.2,.8,.2,1), box-shadow .3s;
   will-change:transform;
   transform-style:preserve-3d;
