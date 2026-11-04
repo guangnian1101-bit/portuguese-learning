@@ -459,6 +459,126 @@ nav.tabbar button{font-size:10.5px}
   0%{ transform:translateX(-100%); }
   100%{ transform:translateX(100%); }
 }
+
+/* ========== 空状态三件套 ========== */
+.empty-state{
+  text-align:center;
+  padding:48px 24px;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:16px;
+}
+.empty-state .empty-icon{
+  width:72px;
+  height:72px;
+  border-radius:50%;
+  background:var(--azul-light);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  color:var(--terra);
+  font-size:32px;
+}
+.empty-state .empty-title{
+  font-size:17px;
+  font-weight:700;
+  color:var(--ink);
+}
+.empty-state .empty-desc{
+  font-size:14px;
+  line-height:1.65;
+  color:var(--mut);
+  max-width:280px;
+}
+.empty-state .empty-cta{
+  margin-top:8px;
+  padding:12px 28px;
+  border-radius:999px;
+  background:var(--azul);
+  color:#fff;
+  font-weight:600;
+  font-size:15px;
+  border:none;
+  cursor:pointer;
+  transition:all .2s var(--ease-out);
+}
+.empty-state .empty-cta:active{
+  transform:scale(.96);
+  background:var(--azul-deep);
+}
+
+/* ========== streak 连续打卡火焰动画 ========== */
+@keyframes flamePulse{
+  0%, 100%{ transform:scale(1); filter:drop-shadow(0 0 4px rgba(192,138,94,.4)); }
+  50%{ transform:scale(1.08); filter:drop-shadow(0 0 10px rgba(192,138,94,.6)); }
+}
+.streak-flame{
+  animation:flamePulse 2s ease-in-out infinite;
+  color:var(--terra);
+  display:inline-block;
+}
+
+/* ========== 骨架屏 shimmer 加载效果 ========== */
+.skeleton{
+  background:linear-gradient(90deg, #EFE8DC 25%, #F7F3EC 50%, #EFE8DC 75%);
+  background-size:200% 100%;
+  animation:shimmer 1.4s infinite linear;
+  border-radius:12px;
+  color:transparent;
+}
+@keyframes shimmer{
+  0%{ background-position:200% 0; }
+  100%{ background-position:-200% 0; }
+}
+.skeleton-card{
+  height:120px;
+  margin-bottom:12px;
+}
+.skeleton-line{
+  height:16px;
+  margin-bottom:8px;
+}
+
+/* ========== 涟漪点击反馈优化 ========== */
+.tap-ripple{
+  position:relative;
+  overflow:hidden;
+}
+.tap-ripple .ripple-anim{
+  position:absolute;
+  border-radius:50%;
+  background:radial-gradient(circle, rgba(61,52,40,.18), rgba(61,52,40,0) 70%);
+  transform:scale(0);
+  pointer-events:none;
+  animation:rippleAnim .55s var(--ease-out) forwards;
+}
+@keyframes rippleAnim{
+  to{ transform:scale(2.4); opacity:0; }
+}
+
+/* ========== 触屏端禁用 hover 位移 ========== */
+@media (hover:none){
+  .card:hover, .word:hover, .funccard:hover{
+    transform:none;
+    box-shadow:var(--shadow);
+  }
+}
+
+/* ========== 无障碍：焦点可见 + reduce-motion ========== */
+:focus-visible{
+  outline:2px solid var(--terra);
+  outline-offset:2px;
+  border-radius:6px;
+}
+@media (prefers-reduced-motion:reduce){
+  *, *::before, *::after{
+    animation-duration:.01ms !important;
+    animation-iteration-count:1 !important;
+    transition-duration:.01ms !important;
+    scroll-behavior:auto !important;
+  }
+}
 </style>
 </head>
 <body><div class="bg-wave top"></div><div class="bg-wave bottom"></div><div class="bg-dots"></div>
