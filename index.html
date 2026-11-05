@@ -2370,33 +2370,100 @@ function renderVocab(){
 }
 function drawVocabCards(){
   var body=document.getElementById("vocab-body");if(!body)return;
-  var html='<div class="muted" style="margin:0 4px 10px">随机 8 词，点击卡片看释义</div>';
+  
+  // 顶部进度条（流光效果）
+  var total=vocabList.length;
+  var pct=Math.round((vocabIdx)/total*100);
+  var html='<div class="study-progress" style="margin:0 4px 12px"><div class="study-progress-fill" style="width:'+pct+'%"></div></div>';
+  
+  // 卡片
   html+='<div class="flipwrap"><div class="flipcard" id="flipcard"><div class="face front" id="f-front"></div><div class="face back"><div class="cn" id="f-cn"></div><div class="pos" id="f-pos"></div><div id="f-detail" style="margin-top:12px;font-size:13px;color:var(--azul);cursor:pointer;text-decoration:underline">查看完整释义 →</div></div></div></div>';
-  html+='<div style="display:flex;justify-content:space-between;align-items:center;margin:12px 4px 2px"><span class="muted" id="v-progress"></span><div style="display:flex;gap:8px;align-items:center"><button class="linkbtn" id="v-star" style="font-size:20px" title="星标">☆</button><button class="linkbtn" id="v-sound" title="播放发音" style="font-size:20px">🔊</button></div></div>';
-  html+='<div class="row" style="margin-top:6px"><button class="btn ghost grow" id="v-prev" disabled>上一个</button><button class="btn primary grow" id="v-know">记住了</button><button class="btn ghost grow" id="v-forget" style="background:#fff3f3;color:var(--err)">没记住</button><button class="btn ghost grow" id="v-next">下一个</button></div>';
+  
+  // 进度文字 + 操作按钮
+  html+='<div style="display:flex;justify-content:space-between;align-items:center;margin:12px 4px 2px"><span class="muted" id="v-progress" style="font-size:13px;font-weight:600">1 / '+total+'</span><div style="display:flex;gap:12px;align-items:center"><button class="linkbtn" id="v-star" style="font-size:20px" title="星标">☆</button><button class="linkbtn" id="v-sound" title="播放发音" style="font-size:20px">🔊</button></div></div>';
+  
+  // 三档评级按钮（新设计）
+  html+='<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-top:12px">';
+  html+='<button class="btn" id="v-forget" style="background:#fff0ed;color:var(--err);font-weight:600;padding:14px 8px;border-radius:14px">❌ 不认识</button>';
+  html+='<button class="btn" id="v-fuzzy" style="background:#fff8e6;color:#B8860B;font-weight:600;padding:14px 8px;border-radius:14px">⚠️ 模糊</button>';
+  html+='<button class="btn" id="v-know" style="background:#edf5ea;color:var(--ok);font-weight:600;padding:14px 8px;border-radius:14px">✅ 认识</button>';
+  html+='</div>';
+  
+  // 底部操作
+  html+='<div class="row" style="margin-top:10px"><button class="btn ghost grow" id="v-prev" disabled>上一个</button><button class="btn ghost grow" id="v-next">下一个</button></div>';
   html+='<div class="row" style="margin-top:8px"><button class="btn terra grow" id="v-done" style="display:none">完成 · 查看本批单词</button><button class="btn ghost grow" id="v-new">再来一轮（全新单词）</button></div>';
   html+='<div id="v-summary" style="display:none;margin-top:14px"></div>';
+  
   body.innerHTML=html;
+  
   var card=document.getElementById("flipcard");
-  var animDir='next';function fill(i,dir){var w=vocabList[i];if(dir)animDir=dir;var front=document.getElementById("f-front");front.innerHTML=(w.img?'<img src="'+w.img+'" alt="'+w.pt+'">':'')+'<div class="pt">'+w.pt+'</div><div class="tip">点击卡片看翻译</div>';var cnEl=document.getElementById("f-cn");cnEl.innerHTML='<div style="font-size:20px;font-weight:600;line-height:1.4">'+shortCn(w)+'</div>';document.getElementById("f-pos").textContent=w.pos+(w.cat?' · '+catName(w.cat):'');var fd=document.getElementById("f-detail");fd.onclick=function(e){e.stopPropagation();showWordDetail(w.id);};document.getElementById("v-progress").textContent=(i+1)+" / "+vocabList.length;document.getElementById("v-prev").disabled=i===0;var nextBtn=document.getElementById("v-next");var doneBtn=document.getElementById("v-done");if(i===vocabList.length-1){nextBtn.style.display="none";doneBtn.style.display="";}else{nextBtn.style.display="";doneBtn.style.display="none";}var sb=document.getElementById("v-star");if(sb)sb.textContent=state.starred[w.id]?"⭐":"☆";card.classList.remove("flipped");card.classList.remove("animate-next","animate-prev");void card.offsetWidth;card.classList.add(animDir==='prev'?'animate-prev':'animate-next');}
-  function showSummary(){var sum=document.getElementById("v-summary");var html='<div class="card" style="padding:14px"><div style="font-weight:700;font-size:15px;margin-bottom:10px">📋 本批 '+vocabList.length+' 个单词</div><div style="display:grid;grid-template-columns:1fr 1fr;gap:6px 14px">';
-  vocabList.forEach(function(w,idx){var cnShort=w.cn.split("；")[0].split(";")[0];html+='<div style="display:flex;align-items:baseline;gap:6px;border-bottom:1px dashed rgba(0,0,0,.08);padding:4px 0"><span style="color:var(--mut);font-size:11px;min-width:18px">'+(idx+1)+'.</span><span style="font-weight:600;font-size:13.5px;min-width:90px">'+w.pt+'</span><span style="font-size:12.5px;color:var(--mut)">'+cnShort+'</span></div>';});
-  html+='</div></div>';sum.innerHTML=html;sum.style.display="";sum.scrollIntoView({behavior:"smooth",block:"nearest"});}
+  var animDir='next';
+  
+  function fill(i,dir){
+    var w=vocabList[i];if(dir)animDir=dir;
+    var front=document.getElementById("f-front");
+    front.innerHTML=(w.img?'<img src="'+w.img+'" alt="'+w.pt+'">':'')+'<div class="pt">'+w.pt+'</div><div class="tip">点击卡片看翻译</div>';
+    var cnEl=document.getElementById("f-cn");
+    cnEl.innerHTML='<div style="font-size:20px;font-weight:600;line-height:1.4">'+shortCn(w)+'</div>';
+    document.getElementById("f-pos").textContent=w.pos+(w.cat?' · '+catName(w.cat):'');
+    var fd=document.getElementById("f-detail");
+    fd.onclick=function(e){e.stopPropagation();showWordDetail(w.id);};
+    
+    // 更新进度条
+    var newPct=Math.round((i)/vocabList.length*100);
+    var progressFill=document.querySelector(".study-progress-fill");
+    if(progressFill)progressFill.style.width=newPct+"%";
+    
+    document.getElementById("v-progress").textContent=(i+1)+" / "+vocabList.length;
+    document.getElementById("v-prev").disabled=i===0;
+    var nextBtn=document.getElementById("v-next");
+    var doneBtn=document.getElementById("v-done");
+    if(i===vocabList.length-1){nextBtn.style.display="none";doneBtn.style.display="";}else{nextBtn.style.display="";doneBtn.style.display="none";}
+    var sb=document.getElementById("v-star");
+    if(sb)sb.textContent=state.starred[w.id]?"⭐":"☆";
+    card.classList.remove("flipped");
+    card.classList.remove("animate-next","animate-prev");
+    void card.offsetWidth;
+    card.classList.add(animDir==='prev'?'animate-prev':'animate-next');
+  }
+  
+  function showSummary(){
+    var sum=document.getElementById("v-summary");
+    var html='<div class="card" style="padding:14px"><div style="font-weight:700;font-size:15px;margin-bottom:10px">📋 本批 '+vocabList.length+' 个单词</div><div style="display:grid;grid-template-columns:1fr 1fr;gap:6px 14px">';
+    vocabList.forEach(function(w,idx){
+      var cnShort=w.cn.split("；")[0].split(";")[0];
+      html+='<div style="display:flex;align-items:baseline;gap:6px;border-bottom:1px dashed rgba(0,0,0,.08);padding:4px 0"><span style="color:var(--mut);font-size:11px;min-width:18px">'+(idx+1)+'.</span><span style="font-weight:600;font-size:13.5px;min-width:90px">'+w.pt+'</span><span style="font-size:12.5px;color:var(--mut)">'+cnShort+'</span></div>';
+    });
+    html+='</div></div>';
+    sum.innerHTML=html;sum.style.display="";sum.scrollIntoView({behavior:"smooth",block:"nearest"});
+  }
+  
   fill(0);
+  
   card.addEventListener("click",function(){card.classList.toggle("flipped");});
+  
   // 触摸滑动切换卡片
   var touchStartX=0,touchStartY=0,touching=false;
   card.addEventListener("touchstart",function(e){touchStartX=e.touches[0].clientX;touchStartY=e.touches[0].clientY;touching=true;},{passive:true});
   card.addEventListener("touchend",function(e){if(!touching)return;touching=false;var dx=e.changedTouches[0].clientX-touchStartX;var dy=e.changedTouches[0].clientY-touchStartY;if(Math.abs(dx)>40&&Math.abs(dx)>Math.abs(dy)*1.5){if(dx<0){if(vocabIdx<vocabList.length-1){vocabIdx++;fill(vocabIdx,'next');}}else{if(vocabIdx>0){vocabIdx--;fill(vocabIdx,'prev');}}}},{passive:true});
+  
   document.getElementById("v-sound").addEventListener("click",function(){speak(vocabList[vocabIdx].pt);});
   document.getElementById("v-star").addEventListener("click",function(){var w=vocabList[vocabIdx];if(state.starred[w.id]){delete state.starred[w.id];toast("已取消星标");}else{state.starred[w.id]=true;toast("已加星标");}save();fill(vocabIdx);});
   document.getElementById("v-prev").addEventListener("click",function(){if(vocabIdx>0){vocabIdx--;fill(vocabIdx,'prev');}});
   document.getElementById("v-next").addEventListener("click",function(){if(vocabIdx<vocabList.length-1){vocabIdx++;fill(vocabIdx,'next');}});
   document.getElementById("v-done").addEventListener("click",showSummary);
-  document.getElementById("v-know").addEventListener("click",function(){var w=vocabList[vocabIdx];state.learned[w.id]=todayStr();srsRecord(w.id,true);markActive();save();toast("记住了："+w.pt);if(vocabIdx<vocabList.length-1){vocabIdx++;fill(vocabIdx,'next');}else{showSummary();}});
-  document.getElementById("v-forget").addEventListener("click",function(){var w=vocabList[vocabIdx];markWrong(w.id);toast("已加入错词本");if(vocabIdx<vocabList.length-1){vocabIdx++;fill(vocabIdx,'next');}else{showSummary();}});
+  
+  // 三档评级按钮事件
+  document.getElementById("v-know").addEventListener("click",function(){var w=vocabList[vocabIdx];state.learned[w.id]=todayStr();srsRecord(w.id,true);markActive();save();toast("✅ 认识："+w.pt);if(vocabIdx<vocabList.length-1){vocabIdx++;fill(vocabIdx,'next');}else{showSummary();}});
+  
+  document.getElementById("v-fuzzy").addEventListener("click",function(){var w=vocabList[vocabIdx];toast("⚠️ 模糊："+w.pt+"（稍后再复习）");if(vocabIdx<vocabList.length-1){vocabIdx++;fill(vocabIdx,'next');}else{showSummary();}});
+  
+  document.getElementById("v-forget").addEventListener("click",function(){var w=vocabList[vocabIdx];markWrong(w.id);toast("❌ 不认识："+w.pt+"（已加入错词本）");if(vocabIdx<vocabList.length-1){vocabIdx++;fill(vocabIdx,'next');}else{showSummary();}});
+  
   document.getElementById("v-new").addEventListener("click",function(){vocabList=weightedPickWords(8,vocabLevel);vocabIdx=0;document.getElementById("v-summary").style.display="none";fill(0);toast("已换全新 8 个单词");});
 }
+
+
 function normStr(s){return s.toLowerCase().trim().replace(/[áàâãäå]/g,"a").replace(/[éèêë]/g,"e").replace(/[íìîï]/g,"i").replace(/[óòôõö]/g,"o").replace(/[úùûü]/g,"u").replace(/ç/g,"c");}
 function buildWordQuiz(n){
   wq=[];wqIdx=0;wqRight=0;wqAnswered=false;
