@@ -1,0 +1,74 @@
+/* ============================================
+   tokens.css — 设计变量
+   简约白色风格
+   ============================================ */
+
+:root {
+  /* 背景 */
+  --c-bg: #fafafa;
+  --c-surface: #ffffff;
+  --c-surface-hover: #f5f5f5;
+  
+  /* 文字 */
+  --c-ink: #1a1a1a;
+  --c-ink-secondary: #666666;
+  --c-muted: #999999;
+  
+  /* 主色（简约黑灰） */
+  --c-brand: #1a1a1a;
+  --c-brand-soft: #f0f0f0;
+  
+  /* 功能色 */
+  --c-success: #4caf50;
+  --c-success-soft: #e8f5e9;
+  --c-warning: #ff9800;
+  --c-warning-soft: #fff3e0;
+  --c-danger: #f44336;
+  --c-danger-soft: #ffebee;
+  
+  /* 圆角 */
+  --r-sm: 8px;
+  --r-md: 12px;
+  --r-lg: 16px;
+  --r-xl: 24px;
+  --r-full: 999px;
+  
+  /* 阴影 */
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 2px 8px rgba(0, 0, 0, 0.08);
+  --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.12);
+  
+  /* 间距 */
+  --sp-1: 4px;
+  --sp-2: 8px;
+  --sp-3: 12px;
+  --sp-4: 16px;
+  --sp-5: 20px;
+  --sp-6: 24px;
+  --sp-8: 32px;
+  
+  /* 字体 */
+  --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-serif: "Georgia", "Times New Roman", serif;
+  
+  /* 动效 */
+  --ease: cubic-bezier(0.4, 0, 0.2, 1);
+  --ease-out: cubic-bezier(0.0, 0, 0.2, 1);
+  --duration-fast: 150ms;
+  --duration-normal: 250ms;
+  --duration-slow: 350ms;
+}
+
+/* 暗色模式（预留） */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --c-bg: #121212;
+    --c-surface: #1e1e1e;
+    --c-surface-hover: #2a2a2a;
+    --c-ink: #ffffff;
+    --c-ink-secondary: #cccccc;
+    --c-muted: #888888;
+    --c-brand: #ffffff;
+    --c-brand-soft: #2a2a2a;
+  }
+}

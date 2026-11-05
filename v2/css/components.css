@@ -1,0 +1,236 @@
+/* ============================================
+   components.css — 核心组件
+   ============================================ */
+
+/* ---------- 卡片 ---------- */
+.card {
+  background: var(--c-surface);
+  border-radius: var(--r-lg);
+  padding: var(--sp-5);
+  box-shadow: var(--shadow-sm);
+  transition: box-shadow var(--duration-fast) var(--ease),
+              transform var(--duration-fast) var(--ease);
+}
+
+.card:active {
+  transform: scale(0.98);
+}
+
+/* ---------- 按钮 ---------- */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--sp-2);
+  min-height: 48px;
+  padding: 0 var(--sp-5);
+  border-radius: var(--r-md);
+  font-weight: 600;
+  transition: all var(--duration-fast) var(--ease);
+}
+
+.btn:active {
+  transform: scale(0.96);
+}
+
+.btn--primary {
+  background: var(--c-brand);
+  color: var(--c-bg);
+}
+
+.btn--ghost {
+  background: var(--c-brand-soft);
+  color: var(--c-ink);
+}
+
+.btn--block {
+  width: 100%;
+}
+
+.btn--rate {
+  flex: 1;
+  min-height: 60px;
+  border-radius: var(--r-md);
+  font-size: 15px;
+}
+
+.btn--no {
+  background: var(--c-danger-soft);
+  color: var(--c-danger);
+}
+
+.btn--meh {
+  background: var(--c-warning-soft);
+  color: var(--c-warning);
+}
+
+.btn--yes {
+  background: var(--c-success-soft);
+  color: var(--c-success);
+}
+
+.btn:disabled {
+  opacity: 0.4;
+  pointer-events: none;
+}
+
+/* ---------- 进度条 ---------- */
+.progress {
+  height: 6px;
+  border-radius: var(--r-full);
+  background: var(--c-brand-soft);
+  overflow: hidden;
+}
+
+.progress__bar {
+  height: 100%;
+  width: 0;
+  border-radius: var(--r-full);
+  background: var(--c-brand);
+  transition: width var(--duration-slow) var(--ease);
+}
+
+/* ---------- 底部 Tab Bar ---------- */
+.tabbar {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 50;
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: saturate(180%) blur(12px);
+  border-top: 1px solid rgba(0, 0, 0, 0.06);
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+.tabbar__item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: 10px 0 8px;
+  font-size: 11px;
+  color: var(--c-muted);
+  transition: color var(--duration-fast) var(--ease);
+}
+
+.tabbar__item.is-active {
+  color: var(--c-brand);
+}
+
+.tabbar__item svg {
+  width: 24px;
+  height: 24px;
+}
+
+/* ---------- 空状态 ---------- */
+.empty-state {
+  text-align: center;
+  padding: var(--sp-8) var(--sp-5);
+}
+
+.empty-state__icon {
+  font-size: 48px;
+  margin-bottom: var(--sp-4);
+}
+
+.empty-state__title {
+  font-size: 18px;
+  font-weight: 600;
+  margin-bottom: var(--sp-2);
+}
+
+.empty-state__desc {
+  color: var(--c-muted);
+  font-size: 14px;
+  margin-bottom: var(--sp-5);
+}
+
+.empty-state__cta {
+  display: inline-block;
+}
+
+/* ---------- 单词列表项 ---------- */
+.word-item {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+  padding: var(--sp-3);
+  background: var(--c-surface);
+  border-radius: var(--r-md);
+  margin-bottom: var(--sp-2);
+  cursor: pointer;
+  transition: background var(--duration-fast) var(--ease);
+}
+
+.word-item:active {
+  background: var(--c-surface-hover);
+}
+
+.word-item__pt {
+  font-weight: 600;
+  font-size: 15px;
+}
+
+.word-item__cn {
+  font-size: 13px;
+  color: var(--c-muted);
+  margin-top: 2px;
+}
+
+/* ---------- 翻卡 ---------- */
+.flip-container {
+  perspective: 1200px;
+  height: min(50vh, 400px);
+  position: relative;
+  margin: var(--sp-4) 0;
+}
+
+.flip-card {
+  position: absolute;
+  inset: 0;
+  transform-style: preserve-3d;
+  transition: transform var(--duration-slow) var(--ease);
+}
+
+.flip-card.is-flipped {
+  transform: rotateY(180deg);
+}
+
+.flip-face {
+  position: absolute;
+  inset: 0;
+  backface-visibility: hidden;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--r-xl);
+  background: var(--c-surface);
+  box-shadow: var(--shadow-lg);
+  padding: var(--sp-6);
+}
+
+.flip-face--back {
+  transform: rotateY(180deg);
+}
+
+.flip-face__pt {
+  font-size: 28px;
+  font-weight: 700;
+  margin-bottom: var(--sp-2);
+}
+
+.flip-face__cn {
+  font-size: 18px;
+  color: var(--c-ink-secondary);
+}
+
+/* ---------- 分组标题 ---------- */
+.section-title {
+  font-size: 16px;
+  font-weight: 600;
+  margin: var(--sp-6) 0 var(--sp-3);
+}
