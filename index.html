@@ -4103,7 +4103,14 @@ function renderWrongs(){
   var list=wrongWords();
   var html='<section><h2 class="sect">错词本</h2>';
   html+='<div class="card" style="background:linear-gradient(150deg,#FFF5F5,#FFE3E3);border:1px solid #F5C6C6"><div style="font-size:15px;font-weight:700;color:#C0392B">共 '+list.length+' 个答错过的单词</div><div class="muted" style="font-size:12.5px;margin-top:4px">背单词练习和每日测试中答错的词会自动收录，点「复习错词」逐个巩固，掌握的可以移出。</div><div class="row" style="margin-top:12px;flex-wrap:wrap">'+(list.length>0?'<button class="btn primary grow" id="wrong-review" style="min-height:44px">🎯 复习错词（'+Math.min(20,list.length)+'个）</button>':'')+'<button class="btn ghost grow" id="wrong-clearall" style="min-height:44px;color:var(--err)">清空错词本</button></div></div>';
-  if(list.length===0){html+='<div class="card"><div class="muted" style="text-align:center;padding:24px">暂无错词 🎉 继续学习，答错的单词会自动收录到这里。</div></div>';}
+  if(list.length===0){
+  html+='<div class="empty-state">';
+  html+='<div class="empty-icon">🎉</div>';
+  html+='<div class="empty-title">错词本是空的</div>';
+  html+='<div class="empty-desc">太棒了！还没有答错过的单词。去背单词练习，答错的词会自动出现在这里。</div>';
+  html+='<button class="empty-cta" data-g="vocab">开始背单词</button>';
+  html+='</div>';
+}
   else{
     html+='<div class="wordlist">';
     list.forEach(function(it){
