@@ -2311,139 +2311,49 @@ function renderHome(){
   var tw=todayWords();var learnedCount=Object.keys(state.learned).length;
   var srsStat=srsStats();var dueWords=srsDueWords();
   var testToday=state.tests.filter(function(x){return x.date===todayStr();}).pop();
-  // 今日已学单词数
   var todayLearned=tw.filter(function(w){return state.learned[w.id]===todayStr();}).length;
   var todayTarget=tw.length;
   var todayPct=todayTarget>0?Math.round(todayLearned/todayTarget*100):0;
-  // 个性化问候
   var hour=new Date().getHours();
   var greet=hour<12?"Bom dia":(hour<18?"Boa tarde":"Boa noite");
-  var streakMsg=state.streak>0?'连续打卡 <b>'+state.streak+'</b> 天':"今天开始第一天打卡吧";
+  var streakHtml=state.streak>0?'<span class="streak-flame">🔥</span> 连续打卡 <b>'+state.streak+'</b> 天':"今天开始第一天打卡吧";
   var progressMsg=todayPct>=100?"今日任务全部完成，太棒了！":"今天已学 "+todayLearned+"/"+todayTarget+" 词，继续加油";
   var html='<section>';
-  // 紧凑问候条
-  html+='<div class="card" style="display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:16px"><div><div style="font-weight:700;font-size:16px">'+greet+'!</div><div class="muted" style="font-size:12px;margin-top:2px">'+streakMsg+' · 今日 '+todayLearned+'/'+todayTarget+'</div></div><div style="text-align:right"><div style="font-size:20px;font-weight:700;color:var(--azul)">'+todayPct+'%</div><div class="muted" style="font-size:11px">完成度</div></div></div>';
-  // 进度条
-  html+='<div style="background:#e8e2d8;border-radius:10px;height:6px;overflow:hidden;margin-bottom:16px"><div style="height:100%;background:linear-gradient(90deg,#7C8B6F,#73D13D);width:'+todayPct+'%;transition:width .5s cubic-bezier(.22,.9,.28,1);border-radius:10px"></div></div>';
-  var dueN=0,newN=0;tw.forEach(function(w){if(srsGet(w.id))dueN++;else newN++;});
-  if(dueWords.length>0){html+='<div class="card" style="background:linear-gradient(150deg,var(--terra),#c96a3a);color:#fff;border:none;margin-bottom:16px"><div style="font-family:Lora,serif;font-size:17px;font-weight:700">🧠 智能复习 · '+dueWords.length+' 个单词待复习</div><div class="muted" style="color:rgba(255,255,255,.9);font-size:13px;margin:4px 0 10px">这些单词按遗忘曲线今天该复习了，趁还没忘记再巩固一遍。</div><button class="btn" style="background:#fff;color:var(--terra);font-weight:700" data-g="review">开始复习</button></div>';}
-  html+='<h2 class="sect">今日必背 · '+tw.length+' 词'+(dueN>0?' · <span style="color:var(--terra)">'+dueN+' 个复习</span>':'')+(newN>0?' · '+newN+' 个新词':'')+'</h2><div class="wordlist">';
-  tw.forEach(function(w){var done=!!state.learned[w.id];var starred=!!state.starred[w.id];html+='<div class="word" data-wdetail="'+w.id+'" style="cursor:pointer">'+(w.img?'<img class="wimg" src="'+w.img+'" alt="'+w.pt+'">':'<div class="flag">'+w.pt.charAt(0).toUpperCase()+'</div>')+'<div><div class="w-pt">'+w.pt+(w.level?' <span style="font-size:10px;background:var(--azul-light);color:var(--azul-deep);padding:1px 6px;border-radius:8px;font-weight:600">'+w.level+'</span>':'')+(starred?' <span style="color:#F5A623">'+ICONS.starFilled+'</span>':'')+'</div><div class="w-cn">'+shortCn(w)+'</div></div><div class="right"><button title="星标收藏" class="'+(starred?'starred':'')+'" data-star="'+w.id+'">'+(starred?ICONS.starFilled:ICONS.star)+'</button><button title="播放发音" data-sp="'+w.pt+'">'+ICONS.sound+'</button><a title="查 infopedia" href="https://www.infopedia.pt/dicionarios/portugues/'+encodeURIComponent(w.pt)+'" target="_blank" rel="noopener">'+ICONS.link+'</a><button title="标记已记" class="'+(done?'learned':'')+'" data-learn="'+w.id+'">'+ICONS.check+'</button></div></div>';});
+  
+  // 顶部问候卡片（升级设计）
+  html+='<div class="card" style="background:linear-gradient(135deg,var(--azul),var(--azul-deep));color:#fff;border:none;margin-bottom:16px"><div style="display:flex;justify-content:space-between;align-items:flex-start"><div><div style="font-family:Lora,serif;font-size:20px;font-weight:700;margin-bottom:4px">'+greet+'!</div><div style="font-size:13px;opacity:.9">'+streakHtml+'</div></div><div style="text-align:right"><div style="font-size:28px;font-weight:700;line-height:1">'+todayPct+'%</div><div style="font-size:11px;opacity:.8;margin-top:2px">完成度</div></div></div>';
+  
+  // 进度条（流光效果）
+  html+='<div class="study-progress" style="margin:16px 0 0"><div class="study-progress-fill" style="width:'+todayPct+'%"></div></div>';
   html+='</div>';
-  html+='<h2 class="sect">搜索单词</h2><div class="card" style="margin-bottom:16px"><div class="searchbox"><input type="text" id="home-search" placeholder="输入中文或葡语搜索单词…" style="font-size:15px"><button class="btn primary" id="home-search-btn">搜索</button></div><div class="muted" style="margin-top:8px;font-size:12px">支持葡语和中文双向搜索，共 '+WORDS.length+' 词（A1-C2）</div><div id="home-search-results" style="margin-top:12px"></div></div>';
-  html+='<h2 class="sect">每日测试</h2><div class="card">';
-  if(testToday){html+='<div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px"><div><b style="font-size:18px;color:var(--azul)">今日已完成</b><div class="muted">'+testToday.correct+' / '+testToday.total+' 分</div></div><button class="btn ghost" data-g="test">再测一次</button></div>';}
-  else{html+='<div class="muted" style="margin-bottom:12px">今天还没测试。5 道题检验今天的单词掌握情况。</div><button class="btn terra block" data-g="test">开始今日测试</button>';}
-  html+='</div></section>';
+  
+  var dueN=0,newN=0;tw.forEach(function(w){if(srsGet(w.id))dueN++;else newN++;});
+  
+  // 智能复习卡片（升级设计）
+  if(dueWords.length>0){
+    html+='<div class="card" style="background:linear-gradient(150deg,var(--terra),#b8734a);color:#fff;border:none;margin-bottom:16px;position:relative;overflow:hidden"><div style="position:absolute;top:-20px;right:-20px;width:80px;height:80px;border-radius:50%;background:rgba(255,255,255,.1)"></div><div style="position:relative"><div style="font-size:18px;font-weight:700;margin-bottom:6px">🧠 智能复习</div><div style="font-size:14px;opacity:.95;margin-bottom:12px">'+dueWords.length+' 个单词待复习 · 按遗忘曲线安排</div><button class="btn" style="background:#fff;color:var(--terra);font-weight:700;padding:10px 24px" data-g="review">开始复习</button></div></div>';
+  }
+  
+  html+='<h2 class="sect">今日必背 · '+tw.length+' 词'+(dueN>0?' · <span style="color:var(--terra)">'+dueN+' 个复习</span>':'')+(newN>0?' · '+newN+' 个新词':'')+'</h2><div class="wordlist">';
+  tw.forEach(function(w){
+    var done=!!state.learned[w.id];var starred=!!state.starred[w.id];
+    html+='<div class="word" data-wdetail="'+w.id+'" style="cursor:pointer">'+(w.img?'<img class="wimg" src="'+w.img+'" alt="'+w.pt+'">':'<div class="flag">'+w.pt.charAt(0).toUpperCase()+'</div>')+'<div><div class="w-pt">'+w.pt+(w.level?' <span style="font-size:10px;background:var(--azul-light);color:var(--azul-deep);padding:1px 6px;border-radius:8px;font-weight:600">'+w.level+'</span>':'')+(starred?' <span style="color:#F5A623">'+ICONS.starFilled+'</span>':'')+'</div><div class="w-cn">'+shortCn(w)+'</div></div><div class="right"><button title="星标收藏" class="'+(starred?'starred':'')+
+    '" data-star="'+w.id+'" style="background:none;border:none;color:inherit;opacity:.6;padding:4px">'+(starred?ICONS.starFilled:'☆')+'</button></div></div>';
+  });
+  html+='</div>';
+  
+  // 底部统计卡片
+  html+='<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:20px">';
+  html+='<div class="card" style="text-align:center;padding:16px"><div style="font-size:24px;font-weight:700;color:var(--azul)">'+learnedCount+'</div><div class="muted" style="font-size:12px;margin-top:4px">已学单词</div></div>';
+  html+='<div class="card" style="text-align:center;padding:16px"><div style="font-size:24px;font-weight:700;color:var(--terra)">'+state.streak+'</div><div class="muted" style="font-size:12px;margin-top:4px">连续打卡</div></div>';
+  html+='</div>';
+  
+  html+='</section>';
   view.innerHTML=html;
-  view.querySelectorAll("[data-g]").forEach(function(b){b.addEventListener("click",function(){location.hash="#/"+b.getAttribute("data-g");});});
-  view.querySelectorAll("[data-sp]").forEach(function(b){b.addEventListener("click",function(e){e.stopPropagation();speak(b.getAttribute("data-sp"));b.classList.add("sound-playing");setTimeout(function(){b.classList.remove("sound-playing");},1500);});});
-  view.querySelectorAll("[data-star]").forEach(function(b){b.addEventListener("click",function(e){e.stopPropagation();var id=b.getAttribute("data-star");if(state.starred[id]){delete state.starred[id];b.classList.remove("starred");b.innerHTML=ICONS.star;toast("已取消星标");}else{state.starred[id]=true;b.classList.add("starred","star-sparkle");b.innerHTML=ICONS.starFilled;setTimeout(function(){b.classList.remove("star-sparkle");},500);toast("已加星标");}save();});});
-  view.querySelectorAll("[data-learn]").forEach(function(b){b.addEventListener("click",function(e){e.stopPropagation();var id=b.getAttribute("data-learn");if(state.learned[id]){delete state.learned[id];b.classList.remove("learned");b.innerHTML=ICONS.check;toast("已取消记住");}else{state.learned[id]=todayStr();b.classList.add("learned");b.innerHTML='<svg viewBox="0 0 24 24" style="color:#7C8B6F"><path class="check-draw" d="M5 12l5 5L20 7" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>';toast("已标记记住");}markActive();save();});});
-  view.querySelectorAll("[data-wdetail]").forEach(function(c){c.addEventListener("click",function(e){
-    if(e.target.closest("button,a"))return;
-    var rect=c.getBoundingClientRect();var x=e.clientX-rect.left;var y=e.clientY-rect.top;var r=document.createElement("span");r.className="ripple-anim";var size=Math.max(rect.width,rect.height);r.style.width=r.style.height=size+"px";r.style.left=(x-size/2)+"px";r.style.top=(y-size/2)+"px";c.appendChild(r);setTimeout(function(){r.remove();},600);
-    showWordDetail(parseInt(c.getAttribute("data-wdetail")));
-  });});
-  var fab=document.getElementById("float-fab");
-  if(fab){
-    try{var fp=JSON.parse(localStorage.getItem("fab-pos")||"null");if(fp){fab.style.left=fp.x+"px";fab.style.top=fp.y+"px";fab.style.right="auto";}
-      if(localStorage.getItem("fab-hidden")==="1")fab.classList.add("hidden");}catch(e){}
-    var dragging=false,moved=false,longPressed=false,sx=0,sy=0,ox=0,oy=0,pressTimer=null;
-    function fabDown(x,y){dragging=true;moved=false;longPressed=false;sx=x;sy=y;var r=fab.getBoundingClientRect();ox=r.left;oy=r.top;fab.classList.add("dragging");document.body.classList.add("fab-dragging");
-      pressTimer=setTimeout(function(){longPressed=true;fab.classList.toggle("hidden");try{localStorage.setItem("fab-hidden",fab.classList.contains("hidden")?"1":"0");}catch(e){}},500);}
-    function fabMove(x,y){if(!dragging)return;var dx=x-sx,dy=y-sy;if(Math.abs(dx)+Math.abs(dy)>6){moved=true;if(pressTimer){clearTimeout(pressTimer);pressTimer=null;}}if(!moved)return;
-      var nx=Math.min(Math.max(ox+dx,8),window.innerWidth-fab.offsetWidth-8);
-      var ny=Math.min(Math.max(oy+dy,8),window.innerHeight-fab.offsetHeight-8);
-      fab.style.left=nx+"px";fab.style.top=ny+"px";fab.style.right="auto";}
-    function fabUp(){if(!dragging)return;dragging=false;fab.classList.remove("dragging");document.body.classList.remove("fab-dragging");if(pressTimer){clearTimeout(pressTimer);pressTimer=null;}
-      var r=fab.getBoundingClientRect();
-      if(longPressed)return;
-      if(!moved){
-        try{localStorage.setItem("fab-pos",JSON.stringify({x:r.left,y:r.top}));}catch(e){}
-        if(fab.classList.contains("hidden")){fab.classList.remove("hidden");try{localStorage.setItem("fab-hidden","0");}catch(e){}}
-        else{openDrawer();}
-        return;
-      }
-      var wall=8;
-      var top=Math.min(Math.max(r.top,wall),window.innerHeight-fab.offsetHeight-wall);
-      var nearLeft=r.left<=window.innerWidth-r.right;
-      var nx=nearLeft?wall:window.innerWidth-fab.offsetWidth-wall;
-      fab.style.left=nx+"px";fab.style.top=top+"px";fab.style.right="auto";
-      try{localStorage.setItem("fab-pos",JSON.stringify({x:nx,y:top}));}catch(e){}
-      }
-    fab.addEventListener("touchstart",function(e){var t=e.touches[0];fabDown(t.clientX,t.clientY);},{passive:true});
-    fab.addEventListener("touchmove",function(e){fabMove(e.touches[0].clientX,e.touches[0].clientY);if(moved)e.preventDefault();},{passive:false});
-    fab.addEventListener("touchend",fabUp);
-    fab.addEventListener("mousedown",function(e){fabDown(e.clientX,e.clientY);e.preventDefault();});
-    document.addEventListener("mousemove",function(e){fabMove(e.clientX,e.clientY);});
-    document.addEventListener("mouseup",fabUp);
-  }
-  // 首页搜索功能
-  var hsi=document.getElementById("home-search");
-  var hsb=document.getElementById("home-search-btn");
-  var hsr=document.getElementById("home-search-results");
-  function doHomeSearch(){
-    var q=hsi.value.trim().toLowerCase();
-    if(!q){hsr.innerHTML="";return;}
-    var terms=[q];
-    if(SYM_MAP[q]!==undefined)terms.push(SYM_MAP[q]);
-    var qNoAccent=removeAccents(q);
-    if(qNoAccent!==q)terms.push(qNoAccent);
-    var results=WORDS.filter(function(w){var ptLow=(w.pt||'').toLowerCase();var ptNoAccent=removeAccents(ptLow);var cnLow=(w.cn||'').toLowerCase();var posLow=(w.pos||'').toLowerCase();return terms.some(function(t){return ptLow.indexOf(t)>-1||ptNoAccent.indexOf(t)>-1||cnLow.indexOf(t)>-1||posLow.indexOf(t)>-1;});});
-    sortSearchResults(results, terms);
-    // 变位形式搜索（输入长度>=3）
-    var conjMatches=[];
-    if(q.length>=3){
-      var matchedInf={};
-      results.forEach(function(w){if(w.pos&&w.pos.indexOf("动词")>-1)matchedInf[w.pt.toLowerCase()]=true;});
-      var _ci=getConjIndex(),_cks=Object.keys(_ci);
-      for(var _ci2=0;_ci2<_cks.length;_ci2++){
-        if(_cks[_ci2].indexOf(q)>-1){
-          var _lst=_ci[_cks[_ci2]];
-          for(var _li=0;_li<_lst.length;_li++){
-            var _cm=_lst[_li];
-            if(matchedInf[_cm.verb.inf])continue;
-            conjMatches.push(_cm);
-            if(conjMatches.length>=50)break;
-          }
-          if(conjMatches.length>=50)break;
-        }
-      }
-    }
-    if(results.length===0&&conjMatches.length===0){hsr.innerHTML='<div class="muted" style="text-align:center;padding:20px">未找到匹配的单词<br><br><a class="btn primary" href="https://www.infopedia.pt/dicionarios/portugues/'+encodeURIComponent(q)+'" target="_blank" rel="noopener">去 infopedia.pt 查「'+q+'」</a></div>';return;}
-    var h='';
-    if(results.length>0){
-      h+='<div class="muted" style="margin-bottom:8px">找到 '+results.length+' 个结果</div><div class="wordlist">';
-      results.slice(0,30).forEach(function(w){
-        var starred=!!state.starred[w.id];
-        h+='<div class="word" data-wdetail="'+w.id+'" style="cursor:pointer">'+(w.img?'<img class="wimg" src="'+w.img+'" alt="'+w.pt+'">':'<div class="flag">'+w.pt.charAt(0).toUpperCase()+'</div>')+'<div><div class="w-pt">'+w.pt+(w.level?' <span style="font-size:10px;background:var(--azul-light);color:var(--azul-deep);padding:1px 6px;border-radius:8px;font-weight:600">'+w.level+'</span>':'')+(starred?' <span style="color:#F5A623">'+ICONS.starFilled+'</span>':'')+'</div><div class="w-cn">'+shortCn(w)+'</div><div class="w-meta" style="font-size:11px;color:var(--mut);margin-top:2px">'+w.pos+'</div>'+(w.ex?'<div style="font-size:12px;color:#888;margin-top:2px;font-family:Lora,serif">'+w.ex+'</div>':'')+'</div><div class="right"><button title="星标收藏" class="'+(starred?'starred':'')+'" data-hstar="'+w.id+'">'+(starred?ICONS.starFilled:ICONS.star)+'</button><button title="播放发音" data-hsp="'+w.pt+'">'+ICONS.sound+'</button><a title="查 infopedia" href="https://www.infopedia.pt/dicionarios/portugues/'+encodeURIComponent(w.pt)+'" target="_blank" rel="noopener">'+ICONS.link+'</a></div></div>';
-      });
-      h+='</div>';
-      if(results.length>30){h+='<div class="muted" style="text-align:center;margin-top:8px;font-size:12px">仅显示前30条，去字典页面查看全部</div>';}
-    }
-    if(conjMatches.length>0){
-      h+='<div class="muted" style="margin:14px 0 8px">变位形式匹配（'+conjMatches.length+' 个）：</div><div class="wordlist">';
-      conjMatches.slice(0,10).forEach(function(cm){
-        h+='<div class="word"><div class="flag">'+cm.verb.inf.charAt(0).toUpperCase()+'</div><div><div class="w-pt">'+cm.verb.inf+' <span style="font-size:10px;background:var(--terra);color:#fff;padding:1px 6px;border-radius:8px;font-weight:600">动词</span></div><div class="w-cn">'+cm.verb.cn+' · <span class="w-meta">'+cm.conj+' · '+cm.tense+' '+cm.pron+'</span></div></div><div class="right"><button title="查看变位" class="linkbtn" data-hconj="'+cm.verb.inf+'" style="font-size:13px;color:var(--azul-deep)">查看变位 →</button></div></div>';
-      });
-      h+='</div>';
-      if(conjMatches.length>10){h+='<div class="muted" style="text-align:center;margin-top:8px;font-size:12px">仅显示前10个，去动词变位页面查看全部</div>';}
-    }
-    hsr.innerHTML=h;
-    hsr.querySelectorAll("[data-hsp]").forEach(function(b){b.addEventListener("click",function(e){e.stopPropagation();speak(b.getAttribute("data-hsp"));});});
-    hsr.querySelectorAll("[data-hstar]").forEach(function(b){b.addEventListener("click",function(e){e.stopPropagation();var id=b.getAttribute("data-hstar");if(state.starred[id]){delete state.starred[id];b.classList.remove("starred");b.innerHTML=ICONS.star;toast("已取消星标");}else{state.starred[id]=true;b.classList.add("starred","star-sparkle");b.innerHTML=ICONS.starFilled;setTimeout(function(){b.classList.remove("star-sparkle");},500);toast("已加星标");}save();});});
-    hsr.querySelectorAll("[data-hconj]").forEach(function(b){b.addEventListener("click",function(){location.hash="#/verbs";});});
-    hsr.querySelectorAll("[data-wdetail]").forEach(function(c){c.addEventListener("click",function(e){if(e.target.closest("button,a"))return;showWordDetail(parseInt(c.getAttribute("data-wdetail")));});});
-  }
-  if(hsb)hsb.addEventListener("click",doHomeSearch);
-  if(hsi)hsi.addEventListener("keydown",function(e){if(e.key==="Enter")doHomeSearch();});
-  if(hsi)hsi.addEventListener("input",function(){if(hsi.value.trim().length>=1)doHomeSearch();else if(hsi.value.trim().length===0)hsr.innerHTML="";});
+  bindWordlist();
+  bindStarButtons();
 }
 
-/* ===================== 背单词（翻转卡片 + 练习测试） ===================== */
-var vocabList=[],vocabIdx=0,vocabMode="card",vocabLevel="all";
-var wq=[],wqIdx=0,wqRight=0,wqAnswered=false,wqType="choice";
 function renderVocab(){
   vocabList=weightedPickWords(8,vocabLevel);vocabIdx=0;wq=[];wqIdx=0;wqRight=0;
   var html='<section><h2 class="sect">背单词</h2>';
