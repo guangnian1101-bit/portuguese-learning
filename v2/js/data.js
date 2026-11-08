@@ -8,6 +8,9 @@ const cache = new Map();
 // ID 索引缓存
 let idIndex = null;
 
+// 首字母索引缓存
+let letterIndex = null;
+
 // 加载 ID 索引
 async function loadIdIndex() {
   if (idIndex) return idIndex;
@@ -22,6 +25,24 @@ async function loadIdIndex() {
     return idIndex;
   } catch (e) {
     console.error('加载 ID 索引失败:', e);
+    return {};
+  }
+}
+
+// 加载首字母索引
+async function loadLetterIndex() {
+  if (letterIndex) return letterIndex;
+  
+  try {
+    const response = await fetch('data/index.json');
+    if (!response.ok) {
+      console.warn('未找到首字母索引文件');
+      return {};
+    }
+    letterIndex = await response.json();
+    return letterIndex;
+  } catch (e) {
+    console.error('加载首字母索引失败:', e);
     return {};
   }
 }
@@ -52,20 +73,77 @@ export async function loadWordsByLetter(letter) {
   }
 }
 
-// 搜索（葡语前缀 + 中文子串）
+// 随机抽取单词（用于学习）
+export async function getRandomWords(count = 20) {
+  // 加载首字母索引
+  const index = await loadLetterIndex();
+  const letters = Object.keys(index);
+  
+  // 随机选一个首字母
+  const randomLetter = letters[Math.floor(Math.random() * letters.length)];
+  
+  // 加载该首字母的所有单词
+  const allWords = await loadWordsByLetter(randomLetter);
+  
+  // 随机打乱并取前 N 个
+  const shuffled = allWords.sort(() => 0.5 - Math.random());
+  return shuffled.slice(0, count);
+}
+
+// 按分类筛选单词
+export async function getWordsByFilter(filter, count = 20) {
+  const { type, value } = filter;
+  const index = await loadLetterIndex();
+  const letters = Object.keys(index);
+  
+  const matchedWords = [];
+  
+  // 遍历所有首字母的单词（限制遍历数量以提高速度）
+  for (const letter of letters.slice(0, 10)) { // 先遍历前 10 个首字母
+    const words = await loadWordsByLetter(letter);
+    
+    const filtered = words.filter(w => {
+      if (type === 'level') return w.level === value;
+      if (type === 'pos') return w.pos === value;
+      if (type === 'cat') return w.cat === value;
+      return false;
+    });
+    
+    matchedWords.push(...filtered);
+    
+    // 如果已经够了就停止
+    if (matchedWords.length >= count * 3) break;
+  }
+  
+  // 随机打乱并取前 N 个
+  const shuffled = matchedWords.sort(() => 0.5 - Math.random());
+  return shuffled.slice(0, count);
+}
+
+// 去掉重音符号（用于模糊搜索）
+function removeAccents(str) {
+  return str.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+}
+
+// 搜索（葡语前缀 + 中文子串，忽略重音）
 export async function searchWords(query, limit = 20) {
   if (!query || query.length < 1) return [];
   
   const q = query.toLowerCase().trim();
+  const qNorm = removeAccents(q);  // 去重音后的搜索词
   const results = [];
   
-  // 葡语搜索：按首字母加载
-  const firstLetter = q[0];
+  // 葡语搜索：按首字母加载（用去重音后的首字母）
+  const firstLetter = qNorm[0];
   const words = await loadWordsByLetter(firstLetter);
   
-  // 匹配：葡语前缀
+  // 匹配：葡语前缀（同时匹配原始和去重音形式）
   const ptMatches = words
-    .filter(w => w.pt.toLowerCase().startsWith(q))
+    .filter(w => {
+      const ptLower = w.pt.toLowerCase();
+      const ptNorm = removeAccents(w.pt);
+      return ptLower.startsWith(q) || ptNorm.startsWith(qNorm);
+    })
     .slice(0, limit);
   
   results.push(...ptMatches);

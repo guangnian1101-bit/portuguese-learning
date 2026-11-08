@@ -14,6 +14,8 @@ const defaultState = {
   streak: 0,        // 连续打卡天数
   lastActive: null, // 上次活跃日期
   tests: [],        // 测试记录
+  darkMode: false,  // 暗色模式
+  dailyCount: 20,   // 每天学习数量
   settings: {
     dailyGoal: 20,
     autoPlayAudio: true,

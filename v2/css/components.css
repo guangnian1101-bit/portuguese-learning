@@ -312,3 +312,121 @@
   color: var(--c-ink);
   box-shadow: var(--shadow-sm);
 }
+
+/* ---------- 连线题型：音节方框 ---------- */
+.connect-board {
+  position: relative;
+  padding: 26px 6px 18px;
+  border-radius: var(--r-lg);
+  background: var(--c-surface);
+  box-shadow: var(--shadow-sm);
+}
+
+.connect-boxes {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px 22px;
+  justify-content: center;
+  align-items: center;
+}
+
+#connect-lines {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1;
+  overflow: visible;
+  pointer-events: none;
+}
+
+#connect-lines line {
+  stroke: var(--c-brand);
+  stroke-width: 2.5;
+  stroke-linecap: round;
+  filter: drop-shadow(0 0 5px var(--c-brand-soft));
+}
+
+#connect-lines line.is-wrong {
+  stroke: var(--c-danger);
+  stroke-dasharray: 8 6;
+}
+
+#connect-lines line.is-done {
+  stroke: var(--c-success);
+}
+
+.syl-box {
+  min-width: 72px;
+  min-height: 62px;
+  padding: 0 20px;
+  border: 2px solid var(--c-border);
+  border-radius: var(--r-lg);
+  background: var(--c-brand-soft);
+  color: var(--c-ink);
+  font-size: 25px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  line-height: 1;
+  cursor: pointer;
+  box-shadow: var(--shadow-sm);
+  transition: transform var(--duration-fast) var(--ease),
+              box-shadow var(--duration-fast) var(--ease),
+              border-color var(--duration-fast) var(--ease),
+              background var(--duration-fast) var(--ease);
+}
+
+.syl-box:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-md);
+}
+
+/* 当前选中：白底 + 品牌色描边 + 光晕 + 抬起 */
+.syl-box.is-source {
+  background: var(--c-surface);
+  border-color: var(--c-brand);
+  transform: translateY(-3px) scale(1.04);
+  box-shadow: 0 0 0 4px var(--c-brand-soft), var(--shadow-md);
+}
+
+/* 已连线：两端的方框保持高光 */
+.syl-box.is-linked {
+  background: var(--c-surface);
+  border-color: var(--c-brand);
+  box-shadow: 0 0 0 3px var(--c-brand-soft);
+}
+
+/* 全部连对 */
+.syl-box.is-done {
+  border-color: var(--c-success);
+  background: var(--c-success-soft);
+  color: var(--c-success);
+}
+
+.syl-box.is-wrong {
+  border-color: var(--c-danger);
+  animation: syl-shake 400ms var(--ease);
+}
+
+.syl-box--whole {
+  cursor: default;
+  font-size: 22px;
+}
+
+@keyframes syl-shake {
+  0%, 100% { transform: translateX(0); }
+  20% { transform: translateX(-6px); }
+  40% { transform: translateX(6px); }
+  60% { transform: translateX(-4px); }
+  80% { transform: translateX(3px); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .syl-box,
+  #connect-lines line {
+    transition: none !important;
+    animation: none !important;
+  }
+}
