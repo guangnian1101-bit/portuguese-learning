@@ -3,18 +3,32 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <meta name="theme-color" content="#fafafa">
+  <meta name="theme-color" content="#fafafa" id="theme-color-meta">
   <title>Aprender Português - 学葡语</title>
-  
+
+  <!-- 首屏主题预置：避免刷新时先白后黑的闪烁 -->
+  <script>
+    (function () {
+      try {
+        var s = JSON.parse(localStorage.getItem('pt-learn-v2') || '{}');
+        if (s && s.darkMode) {
+          document.documentElement.classList.add('dark');
+          var m = document.querySelector('meta[name="theme-color"]');
+          if (m) m.setAttribute('content', '#121212');
+        }
+      } catch (e) {}
+    })();
+  </script>
+
   <!-- CSS -->
-  <link rel="stylesheet" href="css/tokens.css">
-  <link rel="stylesheet" href="css/base.css">
-  <link rel="stylesheet" href="css/components.css">
+  <link rel="stylesheet" href="css/tokens.css?v=16">
+  <link rel="stylesheet" href="css/base.css?v=16">
+  <link rel="stylesheet" href="css/components.css?v=16">
 </head>
 <body>
   <div id="app"></div>
-  
+
   <!-- JS Module -->
-  <script type="module" src="js/app.js?v=2"></script>
+  <script type="module" src="js/app.js?v=20"></script>
 </body>
 </html>

@@ -91,6 +91,38 @@ class Store {
   get learnedCount() {
     return Object.keys(this.state.learned).length;
   }
+
+  // 同步浏览器顶部/状态栏颜色
+  syncThemeColor() {
+    const meta = document.querySelector('meta[name="theme-color"]');
+    if (meta) {
+      meta.setAttribute('content', this.state.darkMode ? '#121212' : '#fafafa');
+    }
+  }
+
+  // 把当前主题应用到 DOM
+  applyTheme() {
+    document.documentElement.classList.toggle('dark', !!this.state.darkMode);
+    this.syncThemeColor();
+  }
+
+  // 设置主题：true = 黑（深色），false = 白（浅色）
+  setDarkMode(on) {
+    this.state.darkMode = !!on;
+    this.applyTheme();
+    this.emit();
+  }
+
+  // 切换黑白主题
+  toggleDarkMode() {
+    this.setDarkMode(!this.state.darkMode);
+  }
+
+  // 设置每天学习数量
+  setDailyCount(count) {
+    this.state.dailyCount = count;
+    this.emit();
+  }
 }
 
 export const store = new Store();

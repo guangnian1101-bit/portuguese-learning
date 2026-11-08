@@ -4,10 +4,16 @@
    ============================================ */
 
 :root {
+  color-scheme: light;
+
   /* 背景 */
   --c-bg: #fafafa;
   --c-surface: #ffffff;
   --c-surface-hover: #f5f5f5;
+  --c-tabbar-bg: rgba(255, 255, 255, 0.95);
+
+  /* 边框/分隔线 */
+  --c-border: #eeeeee;
   
   /* 文字 */
   --c-ink: #1a1a1a;
@@ -59,16 +65,24 @@
   --duration-slow: 350ms;
 }
 
-/* 暗色模式（预留） */
-@media (prefers-color-scheme: dark) {
-  :root {
-    --c-bg: #121212;
-    --c-surface: #1e1e1e;
-    --c-surface-hover: #2a2a2a;
-    --c-ink: #ffffff;
-    --c-ink-secondary: #cccccc;
-    --c-muted: #888888;
-    --c-brand: #ffffff;
-    --c-brand-soft: #2a2a2a;
-  }
+/* 暗色模式（手动切换） */
+.dark {
+  color-scheme: dark;
+
+  --c-bg: #121212;
+  --c-surface: #1e1e1e;
+  --c-surface-hover: #2a2a2a;
+  --c-tabbar-bg: rgba(30, 30, 30, 0.95);
+  --c-border: #333333;
+  --c-ink: #ffffff;
+  --c-ink-secondary: #cccccc;
+  --c-muted: #888888;
+  --c-brand: #ffffff;
+  --c-brand-soft: #2a2a2a;
+  --c-success-soft: rgba(76, 175, 80, 0.18);
+  --c-warning-soft: rgba(255, 152, 0, 0.18);
+  --c-danger-soft: rgba(244, 67, 54, 0.18);
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.2);
+  --shadow-md: 0 2px 8px rgba(0, 0, 0, 0.3);
+  --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.4);
 }
