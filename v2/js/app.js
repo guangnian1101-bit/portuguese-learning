@@ -14,7 +14,7 @@ import { render as renderSettings } from './pages/settings.js?v=25';
 import { render as renderCategories } from './pages/categories.js?v=25';
 import { render as renderDaily } from './pages/daily.js?v=25';
 import { render as renderGrammar } from './pages/grammar.js?v=26';
-import { render as renderConj } from './pages/conj.js?v=26';
+import { render as renderConj } from './pages/conj.js?v=27';
 
 // 注册路由
 router.register('/', () => renderHome());
