@@ -430,3 +430,56 @@
     animation: none !important;
   }
 }
+
+/* ===== 完成页：本轮单词回顾卡牌 ===== */
+.review-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin: 0 4px;
+  text-align: left;
+}
+.review-card {
+  background: var(--c-brand-soft);
+  border: 1px solid var(--c-border);
+  border-radius: var(--r-lg, 16px);
+  padding: 14px 16px;
+  cursor: pointer;
+  transition: background var(--duration-fast, 160ms) ease, border-color var(--duration-fast, 160ms) ease;
+}
+.review-card:hover { border-color: var(--c-brand); }
+.review-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+}
+.review-pt {
+  font-size: 17px;
+  font-weight: 600;
+  color: var(--c-ink);
+  word-break: break-word;
+}
+.review-mark { font-size: 15px; flex-shrink: 0; }
+.review-detail {
+  display: none;
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px solid var(--c-border);
+}
+.review-card.is-open .review-detail { display: block; }
+.review-cn {
+  font-size: 14px;
+  color: var(--c-ink-secondary);
+  line-height: 1.6;
+  margin-bottom: 8px;
+  white-space: pre-wrap;
+}
+.review-meta {
+  font-size: 12px;
+  color: var(--c-muted);
+  margin-bottom: 10px;
+}
+@media (prefers-reduced-motion: reduce) {
+  .review-card { transition: none !important; }
+}

@@ -20,6 +20,8 @@ let studyMode = 'flashcard'; // flashcard | quiz | connect
 let quizOptions = [];
 let quizAnswered = false;
 let correctCount = 0;
+// 每题作答记录（key = wordList 下标），用于回退与完成后的回顾
+let answers = {};
 
 // 滑动状态
 let touchStartX = 0;
@@ -39,7 +41,7 @@ export async function render() {
             ← 返回
           </button>
           <div style="display: flex; align-items: center; gap: 12px">
-            <button id="undo-btn" onclick="undoLastAction()" style="background: none; border: none; color: var(--c-muted); font-size: 16px; cursor: pointer; opacity: 0.3" disabled>
+            <button id="undo-btn" onclick="handleUndo()" style="background: none; border: none; color: var(--c-muted); font-size: 16px; cursor: pointer; opacity: 0.3" disabled>
               ↩ 撤销
             </button>
             <span style="font-size: 14px; color: var(--c-muted)" id="progress-text">0 / 20</span>
@@ -154,7 +156,10 @@ export async function render() {
         
         <div id="quiz-feedback" style="display: none; margin-top: 16px; padding: 16px; border-radius: 12px; text-align: center">
           <div id="quiz-feedback-text"></div>
-          <button class="btn btn--primary" style="margin-top: 12px" onclick="nextQuiz()">下一题 →</button>
+          <div style="display:flex; gap:10px; justify-content:center; margin-top:12px">
+            <button class="btn btn--ghost" id="quiz-prev-btn" style="display:none" onclick="prevQuestion()">← 上一题</button>
+            <button class="btn btn--primary" onclick="nextQuiz()">下一题 →</button>
+          </div>
         </div>
       </div>
       
@@ -184,16 +189,23 @@ export async function render() {
 
         <div id="connect-feedback" style="display: none; margin-top: 14px; padding: 16px; border-radius: 12px; text-align: center">
           <div id="connect-feedback-text"></div>
-          <button class="btn btn--primary" style="margin-top: 12px" onclick="nextConnect()">下一题 →</button>
+          <div style="display:flex; gap:10px; justify-content:center; margin-top:12px">
+            <button class="btn btn--ghost" id="connect-prev-btn" style="display:none" onclick="prevQuestion()">← 上一题</button>
+            <button class="btn btn--primary" onclick="nextConnect()">下一题 →</button>
+          </div>
         </div>
       </div>
 
       <!-- 完成状态 -->
-      <div id="done-area" style="display: none; text-align: center; padding: 80px 0">
+      <div id="done-area" style="display: none; text-align: center; padding: 60px 0">
         <div style="font-size: 64px; margin-bottom: 16px">🎉</div>
         <h2 style="margin-bottom: 8px">太棒了！</h2>
         <p style="color: var(--c-muted); margin-bottom: 8px" id="done-stats">本轮学习完成</p>
         <p style="color: var(--c-muted); margin-bottom: 24px; font-size: 14px" id="quiz-stats"></p>
+        <div id="review-wrap" style="display:none; margin-bottom:24px">
+          <div style="font-size:14px; color:var(--c-muted); margin-bottom:12px">本轮单词回顾 · 点卡牌看释义</div>
+          <div class="review-list" id="review-list"></div>
+        </div>
         <button class="btn btn--primary" onclick="router.navigate('/')">返回首页</button>
       </div>
     </div>
@@ -258,6 +270,7 @@ async function loadWords() {
   currentIndex = 0;
   lastAction = null;
   correctCount = 0;
+  answers = {};
 }
 
 // ========== 翻卡模式 ==========
@@ -277,6 +290,7 @@ function renderCard() {
     } else {
       document.getElementById('quiz-stats').textContent = '';
     }
+    renderReviewList();
     return;
   }
   
@@ -337,13 +351,17 @@ function resetCardPosition() {
 
 function updateUndoButton() {
   const undoBtn = document.getElementById('undo-btn');
-  if (lastAction) {
-    undoBtn.disabled = false;
-    undoBtn.style.opacity = '1';
+  let can = false;
+  if (studyMode === 'flashcard') {
+    can = !!lastAction;
   } else {
-    undoBtn.disabled = true;
-    undoBtn.style.opacity = '0.3';
+    // 找最近一个已作答的下标（连线模式会跳过脏词，下标可能不连续）
+    let p = currentIndex - 1;
+    while (p >= 0 && !answers[p]) p--;
+    can = p >= 0;
   }
+  undoBtn.disabled = !can;
+  undoBtn.style.opacity = can ? '1' : '0.3';
 }
 
 window.flipCard = function() {
@@ -533,6 +551,7 @@ window.selectQuizOption = function(index) {
     // 答错加入错词本
     store.addWrong(correctWord.id);
   }
+  answers[currentIndex] = { correct: isCorrect };
   
   // 显示反馈
   const feedbackEl = document.getElementById('quiz-feedback');
@@ -549,6 +568,8 @@ window.selectQuizOption = function(index) {
   }
   
   feedbackEl.style.display = 'block';
+  const prevBtn = document.getElementById('quiz-prev-btn');
+  if (prevBtn) prevBtn.style.display = currentIndex > 0 ? '' : 'none';
 };
 
 window.nextQuiz = function() {
@@ -794,6 +815,7 @@ function finishConnect() {
   document.querySelectorAll('#connect-lines line').forEach(line => line.classList.add('is-done'));
 
   correctCount++;
+  answers[currentIndex] = { correct: true };
   document.getElementById('progress-bar').style.width = `${((currentIndex + 1) / wordList.length) * 100}%`;
   document.getElementById('connect-hint').textContent = '音节顺序正确，单词拼出来了';
 
@@ -806,11 +828,75 @@ function finishConnect() {
     <span style="font-size: 24px; font-weight: 700; color: var(--c-ink)">${word.pt}</span><br>
     <small style="color: var(--c-muted)">${word.cn || ''}</small>
   `;
+  const prevBtn = document.getElementById('connect-prev-btn');
+  if (prevBtn) prevBtn.style.display = currentIndex > 0 ? '' : 'none';
 }
 
 window.nextConnect = function() {
   currentIndex++;
   renderCard();
+};
+
+// 回到上一题重新作答（选择题 / 连线模式）
+window.prevQuestion = function() {
+  let prev = currentIndex - 1;
+  while (prev >= 0 && !answers[prev]) prev--;
+  if (prev < 0) return;
+  const prevAns = answers[prev];
+  if (prevAns.correct) {
+    correctCount--;
+  } else {
+    // 上一题答错进了错词本，先撤掉，重答后按新结果重新记
+    store.removeWrong(wordList[prev].id);
+  }
+  delete answers[prev];
+  currentIndex = prev;
+  renderCard();
+};
+
+// 顶部撤销按钮：翻卡走原撤销，选择题/连线走回上一题
+window.handleUndo = function() {
+  if (studyMode === 'flashcard') {
+    undoLastAction();
+  } else {
+    prevQuestion();
+  }
+};
+
+// 完成页：本轮单词卡牌回顾
+function renderReviewList() {
+  const wrap = document.getElementById('review-wrap');
+  const listEl = document.getElementById('review-list');
+  if (!wrap || !listEl) return;
+  wrap.style.display = 'block';
+  listEl.innerHTML = wordList.map((w, i) => {
+    const ans = answers[i];
+    let mark = '';
+    if (studyMode !== 'flashcard' && ans) mark = ans.correct ? '✅' : '❌';
+    return `
+      <div class="review-card" onclick="toggleReview(this)">
+        <div class="review-head">
+          <span class="review-pt">${i + 1}. ${w.pt}</span>
+          <span class="review-mark">${mark}</span>
+        </div>
+        <div class="review-detail">
+          <div class="review-cn">${w.cn || '（无释义）'}</div>
+          <div class="review-meta">${[w.pos, w.level].filter(Boolean).join(' · ')}</div>
+          <button class="btn btn--ghost" style="min-height:38px; padding:0 14px; font-size:13px" onclick="event.stopPropagation(); playReviewAudio(${i})">
+            🔊 发音
+          </button>
+        </div>
+      </div>`;
+  }).join('');
+}
+
+window.toggleReview = function(el) {
+  el.classList.toggle('is-open');
+};
+
+window.playReviewAudio = function(i) {
+  const w = wordList[i];
+  if (w) playAudio(w);
 };
 
 // ========== 滑动手势 ==========
