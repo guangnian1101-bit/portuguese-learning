@@ -85,6 +85,23 @@ export function render() {
       </button>
 
       <!-- 功能入口 -->
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px">
+        <div class="card feature-card" style="text-align: center; cursor: pointer" onclick="router.navigate('/grammar')">
+          <div style="width: 32px; height: 32px; margin: 0 auto 8px; color: #9c27b0">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+          </div>
+          <div style="font-weight: 600">语法练习</div>
+          <div style="font-size: 12px; color: var(--c-muted)">A1–C2 分级</div>
+        </div>
+        <div class="card feature-card" style="text-align: center; cursor: pointer" onclick="router.navigate('/conj')">
+          <div style="width: 32px; height: 32px; margin: 0 auto 8px; color: #ff9800">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+          </div>
+          <div style="font-weight: 600">动词变位</div>
+          <div style="font-size: 12px; color: var(--c-muted)">25 个常用动词</div>
+        </div>
+      </div>
+
       <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px">
         <div class="card feature-card" style="text-align: center; cursor: pointer" onclick="router.navigate('/dict')">
           <div style="width: 32px; height: 32px; margin: 0 auto 8px; color: var(--c-ink)">${Icons.search}</div>
