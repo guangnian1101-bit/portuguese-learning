@@ -4,14 +4,15 @@
 
 import { router } from './router.js';
 import { store } from './store.js';
-import { render as renderHome } from './pages/home.js?v=23';
-import { render as renderLearn } from './pages/learn.js?v=23';
-import { render as renderDict } from './pages/dict.js?v=23';
-import { render as renderWrong } from './pages/wrong.js?v=23';
-import { render as renderFav } from './pages/fav.js?v=23';
-import { render as renderStats } from './pages/stats.js?v=23';
-import { render as renderSettings } from './pages/settings.js?v=23';
-import { render as renderCategories } from './pages/categories.js?v=23';
+import { render as renderHome } from './pages/home.js?v=24';
+import { render as renderLearn } from './pages/learn.js?v=24';
+import { render as renderDict } from './pages/dict.js?v=24';
+import { render as renderWrong } from './pages/wrong.js?v=24';
+import { render as renderFav } from './pages/fav.js?v=24';
+import { render as renderStats } from './pages/stats.js?v=24';
+import { render as renderSettings } from './pages/settings.js?v=24';
+import { render as renderCategories } from './pages/categories.js?v=24';
+import { render as renderDaily } from './pages/daily.js?v=24';
 
 // 注册路由
 router.register('/', () => renderHome());
@@ -22,6 +23,7 @@ router.register('/fav', () => renderFav());
 router.register('/stats', () => renderStats());
 router.register('/settings', () => renderSettings());
 router.register('/categories', () => renderCategories());
+router.register('/daily', () => renderDaily());
 
 // 暴露到全局
 window.router = router;

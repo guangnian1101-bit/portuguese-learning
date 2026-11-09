@@ -69,6 +69,15 @@ export function render() {
         </div>
       </div>
 
+      <!-- 每日必背入口 -->
+      <div class="card" style="margin-bottom: 16px; cursor: pointer; display: flex; justify-content: space-between; align-items: center" onclick="router.navigate('/daily')">
+        <div>
+          <div style="font-weight: 600">📅 每日必背单词</div>
+          <div style="font-size: 13px; color: var(--c-muted); margin-top: 2px">随机 20 个日常词 · A1–C2</div>
+        </div>
+        <span style="color: var(--c-muted); font-size: 20px">›</span>
+      </div>
+
       <!-- 开始学习按钮 -->
       <button class="btn btn--primary btn--block" style="margin-bottom: 16px" onclick="router.navigate('/learn')">
         <span style="width: 20px; height: 20px">${Icons.card}</span>
