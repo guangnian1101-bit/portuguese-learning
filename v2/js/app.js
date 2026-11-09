@@ -4,15 +4,15 @@
 
 import { router } from './router.js';
 import { store } from './store.js';
-import { render as renderHome } from './pages/home.js?v=24';
-import { render as renderLearn } from './pages/learn.js?v=24';
-import { render as renderDict } from './pages/dict.js?v=24';
-import { render as renderWrong } from './pages/wrong.js?v=24';
-import { render as renderFav } from './pages/fav.js?v=24';
-import { render as renderStats } from './pages/stats.js?v=24';
-import { render as renderSettings } from './pages/settings.js?v=24';
-import { render as renderCategories } from './pages/categories.js?v=24';
-import { render as renderDaily } from './pages/daily.js?v=24';
+import { render as renderHome } from './pages/home.js?v=25';
+import { render as renderLearn } from './pages/learn.js?v=25';
+import { render as renderDict } from './pages/dict.js?v=25';
+import { render as renderWrong } from './pages/wrong.js?v=25';
+import { render as renderFav } from './pages/fav.js?v=25';
+import { render as renderStats } from './pages/stats.js?v=25';
+import { render as renderSettings } from './pages/settings.js?v=25';
+import { render as renderCategories } from './pages/categories.js?v=25';
+import { render as renderDaily } from './pages/daily.js?v=25';
 
 // 注册路由
 router.register('/', () => renderHome());

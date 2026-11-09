@@ -102,28 +102,49 @@ export async function render() {
         
         <div class="flip-container" id="card-container">
           <div id="flip-swipe-wrapper" style="position: absolute; inset: 0; transform-style: preserve-3d;">
-            <div class="flip-card" id="flip-card" onclick="flipCard()">
-            <div class="flip-face flip-face--front">
-              <div style="display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: wrap; justify-content: center">
-                <span id="word-pos-front" style="font-size: 12px; padding: 4px 12px; border-radius: 999px; background: var(--c-brand-soft); color: var(--c-ink-secondary)"></span>
-                <span id="word-level-front" style="font-size: 12px; padding: 4px 12px; border-radius: 999px; background: var(--c-brand-soft); color: var(--c-ink-secondary)"></span>
+            <div class="flip-scene" id="flip-scene" onclick="flipCard()">
+              <div class="flip-inner" id="flip-inner">
+              <div class="flip-face flip-face--front">
+                <div style="display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: wrap; justify-content: center">
+                  <span id="word-pos-front" style="font-size: 12px; padding: 4px 12px; border-radius: 999px; background: var(--c-brand-soft); color: var(--c-ink-secondary)"></span>
+                  <span id="word-level-front" style="font-size: 12px; padding: 4px 12px; border-radius: 999px; background: var(--c-brand-soft); color: var(--c-ink-secondary)"></span>
+                </div>
+                <div class="flip-face__pt" id="word-pt">casa</div>
+                <div style="margin-top: 16px; display: flex; gap: 12px">
+                  <button class="btn btn--ghost btn--sound" style="min-height: 44px; padding: 0 16px" onclick="event.stopPropagation(); playCurrentAudio()">
+                    <span class="sound-icon" style="display:inline-flex; width: 18px; height: 18px">${Icons.sound}</span>
+                    发音
+                  </button>
+                  <button class="btn btn--ghost star-btn" id="star-btn-front" style="min-height: 44px; padding: 0 16px" onclick="event.stopPropagation(); toggleStar()">
+                    <span class="star-icon" style="display:inline-flex; width: 18px; height: 18px">${Icons.star}</span>
+                    <span id="star-label">收藏</span>
+                  </button>
+                </div>
+                <div style="margin-top: 24px; font-size: 13px; color: var(--c-muted)" id="flip-hint">
+                  点击卡片看释义 · 左右滑动评级
+                </div>
               </div>
-              <div class="flip-face__pt" id="word-pt">casa</div>
-              <div class="flip-face__cn" id="word-cn" style="display: none; margin-top: 16px; text-align: center"></div>
-              <div style="margin-top: 16px; display: flex; gap: 12px">
-                <button class="btn btn--ghost" style="min-height: 44px; padding: 0 16px" onclick="event.stopPropagation(); playCurrentAudio()">
-                  <span style="width: 18px; height: 18px">${Icons.sound}</span>
-                  发音
-                </button>
-                <button class="btn btn--ghost" style="min-height: 44px; padding: 0 16px" onclick="event.stopPropagation(); toggleStar()">
-                  <span style="width: 18px; height: 18px">${Icons.star}</span>
-                  <span id="star-label">收藏</span>
-                </button>
+              <div class="flip-face flip-face--back">
+                <div style="display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: wrap; justify-content: center">
+                  <span id="word-pos-back" style="font-size: 12px; padding: 4px 12px; border-radius: 999px; background: var(--c-brand-soft); color: var(--c-ink-secondary)"></span>
+                  <span id="word-level-back" style="font-size: 12px; padding: 4px 12px; border-radius: 999px; background: var(--c-brand-soft); color: var(--c-ink-secondary)"></span>
+                </div>
+                <div class="flip-face__cn" id="word-cn-back" style="font-size: 18px; text-align: center; line-height: 1.6; max-width: 90%"></div>
+                <div style="margin-top: 16px; display: flex; gap: 12px">
+                  <button class="btn btn--ghost btn--sound" style="min-height: 44px; padding: 0 16px" onclick="event.stopPropagation(); playCurrentAudio()">
+                    <span class="sound-icon" style="display:inline-flex; width: 18px; height: 18px">${Icons.sound}</span>
+                    发音
+                  </button>
+                  <button class="btn btn--ghost star-btn" id="star-btn-back" style="min-height: 44px; padding: 0 16px" onclick="event.stopPropagation(); toggleStar()">
+                    <span class="star-icon" style="display:inline-flex; width: 18px; height: 18px">${Icons.star}</span>
+                    <span id="star-label-back">收藏</span>
+                  </button>
+                </div>
+                <div style="margin-top: 24px; font-size: 13px; color: var(--c-muted)">
+                  点击卡片返回单词
+                </div>
               </div>
-              <div style="margin-top: 24px; font-size: 13px; color: var(--c-muted)" id="flip-hint">
-                点击卡片看释义 · 左右滑动评级
               </div>
-            </div>
             </div>
           </div>
         </div>
@@ -144,10 +165,15 @@ export async function render() {
             <span id="quiz-pos" style="font-size: 12px; padding: 4px 12px; border-radius: 999px; background: var(--c-brand-soft); color: var(--c-ink-secondary)"></span>
             <span id="quiz-level" style="font-size: 12px; padding: 4px 12px; border-radius: 999px; background: var(--c-brand-soft); color: var(--c-ink-secondary)"></span>
           </div>
-          <button class="btn btn--ghost" onclick="playCurrentAudio()">
-            <span style="width: 18px; height: 18px">${Icons.sound}</span>
-            🔊 听发音
-          </button>
+          <div style="display: flex; gap: 8px; justify-content: center; align-items: center">
+            <button class="btn btn--ghost btn--sound" onclick="playCurrentAudio()">
+              <span class="sound-icon" style="display:inline-flex; width: 18px; height: 18px">${Icons.sound}</span>
+              🔊 听发音
+            </button>
+            <button class="btn btn--ghost star-btn" id="quiz-star-btn" onclick="toggleStar()">
+              <span class="star-icon" style="display:inline-flex; width: 18px; height: 18px">${Icons.star}</span>
+            </button>
+          </div>
         </div>
         
         <div id="quiz-options" style="display: flex; flex-direction: column; gap: 12px">
@@ -168,12 +194,15 @@ export async function render() {
         <div class="card" style="padding: 20px 18px; margin-bottom: 14px; text-align: center">
           <div style="font-size: 13px; color: var(--c-muted); margin-bottom: 8px">按音节顺序连线，把单词拼出来</div>
           <div id="connect-cn" style="font-size: 20px; font-weight: 600; line-height: 1.5; margin-bottom: 12px">casa</div>
-          <div style="display: flex; gap: 8px; justify-content: center; align-items: center">
+          <div style="display: flex; gap: 8px; justify-content: center; align-items: center; flex-wrap: wrap">
             <span id="connect-pos" style="font-size: 12px; padding: 4px 12px; border-radius: 999px; background: var(--c-brand-soft); color: var(--c-ink-secondary)"></span>
             <span id="connect-level" style="font-size: 12px; padding: 4px 12px; border-radius: 999px; background: var(--c-brand-soft); color: var(--c-ink-secondary)"></span>
-            <button class="btn btn--ghost" style="min-height: 38px; padding: 0 14px; font-size: 13px" onclick="playCurrentAudio()">
-              <span style="width: 16px; height: 16px">${Icons.sound}</span>
+            <button class="btn btn--ghost btn--sound" style="min-height: 38px; padding: 0 14px; font-size: 13px" onclick="playCurrentAudio()">
+              <span class="sound-icon" style="display:inline-flex; width: 16px; height: 16px">${Icons.sound}</span>
               发音
+            </button>
+            <button class="btn btn--ghost star-btn" id="connect-star-btn" style="min-height: 38px; padding: 0 14px; font-size: 13px" onclick="toggleStar()">
+              <span class="star-icon" style="display:inline-flex; width: 16px; height: 16px">${Icons.star}</span>
             </button>
           </div>
         </div>
@@ -296,26 +325,24 @@ function renderCard() {
   
   const word = wordList[currentIndex];
   isFlipped = false;
-  
+
   document.getElementById('progress-text').textContent = `${currentIndex + 1} / ${wordList.length}`;
   document.getElementById('progress-bar').style.width = `${(currentIndex / wordList.length) * 100}%`;
-  
+
   document.getElementById('word-pt').textContent = word.pt;
-  document.getElementById('word-cn').textContent = word.cn || '';
-  
+  document.getElementById('word-cn-back').textContent = word.cn || '（无释义）';
+
   updateTag('word-pos-front', word.pos);
   updateTag('word-level-front', word.level);
-  
-  const isStarred = !!store.state.starred[word.id];
-  document.getElementById('star-label').textContent = isStarred ? '已收藏' : '收藏';
-  
-  // 重置为显示单词视图
-  isFlipped = false;
-  document.getElementById('word-pt').style.display = 'block';
-  document.getElementById('word-cn').style.display = 'none';
-  document.getElementById('flip-hint').textContent = '点击卡片看释义 · 左右滑动评级';
+  updateTag('word-pos-back', word.pos);
+  updateTag('word-level-back', word.level);
+
+  syncStarButtons();
+
+  // 重置为正面
+  document.getElementById('flip-scene').classList.remove('is-flipped');
   resetCardPosition();
-  
+
   document.getElementById('loading').style.display = 'none';
   document.getElementById('flashcard-area').style.display = studyMode === 'flashcard' ? 'block' : 'none';
   document.getElementById('quiz-area').style.display = studyMode === 'quiz' ? 'block' : 'none';
@@ -367,40 +394,47 @@ function updateUndoButton() {
 window.flipCard = function() {
   if (isDragging) return;
   isFlipped = !isFlipped;
-  
-  const word = wordList[currentIndex];
-  if (!word) return;
-  
-  const ptEl = document.getElementById('word-pt');
-  const cnEl = document.getElementById('word-cn');
-  const backHint = document.getElementById('flip-hint');
-  
-  if (isFlipped) {
-    // 切换到释义视图
-    ptEl.style.display = 'none';
-    cnEl.style.display = 'block';
-    cnEl.textContent = word.cn || '（无释义）';
-    backHint.textContent = '点击卡片返回单词';
-  } else {
-    // 切换回单词视图
-    ptEl.style.display = 'block';
-    cnEl.style.display = 'none';
-    backHint.textContent = '点击卡片看释义 · 左右滑动评级';
-  }
+  document.getElementById('flip-scene').classList.toggle('is-flipped', isFlipped);
 };
 
 window.playCurrentAudio = function() {
   const word = wordList[currentIndex];
-  if (word) playAudio(word);
+  if (!word) return;
+  playAudio(word);
+  // 给所有发音按钮加播放动画
+  document.querySelectorAll('.btn--sound .sound-icon').forEach(el => {
+    el.style.animation = 'none';
+    void el.offsetWidth;
+    el.style.animation = 'sound-pulse 0.6s ease';
+  });
 };
+
+// 同步所有星标按钮状态（翻卡正面/背面/选择题/连线）
+function syncStarButtons() {
+  const word = wordList[currentIndex];
+  if (!word) return;
+  const starred = !!store.state.starred[word.id];
+  ['star-btn-front', 'star-btn-back', 'quiz-star-btn', 'connect-star-btn'].forEach(id => {
+    const btn = document.getElementById(id);
+    if (btn) btn.classList.toggle('is-starred', starred);
+  });
+  const sl = document.getElementById('star-label');
+  if (sl) sl.textContent = starred ? '已收藏' : '收藏';
+  const slb = document.getElementById('star-label-back');
+  if (slb) slb.textContent = starred ? '已收藏' : '收藏';
+}
 
 window.toggleStar = function() {
   const word = wordList[currentIndex];
-  if (word) {
-    store.toggleStar(word.id);
-    const isStarred = !!store.state.starred[word.id];
-    document.getElementById('star-label').textContent = isStarred ? '已收藏' : '收藏';
-  }
+  if (!word) return;
+  store.toggleStar(word.id);
+  syncStarButtons();
+  // 弹跳动画
+  document.querySelectorAll('.star-btn .star-icon').forEach(el => {
+    el.style.animation = 'none';
+    void el.offsetWidth;
+    el.style.animation = 'star-pop 0.45s ease';
+  });
 };
 
 function showRatingToast(message) {
