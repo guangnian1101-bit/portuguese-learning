@@ -20,15 +20,12 @@ export function render() {
         <div style="padding: 16px">
           <div style="font-weight: 500; margin-bottom: 4px">主题颜色</div>
           <div style="font-size: 13px; color: var(--c-muted); margin-bottom: 12px">在白色与黑色主题之间切换</div>
-          <div class="theme-switch">
-            <button class="theme-switch__item ${state.darkMode ? '' : 'is-active'}" data-theme="light">
-              ${Icons.sun}
-              白色
+          <div class="theme-toggle">
+            <button class="theme-toggle__btn" id="theme-toggle-btn" aria-label="切换主题">
+              <span class="theme-toggle__icon theme-toggle__icon--sun">${Icons.sun}</span>
+              <span class="theme-toggle__icon theme-toggle__icon--moon">${Icons.moon}</span>
             </button>
-            <button class="theme-switch__item ${state.darkMode ? 'is-active' : ''}" data-theme="dark">
-              ${Icons.moon}
-              黑色
-            </button>
+            <div style="font-size:13px;color:var(--c-muted)" id="theme-toggle-label">${state.darkMode ? '深色模式' : '浅色模式'}</div>
           </div>
         </div>
       </div>
@@ -113,15 +110,38 @@ export function render() {
     </div>
   `;
   
-  // 绑定主题颜色切换（白 / 黑）
-  document.querySelectorAll('.theme-switch__item').forEach(btn => {
-    btn.addEventListener('click', () => {
-      const wantDark = btn.dataset.theme === 'dark';
-      if (store.state.darkMode === wantDark) return;
-      store.setDarkMode(wantDark);
-      render(); // 重新渲染
+  // 绑定主题切换按钮：太阳/月亮旋转 + 圆形扩散转场
+  const themeBtn = document.getElementById('theme-toggle-btn');
+  if (themeBtn) {
+    themeBtn.addEventListener('click', (e) => {
+      const wantDark = !store.state.darkMode;
+      const rect = themeBtn.getBoundingClientRect();
+      const x = rect.left + rect.width / 2;
+      const y = rect.top + rect.height / 2;
+
+      const apply = () => {
+        store.setDarkMode(wantDark);
+        render();
+      };
+
+      // View Transitions API：以按钮为圆心扩散
+      if (document.startViewTransition) {
+        const transition = document.startViewTransition(apply);
+        transition.ready.then(() => {
+          const radius = Math.hypot(
+            Math.max(x, window.innerWidth - x),
+            Math.max(y, window.innerHeight - y)
+          );
+          document.documentElement.animate(
+            { clipPath: [`circle(0px at ${x}px ${y}px)`, `circle(${radius}px at ${x}px ${y}px)`] },
+            { duration: 500, easing: 'cubic-bezier(.22,1,.36,1)', pseudoElement: '::view-transition-new(root)' }
+          );
+        });
+      } else {
+        apply();
+      }
     });
-  });
+  }
   
   // 绑定每天学习数量
   document.querySelectorAll('.daily-count-btn').forEach(btn => {
