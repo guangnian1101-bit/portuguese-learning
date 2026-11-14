@@ -32,7 +32,11 @@ function seededRand(seed) {
   };
 }
 
-const BAD_POS = ['人名', '地名'];
+const BAD_POS = ['人名', '地名', '动词变位', '复数形式', '阴性形式', '阳性形式', '旧拼写'];
+// 标准词性白名单：pos 必须包含其中之一
+const GOOD_POS = ['名词', '动词', '形容词', '副词', '介词', '连词', '代词', '冠词', '感叹词', '数词'];
+// pos 里出现这些组合直接判为脏数据
+const DIRTY_POS = ['变位', '/', '或', '又称', '古', '旧'];
 // pos 为空时靠 cn 关键词兜底：人名 / 地名 / 姓氏 / 屈折变化 / 旧拼写 / 巴葡
 const BAD_CN = [
   '人名', '姓氏', '城市', '地名', '专有名词', '小镇', '村庄',
@@ -42,15 +46,37 @@ const BAD_CN = [
   '的复数形式', '的阴性形式', '的阳性形式', '阴性复数形式', '阳性复数形式',
   '旧拼写', '巴西'
 ];
+
+// 清理 cn 开头的词性说明："可数名词 xxx" / "动词，xxx" / "名词：xxx"
+function cleanCn(cn) {
+  if (!cn) return cn;
+  return cn
+    .replace(/^(可数|不可数|集合)名词[，,：:\s]*/, '')
+    .replace(/^(及物|不及物|反身|助|系|情态)?动词[，,：:\s]*/, '')
+    .replace(/^(形容|副|介|连|代|冠|感叹|数)词[，,：:\s]*/, '')
+    .trim();
+}
+
 function isEligible(w) {
   if (!w || !w.pt || !w.cn) return false;
   if (!w.level || !/^[ABC][12]$/.test(w.level)) return false;
-  if (w.pt.includes(' ')) return false;            // 排除短语（até logo 这类）
-  if (!w.pos) return false;                        // 必须有明确词性标注（空 pos 多为屈折形式/旧拼写/未清洗词）
+  if (w.pt.includes(' ')) return false;            // 排除短语
+  if (!w.pos) return false;
+  // 词性白名单：必须包含标准词性
+  if (!GOOD_POS.some(g => w.pos.includes(g))) return false;
+  // 词性脏数据：变位、斜杠、古旧拼写
+  if (DIRTY_POS.some(d => w.pos.includes(d))) return false;
   if (BAD_POS.some(b => w.pos.includes(b))) return false;
   if (BAD_CN.some(b => w.cn.includes(b))) return false;
+  // 排除 id > 90000 的后段生僻词（医学/化学/矿业术语）
+  if (w.id > 90000) return false;
   return true;
 }
+
+// 按 CEFR 等级分配名额：日常词为主
+const LEVEL_QUOTA = {
+  'A1': 5, 'A2': 6, 'B1': 5, 'B2': 3, 'C1': 1, 'C2': 0
+};
 
 async function getDailyPicks() {
   const today = todayStr();
@@ -64,25 +90,55 @@ async function getDailyPicks() {
     }
   } catch (e) {}
 
-  // 采样：随机抽若干首字母文件，累积候选
+  // 所有字母分片，打乱顺序
   const letters = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'l', 'm', 'n', 'o', 'p', 'r', 's', 't', 'u', 'v'];
   const rand = seededRand('daily-' + today);
   const shuffled = [...letters].sort(() => rand() - 0.5);
-  const pool = [];
+
+  // 每个字母分片各取一部分候选，避免全压在一个字母上
+  const byLevel = { 'A1': [], 'A2': [], 'B1': [], 'B2': [], 'C1': [], 'C2': [] };
+  const PER_LETTER_LIMIT = 120; // 每个字母最多取多少 eligible 词
+
   for (const l of shuffled) {
-    if (pool.length >= 1500) break;
     try {
       const words = await loadWordsByLetter(l);
-      pool.push(...words.filter(isEligible));
+      const eligible = words.filter(isEligible);
+      // 每个字母分片内打乱，只取前 PER_LETTER_LIMIT 个
+      eligible.sort(() => rand() - 0.5);
+      const limited = eligible.slice(0, PER_LETTER_LIMIT);
+      for (const w of limited) {
+        if (byLevel[w.level]) byLevel[w.level].push(w);
+      }
     } catch (e) {}
   }
-  pool.sort(() => rand() - 0.5);
-  const picks = pool.slice(0, PICK_COUNT);
+
+  // 按等级配额抽取，每个等级内打乱
+  const picks = [];
+  for (const [level, quota] of Object.entries(LEVEL_QUOTA)) {
+    const pool = byLevel[level] || [];
+    pool.sort(() => rand() - 0.5);
+    picks.push(...pool.slice(0, quota));
+  }
+
+  // 如果配额没凑够 20 个（比如 C2 没有词），从 B1/B2 补
+  if (picks.length < PICK_COUNT) {
+    const rest = [...byLevel['B1'], ...byLevel['B2'], ...byLevel['A2']]
+      .filter(w => !picks.find(p => p.id === w.id));
+    rest.sort(() => rand() - 0.5);
+    picks.push(...rest.slice(0, PICK_COUNT - picks.length));
+  }
+
+  // 最终打乱顺序
+  picks.sort(() => rand() - 0.5);
+  const finalPicks = picks.slice(0, PICK_COUNT).map(w => ({
+    ...w,
+    cn: cleanCn(w.cn)
+  }));
 
   try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify({ date: today, words: picks }));
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({ date: today, words: finalPicks }));
   } catch (e) {}
-  return picks;
+  return finalPicks;
 }
 
 export async function render() {
