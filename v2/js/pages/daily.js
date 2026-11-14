@@ -8,7 +8,7 @@ import { store } from '../store.js';
 import { router } from '../router.js';
 
 const PICK_COUNT = 20;
-const STORAGE_KEY = 'pt-learn-v2.daily-picks';
+const STORAGE_KEY = 'pt-learn-v2.daily-picks.v2';
 
 function todayStr() {
   // 用本地日期，避免 UTC 跨天
