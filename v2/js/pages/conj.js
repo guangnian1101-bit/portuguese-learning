@@ -50,14 +50,39 @@ function buildQuiz() {
     const t = TENSES[Math.floor(Math.random() * TENSES.length)];
     const p = PRONOUNS[Math.floor(Math.random() * PRONOUNS.length)];
     const correct = VERBS[v].tenses[t.id][p.idx];
-    const others = verbs.filter(x => x !== v).map(x => VERBS[x].tenses[t.id][p.idx]);
+
+    // 收集该动词所有时态的所有人称变位，去重
+    const allForms = [];
+    for (const tid of Object.keys(VERBS[v].tenses)) {
+      for (let pi = 0; pi < 6; pi++) {
+        const form = VERBS[v].tenses[tid][pi];
+        if (!allForms.includes(form)) allForms.push(form);
+      }
+    }
+
+    // 干扰项：从同一动词的其他变位中选
+    const others = allForms.filter(f => f !== correct);
     const distractors = [];
     let guard = 0;
-    while (distractors.length < 3 && guard < 50) {
+    while (distractors.length < 3 && guard < 50 && others.length > 0) {
       guard++;
       const d = others[Math.floor(Math.random() * others.length)];
-      if (d !== correct && !distractors.includes(d)) distractors.push(d);
+      if (!distractors.includes(d)) distractors.push(d);
     }
+
+    // 不够3个时，从其他动词补
+    if (distractors.length < 3) {
+      const otherVerbs = verbs.filter(x => x !== v);
+      while (distractors.length < 3 && guard < 100) {
+        guard++;
+        const ov = otherVerbs[Math.floor(Math.random() * otherVerbs.length)];
+        const ot = TENSES[Math.floor(Math.random() * TENSES.length)];
+        const op = Math.floor(Math.random() * 6);
+        const d = VERBS[ov].tenses[ot.id][op];
+        if (d !== correct && !distractors.includes(d)) distractors.push(d);
+      }
+    }
+
     const opts = [correct, ...distractors].sort(() => 0.5 - Math.random());
     quizList.push({ verb: v, verbCn: VERBS[v].cn, tense: t, pronoun: p, correct, opts, ans: opts.indexOf(correct) });
   }
