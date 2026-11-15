@@ -1,18 +1,20 @@
 // ============================================
-// pages/conj.js — 动词变位练习（4 时态）
+// pages/conj.js — 动词变位练习（6 时态）
 // ============================================
 
 import { router } from '../router.js';
-import { ALL_VERBS } from '../data/conj-data.js?v=30';
+import { ALL_VERBS } from '../data/conj-data.js?v=31';
 
 const TENSES = [
   { id: 'presente', label: '现在式', cn: 'Presente do Indicativo' },
   { id: 'perfeito', label: '过去式', cn: 'Pretérito Perfeito' },
   { id: 'imperfeito', label: '过去未完成式', cn: 'Pretérito Imperfeito' },
   { id: 'futuro', label: '将来式', cn: 'Futuro do Indicativo' },
+  { id: 'conj_presente', label: '虚拟式现在', cn: 'Presente do Conjuntivo' },
+  { id: 'condicional', label: '条件式', cn: 'Condicional' },
 ];
 
-const COMMON_VERBS = ['ser','estar','ter','ir','fazer','querer','poder','falar','comer','viver','beber','aprender'];
+const COMMON_VERBS = ['ser','estar','ter','ir','fazer','querer','poder','dizer','saber','ver','dar','vir'];
 const VERBS = ALL_VERBS;
 
 const PRONOUNS = [
@@ -24,12 +26,22 @@ const PRONOUNS = [
   { pt: 'eles/elas', cn: '他们', idx: 5 },
 ];
 
+// 等级分组
+const LEVELS = {
+  A1: ['ser','estar','ter','ir','falar','comer','viver','estar','haver','dar','ver','saber'],
+  A2: ['fazer','querer','poder','dizer','vir','sair','chegar','passar','ficar','olhar','virar','mandar'],
+  B1: ['começar','acabar','perder','ganhar','levar','trazer','pagar','contar','responder','acreditar','parecer','conhecer'],
+};
+
 let quizList = [];
 let quizIdx = 0;
 let score = 0;
 let tableVerb = null;
 let tableTense = 'presente';
-let searchResult = null; // 搜索结果状态
+let searchResult = null;
+let showAllVerbs = false;
+let allVerbsFilter = '';
+let quizLevel = 'all'; // all / A1 / A2 / B1
 
 // 构建变位反查索引（变位形式 -> 动词原形）
 let formIndex = null;
@@ -78,10 +90,15 @@ function searchVerb(q) {
 }
 
 function buildQuiz() {
-  const verbs = Object.keys(VERBS);
+  let pool;
+  if (quizLevel === 'A1') pool = LEVELS.A1.filter(v => VERBS[v]);
+  else if (quizLevel === 'A2') pool = LEVELS.A2.filter(v => VERBS[v]);
+  else if (quizLevel === 'B1') pool = LEVELS.B1.filter(v => VERBS[v]);
+  else pool = Object.keys(VERBS);
+  
   quizList = [];
   for (let i = 0; i < 10; i++) {
-    const v = verbs[Math.floor(Math.random() * verbs.length)];
+    const v = pool[Math.floor(Math.random() * pool.length)];
     const t = TENSES[Math.floor(Math.random() * TENSES.length)];
     const p = PRONOUNS[Math.floor(Math.random() * PRONOUNS.length)];
     const correct = VERBS[v].tenses[t.id][p.idx];
@@ -125,6 +142,7 @@ function buildQuiz() {
 export function render() {
   const app = document.getElementById('app');
   if (searchResult) renderSearchResult(app);
+  else if (showAllVerbs) renderAllVerbs(app);
   else if (tableVerb) renderTable(app);
   else if (quizList.length === 0) renderHome(app);
   else renderQuiz(app);
@@ -137,9 +155,18 @@ function renderHome(app) {
         <button class="btn btn--ghost" onclick="router.navigate('/')" style="padding:8px 12px">← 返回</button>
         <h1 style="margin:0">🔄 动词变位</h1>
       </div>
-      <p style="color:var(--c-muted); margin:0 0 20px">${Object.keys(VERBS).length} 个动词 · 4 个时态 · 六人称变位表与随机练习。</p>
+      <p style="color:var(--c-muted); margin:0 0 16px">${Object.keys(VERBS).length} 个动词 · 6 个时态 · 六人称变位表与随机练习。</p>
 
-      <button class="btn btn--primary btn--block" style="margin-bottom:16px" onclick="window.__startConjQuiz()">🚀 开始变位练习（10 题）</button>
+      <div style="display:flex; gap:6px; margin-bottom:12px; flex-wrap:wrap">
+        <button class="btn ${quizLevel==='all'?'btn--primary':'btn--ghost'}" style="padding:6px 12px; font-size:12px" onclick="window.__setLevel('all')">全部</button>
+        <button class="btn ${quizLevel==='A1'?'btn--primary':'btn--ghost'}" style="padding:6px 12px; font-size:12px" onclick="window.__setLevel('A1')">A1 入门</button>
+        <button class="btn ${quizLevel==='A2'?'btn--primary':'btn--ghost'}" style="padding:6px 12px; font-size:12px" onclick="window.__setLevel('A2')">A2 基础</button>
+        <button class="btn ${quizLevel==='B1'?'btn--primary':'btn--ghost'}" style="padding:6px 12px; font-size:12px" onclick="window.__setLevel('B1')">B1 中级</button>
+      </div>
+
+      <button class="btn btn--primary btn--block" style="margin-bottom:12px" onclick="window.__startConjQuiz()">🚀 开始变位练习（10 题）</button>
+
+      <button class="btn btn--ghost btn--block" style="margin-bottom:16px" onclick="window.__showAllVerbs()">📚 浏览全部动词</button>
 
       <div style="position:relative; margin-bottom:24px">
         <input id="conj-search" type="text" placeholder="搜索动词或变位形式，如 falar / falei" 
@@ -171,7 +198,9 @@ function renderHome(app) {
     </div>
   `;
   window.__startConjQuiz = () => { buildQuiz(); render(); };
+  window.__setLevel = (lvl) => { quizLevel = lvl; render(); };
   window.__showTable = (v) => { tableVerb = v; tableTense = 'presente'; render(); };
+  window.__showAllVerbs = () => { showAllVerbs = true; allVerbsFilter = ''; render(); };
   window.__doConjSearch = () => {
     const q = document.getElementById('conj-search').value;
     const result = searchVerb(q);
@@ -184,6 +213,59 @@ function renderHome(app) {
       alert('未找到该动词');
     }
   };
+}
+
+function renderAllVerbs(app) {
+  const allVerbs = Object.keys(VERBS).sort();
+  const filtered = allVerbs.filter(v => v.toLowerCase().includes(allVerbsFilter.toLowerCase()));
+  
+  // 按首字母分组
+  const groups = {};
+  for (const v of filtered) {
+    const letter = v[0].toUpperCase();
+    if (!groups[letter]) groups[letter] = [];
+    groups[letter].push(v);
+  }
+
+  app.innerHTML = `
+    <div class="page container">
+      <div style="display:flex; align-items:center; gap:12px; margin:24px 0 16px">
+        <button class="btn btn--ghost" onclick="window.__backConjHome()" style="padding:8px 12px">← 返回</button>
+        <h1 style="margin:0; font-size:20px">📚 全部动词 (${filtered.length})</h1>
+      </div>
+
+      <input id="all-verbs-filter" type="text" placeholder="筛选动词..." value="${allVerbsFilter}"
+        style="width:100%; padding:12px 16px; border-radius:12px; border:1px solid var(--c-border); background:var(--c-card); font-size:15px; box-sizing:border-box; margin-bottom:20px"
+        oninput="window.__filterAllVerbs(this.value)" />
+
+      <div style="display:flex; flex-direction:column; gap:16px">
+        ${Object.entries(groups).sort((a,b) => a[0].localeCompare(b[0])).map(([letter, verbs]) => `
+          <div>
+            <div style="font-weight:700; font-size:18px; color:var(--c-brand); margin-bottom:8px">${letter}</div>
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px">
+              ${verbs.map(v => `
+                <div class="card" style="padding:10px 12px; cursor:pointer" onclick="window.__showFromAll('${v}')">
+                  <div style="font-weight:600; font-size:14px">${v}</div>
+                  <div style="font-size:12px; color:var(--c-muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis">${VERBS[v].cn}</div>
+                </div>
+              `).join('')}
+            </div>
+          </div>
+        `).join('')}
+      </div>
+
+      <nav class="tabbar">
+        <button class="tabbar__item" onclick="router.navigate('/')">首页</button>
+        <button class="tabbar__item" onclick="router.navigate('/learn')">学习</button>
+        <button class="tabbar__item" onclick="router.navigate('/grammar')">语法</button>
+        <button class="tabbar__item is-active" onclick="router.navigate('/conj')">变位</button>
+        <button class="tabbar__item" onclick="router.navigate('/stats')">统计</button>
+      </nav>
+    </div>
+  `;
+  window.__backConjHome = () => { showAllVerbs = false; searchResult = null; tableVerb = null; render(); };
+  window.__filterAllVerbs = (q) => { allVerbsFilter = q; render(); };
+  window.__showFromAll = (v) => { showAllVerbs = false; searchResult = { verb: v, tense: 'presente' }; render(); };
 }
 
 function renderSearchResult(app) {
@@ -246,7 +328,10 @@ function renderSearchResult(app) {
                   <td style="padding:10px 12px; color:var(--c-muted)">${p.pt} <small>(${p.cn})</small></td>
                   <td style="padding:10px 12px; color:var(--c-muted)">${stem || '—'}</td>
                   <td style="padding:10px 12px; color:var(--c-brand)">${ending || '—'}</td>
-                  <td style="padding:10px 12px; font-weight:600">${form}</td>
+                  <td style="padding:10px 12px; font-weight:600">
+                    ${form}
+                    <button onclick="window.__speak('${form}')" style="margin-left:8px; border:none; background:none; cursor:pointer; font-size:14px; padding:2px 4px">🔊</button>
+                  </td>
                 </tr>
               `;
             }).join('')}
@@ -265,6 +350,15 @@ function renderSearchResult(app) {
   `;
   window.__backConjHome = () => { searchResult = null; tableVerb = null; render(); };
   window.__setSearchTense = (tid) => { searchResult.tense = tid; render(); };
+  window.__speak = (text) => {
+    if ('speechSynthesis' in window) {
+      speechSynthesis.cancel();
+      const u = new SpeechSynthesisUtterance(text);
+      u.lang = 'pt-PT';
+      u.rate = 0.8;
+      speechSynthesis.speak(u);
+    }
+  };
 }
 
 function renderTable(app) {
