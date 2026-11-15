@@ -3,7 +3,7 @@
 // ============================================
 
 import { router } from '../router.js';
-import { ALL_VERBS } from '../data/conj-data.js?v=33';
+import { ALL_VERBS } from '../data/conj-data.js?v=34';
 
 const TENSES = [
   { id: 'presente', label: '现在式', cn: 'Presente do Indicativo', desc: '表示现在经常性的动作或状态' },
@@ -369,13 +369,15 @@ function renderSearchResult(app) {
         <div style="font-size:14px; color:var(--c-muted)">${data.cn}</div>
       </div>
 
-      <div style="display:flex; gap:8px; margin-bottom:20px; flex-wrap:wrap; justify-content:center">
+      <div style="display:flex; gap:8px; margin-bottom:16px; flex-wrap:wrap; justify-content:center">
         ${TENSES.map(t => `
           <button class="btn ${t.id === tense ? 'btn--primary' : 'btn--ghost'}" 
             style="padding:8px 16px; font-size:13px" 
             onclick="window.__setSearchTense('${t.id}')">${t.label}</button>
         `).join('')}
       </div>
+
+      <button class="btn btn--primary btn--block" style="margin-bottom:20px" onclick="window.__practiceThisVerb('${v}')">✏️ 练这个动词（10题填空）</button>
 
       <div class="card" style="padding:0; overflow:hidden">
         <table style="width:100%; border-collapse:collapse; font-size:14px">
@@ -418,6 +420,29 @@ function renderSearchResult(app) {
   `;
   window.__backConjHome = () => { searchResult = null; tableVerb = null; render(); };
   window.__setSearchTense = (tid) => { searchResult.tense = tid; render(); };
+  window.__practiceThisVerb = (verb) => {
+    // 针对指定动词出10道填空题
+    quizMode = 'input';
+    quizList = [];
+    const allForms = [];
+    for (const tid of Object.keys(VERBS[verb].tenses)) {
+      const t = TENSES.find(x => x.id === tid);
+      for (let pi = 0; pi < 6; pi++) {
+        allForms.push({ verb, verbCn: VERBS[verb].cn, tense: t, pronoun: PRONOUNS[pi], correct: VERBS[verb].tenses[tid][pi] });
+      }
+    }
+    // 随机抽10个
+    for (let i = 0; i < Math.min(10, allForms.length); i++) {
+      const idx = Math.floor(Math.random() * allForms.length);
+      const item = allForms.splice(idx, 1)[0];
+      quizList.push({ ...item, opts: [item.correct], ans: 0, wrongKey: null });
+    }
+    searchResult = null;
+    tableVerb = null;
+    quizIdx = 0;
+    score = 0;
+    render();
+  };
   window.__speak = (text) => {
     if ('speechSynthesis' in window) {
       speechSynthesis.cancel();
