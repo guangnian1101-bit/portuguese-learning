@@ -3,7 +3,7 @@
 // ============================================
 
 import { router } from '../router.js';
-import { ALL_VERBS } from '../data/conj-data.js';
+import { ALL_VERBS } from '../data/conj-data.js?v=30';
 
 const TENSES = [
   { id: 'presente', label: '现在式', cn: 'Presente do Indicativo' },
