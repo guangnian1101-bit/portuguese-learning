@@ -3122,11 +3122,11 @@ export const ALL_VERBS = {
     condicional: ['aparcelaria', 'aparcelarias', 'aparcelaria', 'aparcelaríamos', 'aparcelaríeis', 'aparcelariam'],
   }},
   'aparecer': { cn: '出现、露面，人可 aparecer de repente（突', tenses: {
-    presente: ['apareco', 'apareces', 'aparece', 'aparecemos', 'apareceis', 'aparecem'],
+    presente: ['apareço', 'apareces', 'aparece', 'aparecemos', 'apareceis', 'aparecem'],
     perfeito: ['apareci', 'apareceste', 'apareceu', 'aparecemos', 'aparecestes', 'apareceram'],
     imperfeito: ['aparecia', 'aparecias', 'aparecia', 'aparecíamos', 'aparecíeis', 'apareciam'],
     futuro: ['aparecerei', 'aparecerás', 'aparecerá', 'apareceremos', 'aparecereis', 'aparecerão'],
-    conj_presente: ['apareca', 'aparecas', 'apareca', 'aparecamos', 'aparecais', 'aparecam'],
+    conj_presente: ['apareça', 'apareças', 'apareça', 'apareçamos', 'apareçais', 'apareçam'],
     condicional: ['apareceria', 'aparecerias', 'apareceria', 'apareceríamos', 'apareceríeis', 'apareceriam'],
   }},
   'aparelhar': { cn: '指"使某物处于可运转、可使用的准备状态"，也指给马套上鞍具、', tenses: {
@@ -8966,7 +8966,7 @@ export const ALL_VERBS = {
     perfeito: ['contei', 'contaste', 'contou', 'contámos', 'contastes', 'contaram'],
     imperfeito: ['contava', 'contavas', 'contava', 'contávamos', 'contáveis', 'contavam'],
     futuro: ['contarei', 'contarás', 'contará', 'contaremos', 'contareis', 'contarão'],
-    conj_presente: ['conte', 'contes', 'conte', 'contemos', 'conteis', 'contem'],
+    conj_presente: ['conte', 'contes', 'conte', 'contemos', 'conteeis', 'contem'],
     condicional: ['contaria', 'contarias', 'contaria', 'contaríamos', 'contaríeis', 'contariam'],
   }},
   'conteirar': { cn: '指"给瞄准镜、探照灯等光学仪器装上或调整瞄准具的动作"，为专', tenses: {
@@ -19659,10 +19659,10 @@ export const ALL_VERBS = {
   }},
   'jogar': { cn: '指参与游戏或体育活动，即玩、比赛；也指投掷（jogar fu', tenses: {
     presente: ['jogo', 'jogas', 'joga', 'jogamos', 'jogais', 'jogam'],
-    perfeito: ['jogei', 'jogaste', 'jogou', 'jogámos', 'jogastes', 'jogaram'],
+    perfeito: ['joguei', 'jogaste', 'jogou', 'jogámos', 'jogastes', 'jogaram'],
     imperfeito: ['jogava', 'jogavas', 'jogava', 'jogávamos', 'jogáveis', 'jogavam'],
     futuro: ['jogarei', 'jogarás', 'jogará', 'jogaremos', 'jogareis', 'jogarão'],
-    conj_presente: ['joge', 'joges', 'joge', 'jogemos', 'jogeis', 'jogem'],
+    conj_presente: ['jogue', 'jogues', 'jogue', 'joguemos', 'jogueis', 'joguem'],
     condicional: ['jogaria', 'jogarias', 'jogaria', 'jogaríamos', 'jogaríeis', 'jogariam'],
   }},
   'jogatar': { cn: '玩耍；嬉戏（= joguetear）', tenses: {
@@ -19941,9 +19941,9 @@ export const ALL_VERBS = {
     presente: ['levo', 'levas', 'leva', 'levamos', 'levais', 'levam'],
     perfeito: ['levei', 'levaste', 'levou', 'levámos', 'levastes', 'levaram'],
     imperfeito: ['levava', 'levavas', 'levava', 'levávamos', 'leváveis', 'levavam'],
-    futuro: ['levarei', 'levarás', 'levará', 'levaremos', 'levareis', 'levarão'],
+    futuro: ['levaréi', 'levarás', 'levará', 'levaremos', 'levareis', 'levarão'],
     conj_presente: ['leve', 'leves', 'leve', 'levemos', 'leveis', 'levem'],
-    condicional: ['levaria', 'levarias', 'levaria', 'levaríamos', 'levaríeis', 'levariam'],
+    condicional: ['levaria', 'levarias', 'levaria', 'levaríamos', 'levaríeis', 'levaria'],
   }},
   'libertar': { cn: '指使某人或某物从束缚中解脱，即解放、释放；也指使摆脱困扰；获', tenses: {
     presente: ['liberto', 'libertas', 'liberta', 'libertamos', 'libertais', 'libertam'],
@@ -21326,8 +21326,8 @@ export const ALL_VERBS = {
     perfeito: ['morri', 'morreste', 'morreu', 'morremos', 'morrestes', 'morreram'],
     imperfeito: ['morria', 'morrias', 'morria', 'morríamos', 'morríeis', 'morriam'],
     futuro: ['morrerei', 'morrerás', 'morrerá', 'morreremos', 'morrereis', 'morrerão'],
-    conj_presente: ['morra', 'morras', 'morra', 'morramos', 'morrais', 'morram'],
-    condicional: ['morreria', 'morrerias', 'morreria', 'morreríamos', 'morreríeis', 'morreriam'],
+    conj_presente: ['morra', 'morras', 'morra', 'morrermos', 'morrais', 'morram'],
+    condicional: ['morreria', 'morrarias', 'morreria', 'morreríamos', 'morreríeis', 'morreriam'],
   }},
   'morrinhar': { cn: '[区域] 闷烧；阴燃；缓慢燃烧而不产生火焰', tenses: {
     presente: ['morrinho', 'morrinhas', 'morrinha', 'morrinhamos', 'morrinhais', 'morrinham'],
@@ -21994,11 +21994,11 @@ export const ALL_VERBS = {
     condicional: ['ofenderia', 'ofenderias', 'ofenderia', 'ofenderíamos', 'ofenderíeis', 'ofenderiam'],
   }},
   'oferecer': { cn: '提供，赠送（oferecer um presente 送礼物', tenses: {
-    presente: ['ofereco', 'ofereces', 'oferece', 'oferecemos', 'ofereceis', 'oferecem'],
+    presente: ['ofereço', 'ofereces', 'oferece', 'oferecemos', 'ofereceis', 'oferecem'],
     perfeito: ['ofereci', 'ofereceste', 'ofereceu', 'oferecemos', 'oferecestes', 'ofereceram'],
     imperfeito: ['oferecia', 'oferecias', 'oferecia', 'oferecíamos', 'oferecíeis', 'ofereciam'],
     futuro: ['oferecerei', 'oferecerás', 'oferecerá', 'ofereceremos', 'oferecereis', 'oferecerão'],
-    conj_presente: ['ofereca', 'oferecas', 'ofereca', 'oferecamos', 'oferecais', 'oferecam'],
+    conj_presente: ['ofereça', 'ofereças', 'ofereça', 'ofereçamos', 'ofereçais', 'ofereçam'],
     condicional: ['ofereceria', 'oferecerias', 'ofereceria', 'ofereceríamos', 'ofereceríeis', 'ofereceriam'],
   }},
   'oferendar': { cn: '表示"献祭、奉献"，将某物作为供品献上', tenses: {
@@ -22850,11 +22850,11 @@ export const ALL_VERBS = {
     condicional: ['percutiria', 'percutirias', 'percutiria', 'percutiríamos', 'percutiríeis', 'percutiriam'],
   }},
   'perder': { cn: '失去，输（perder o comboio 错过火车；per', tenses: {
-    presente: ['perdo', 'perdes', 'perde', 'perdemos', 'perdeis', 'perdem'],
+    presente: ['perco', 'perdes', 'perde', 'perdemos', 'perdeis', 'perdem'],
     perfeito: ['perdi', 'perdeste', 'perdeu', 'perdemos', 'perdestes', 'perderam'],
     imperfeito: ['perdia', 'perdias', 'perdia', 'perdíamos', 'perdíeis', 'perdiam'],
     futuro: ['perderei', 'perderás', 'perderá', 'perderemos', 'perdereis', 'perderão'],
-    conj_presente: ['perda', 'perdas', 'perda', 'perdamos', 'perdais', 'perdam'],
+    conj_presente: ['perca', 'percas', 'perca', 'percamos', 'percais', 'percam'],
     condicional: ['perderia', 'perderias', 'perderia', 'perderíamos', 'perderíeis', 'perderiam'],
   }},
   'perdoar': { cn: '指原谅他人的过错或冒犯，即原谅、宽恕；也指免除（债务、惩罚）', tenses: {
@@ -24226,8 +24226,8 @@ export const ALL_VERBS = {
     condicional: ['procuraria', 'procurarias', 'procuraria', 'procuraríamos', 'procuraríeis', 'procurariam'],
   }},
   'produzir': { cn: '生产，制作（produzir bens 生产商品；produ', tenses: {
-    presente: ['produzo', 'produzes', 'produze', 'produzimos', 'produzis', 'produzem'],
-    perfeito: ['produzi', 'produziste', 'produziu', 'produzimos', 'produzistes', 'produziram'],
+    presente: ['produzo', 'produzis', 'produz', 'produzimos', 'produzis', 'produzem'],
+    perfeito: ['produzi', 'produzeste', 'produziu', 'produzimos', 'produzistes', 'produziram'],
     imperfeito: ['produzia', 'produzias', 'produzia', 'produzíamos', 'produzíeis', 'produziam'],
     futuro: ['produzirei', 'produzirás', 'produzirá', 'produziremos', 'produzireis', 'produzirão'],
     conj_presente: ['produza', 'produzas', 'produza', 'produzamos', 'produzais', 'produzam'],
@@ -27218,7 +27218,7 @@ export const ALL_VERBS = {
     condicional: ['resplenderia', 'resplenderias', 'resplenderia', 'resplenderíamos', 'resplenderíeis', 'resplenderiam'],
   }},
   'responder': { cn: '回答，回应（responder a uma pergunta', tenses: {
-    presente: ['respondo', 'respondes', 'responde', 'respondemos', 'respondeis', 'respondem'],
+    presente: ['respondo', 'respondes', 'responde', 'respondemos', 'respondesis', 'respondem'],
     perfeito: ['respondi', 'respondeste', 'respondeu', 'respondemos', 'respondestes', 'responderam'],
     imperfeito: ['respondia', 'respondias', 'respondia', 'respondíamos', 'respondíeis', 'respondiam'],
     futuro: ['responderei', 'responderás', 'responderá', 'responderemos', 'respondereis', 'responderão'],

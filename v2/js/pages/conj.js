@@ -3,15 +3,15 @@
 // ============================================
 
 import { router } from '../router.js';
-import { ALL_VERBS } from '../data/conj-data.js?v=31';
+import { ALL_VERBS } from '../data/conj-data.js?v=32';
 
 const TENSES = [
-  { id: 'presente', label: '现在式', cn: 'Presente do Indicativo' },
-  { id: 'perfeito', label: '过去式', cn: 'Pretérito Perfeito' },
-  { id: 'imperfeito', label: '过去未完成式', cn: 'Pretérito Imperfeito' },
-  { id: 'futuro', label: '将来式', cn: 'Futuro do Indicativo' },
-  { id: 'conj_presente', label: '虚拟式现在', cn: 'Presente do Conjuntivo' },
-  { id: 'condicional', label: '条件式', cn: 'Condicional' },
+  { id: 'presente', label: '现在式', cn: 'Presente do Indicativo', desc: '表示现在经常性的动作或状态' },
+  { id: 'perfeito', label: '过去式', cn: 'Pretérito Perfeito', desc: '表示过去已完成的动作' },
+  { id: 'imperfeito', label: '过去未完成式', cn: 'Pretérito Imperfeito', desc: '表示过去习惯性动作或背景描述' },
+  { id: 'futuro', label: '将来式', cn: 'Futuro do Indicativo', desc: '表示将来要发生的动作' },
+  { id: 'conj_presente', label: '虚拟式现在', cn: 'Presente do Conjuntivo', desc: '表示愿望、怀疑、可能性' },
+  { id: 'condicional', label: '条件式', cn: 'Condicional', desc: '表示"将会、可能会"，相当于过去将来时' },
 ];
 
 const COMMON_VERBS = ['ser','estar','ter','ir','fazer','querer','poder','dizer','saber','ver','dar','vir'];
@@ -41,7 +41,29 @@ let tableTense = 'presente';
 let searchResult = null;
 let showAllVerbs = false;
 let allVerbsFilter = '';
-let quizLevel = 'all'; // all / A1 / A2 / B1
+let quizLevel = 'all'; // all / A1 / A2 / B1 / wrongbook
+
+// 错词本
+function getWrongBook() {
+  try { return JSON.parse(localStorage.getItem('conj_wrongbook') || '[]'); }
+  catch { return []; }
+}
+function addToWrongBook(item) {
+  const wb = getWrongBook();
+  const key = item.verb + '|' + item.tense + '|' + item.pronoun;
+  const existing = wb.find(x => x.key === key);
+  if (existing) {
+    existing.count++;
+    existing.lastWrong = Date.now();
+  } else {
+    wb.push({ key, verb: item.verb, tense: item.tense, pronoun: item.pronoun, answer: item.answer, count: 1, lastWrong: Date.now() });
+  }
+  localStorage.setItem('conj_wrongbook', JSON.stringify(wb));
+}
+function removeFromWrongBook(key) {
+  const wb = getWrongBook().filter(x => x.key !== key);
+  localStorage.setItem('conj_wrongbook', JSON.stringify(wb));
+}
 
 // 构建变位反查索引（变位形式 -> 动词原形）
 let formIndex = null;
@@ -90,51 +112,88 @@ function searchVerb(q) {
 }
 
 function buildQuiz() {
-  let pool;
-  if (quizLevel === 'A1') pool = LEVELS.A1.filter(v => VERBS[v]);
-  else if (quizLevel === 'A2') pool = LEVELS.A2.filter(v => VERBS[v]);
-  else if (quizLevel === 'B1') pool = LEVELS.B1.filter(v => VERBS[v]);
-  else pool = Object.keys(VERBS);
-  
   quizList = [];
-  for (let i = 0; i < 10; i++) {
-    const v = pool[Math.floor(Math.random() * pool.length)];
-    const t = TENSES[Math.floor(Math.random() * TENSES.length)];
-    const p = PRONOUNS[Math.floor(Math.random() * PRONOUNS.length)];
-    const correct = VERBS[v].tenses[t.id][p.idx];
-
-    const allForms = [];
-    for (const tid of Object.keys(VERBS[v].tenses)) {
-      for (let pi = 0; pi < 6; pi++) {
-        const form = VERBS[v].tenses[tid][pi];
-        if (!allForms.includes(form)) allForms.push(form);
+  
+  // 错词本模式：从错词本里出题
+  if (quizLevel === 'wrongbook') {
+    const wb = getWrongBook();
+    if (wb.length === 0) {
+      alert('错词本是空的！先去练习吧。');
+      quizLevel = 'all';
+      return;
+    }
+    for (let i = 0; i < Math.min(10, wb.length); i++) {
+      const w = wb[Math.floor(Math.random() * wb.length)];
+      const t = TENSES.find(x => x.id === w.tense);
+      const p = PRONOUNS[w.pronoun];
+      const v = w.verb;
+      const correct = w.answer;
+      
+      const allForms = [];
+      for (const tid of Object.keys(VERBS[v].tenses)) {
+        for (let pi = 0; pi < 6; pi++) {
+          const form = VERBS[v].tenses[tid][pi];
+          if (!allForms.includes(form)) allForms.push(form);
+        }
       }
-    }
-
-    const others = allForms.filter(f => f !== correct);
-    const distractors = [];
-    let guard = 0;
-    while (distractors.length < 3 && guard < 50 && others.length > 0) {
-      guard++;
-      const d = others[Math.floor(Math.random() * others.length)];
-      if (!distractors.includes(d)) distractors.push(d);
-    }
-
-    if (distractors.length < 3) {
-      const otherVerbs = verbs.filter(x => x !== v);
-      while (distractors.length < 3 && guard < 100) {
+      const others = allForms.filter(f => f !== correct);
+      const distractors = [];
+      let guard = 0;
+      while (distractors.length < 3 && guard < 50 && others.length > 0) {
         guard++;
-        const ov = otherVerbs[Math.floor(Math.random() * otherVerbs.length)];
-        const ot = TENSES[Math.floor(Math.random() * TENSES.length)];
-        const op = Math.floor(Math.random() * 6);
-        const d = VERBS[ov].tenses[ot.id][op];
-        if (d !== correct && !distractors.includes(d)) distractors.push(d);
+        const d = others[Math.floor(Math.random() * others.length)];
+        if (!distractors.includes(d)) distractors.push(d);
       }
+      const opts = [correct, ...distractors].sort(() => 0.5 - Math.random());
+      quizList.push({ verb: v, verbCn: VERBS[v].cn, tense: t, pronoun: p, correct, opts, ans: opts.indexOf(correct), wrongKey: w.key });
     }
+  } else {
+    let pool;
+    if (quizLevel === 'A1') pool = LEVELS.A1.filter(v => VERBS[v]);
+    else if (quizLevel === 'A2') pool = LEVELS.A2.filter(v => VERBS[v]);
+    else if (quizLevel === 'B1') pool = LEVELS.B1.filter(v => VERBS[v]);
+    else pool = Object.keys(VERBS);
+    
+    for (let i = 0; i < 10; i++) {
+      const v = pool[Math.floor(Math.random() * pool.length)];
+      const t = TENSES[Math.floor(Math.random() * TENSES.length)];
+      const p = PRONOUNS[Math.floor(Math.random() * PRONOUNS.length)];
+      const correct = VERBS[v].tenses[t.id][p.idx];
 
-    const opts = [correct, ...distractors].sort(() => 0.5 - Math.random());
-    quizList.push({ verb: v, verbCn: VERBS[v].cn, tense: t, pronoun: p, correct, opts, ans: opts.indexOf(correct) });
+      const allForms = [];
+      for (const tid of Object.keys(VERBS[v].tenses)) {
+        for (let pi = 0; pi < 6; pi++) {
+          const form = VERBS[v].tenses[tid][pi];
+          if (!allForms.includes(form)) allForms.push(form);
+        }
+      }
+
+      const others = allForms.filter(f => f !== correct);
+      const distractors = [];
+      let guard = 0;
+      while (distractors.length < 3 && guard < 50 && others.length > 0) {
+        guard++;
+        const d = others[Math.floor(Math.random() * others.length)];
+        if (!distractors.includes(d)) distractors.push(d);
+      }
+
+      if (distractors.length < 3) {
+        const otherVerbs = pool.filter(x => x !== v);
+        while (distractors.length < 3 && guard < 100) {
+          guard++;
+          const ov = otherVerbs[Math.floor(Math.random() * otherVerbs.length)];
+          const ot = TENSES[Math.floor(Math.random() * TENSES.length)];
+          const op = Math.floor(Math.random() * 6);
+          const d = VERBS[ov].tenses[ot.id][op];
+          if (d !== correct && !distractors.includes(d)) distractors.push(d);
+        }
+      }
+
+      const opts = [correct, ...distractors].sort(() => 0.5 - Math.random());
+      quizList.push({ verb: v, verbCn: VERBS[v].cn, tense: t, pronoun: p, correct, opts, ans: opts.indexOf(correct), wrongKey: null });
+    }
   }
+  
   quizIdx = 0;
   score = 0;
 }
@@ -162,6 +221,7 @@ function renderHome(app) {
         <button class="btn ${quizLevel==='A1'?'btn--primary':'btn--ghost'}" style="padding:6px 12px; font-size:12px" onclick="window.__setLevel('A1')">A1 入门</button>
         <button class="btn ${quizLevel==='A2'?'btn--primary':'btn--ghost'}" style="padding:6px 12px; font-size:12px" onclick="window.__setLevel('A2')">A2 基础</button>
         <button class="btn ${quizLevel==='B1'?'btn--primary':'btn--ghost'}" style="padding:6px 12px; font-size:12px" onclick="window.__setLevel('B1')">B1 中级</button>
+        <button class="btn ${quizLevel==='wrongbook'?'btn--primary':'btn--ghost'}" style="padding:6px 12px; font-size:12px; background:#f44336; color:#fff" onclick="window.__setLevel('wrongbook')">📕 错词本 (${getWrongBook().length})</button>
       </div>
 
       <button class="btn btn--primary btn--block" style="margin-bottom:12px" onclick="window.__startConjQuiz()">🚀 开始变位练习（10 题）</button>
@@ -420,7 +480,8 @@ function renderQuiz(app) {
       </div>
 
       <div class="card" style="padding:24px; text-align:center; margin-bottom:16px">
-        <div style="font-size:13px; color:var(--c-brand); margin-bottom:8px; font-weight:600">${q.tense.label} · ${q.tense.cn}</div>
+        <div style="font-size:13px; color:var(--c-brand); margin-bottom:4px; font-weight:600">${q.tense.label} · ${q.tense.cn}</div>
+        <div style="font-size:12px; color:var(--c-muted); margin-bottom:12px">${q.tense.desc}</div>
         <div style="font-size:28px; font-weight:700; margin-bottom:8px">${q.pronoun.pt} <span style="color:var(--c-muted); font-size:18px">(${q.pronoun.cn})</span></div>
         <div style="font-size:20px">${q.verb} <small style="color:var(--c-muted)">（${q.verbCn}）</small></div>
       </div>
@@ -447,6 +508,14 @@ function renderQuiz(app) {
     const fb = document.getElementById('conj-feedback');
     const correct = i === q.ans;
     if (correct) score++;
+    
+    // 错词本逻辑
+    if (!correct) {
+      addToWrongBook({ verb: q.verb, tense: q.tense.id, pronoun: q.pronoun.idx, answer: q.correct });
+    } else if (q.wrongKey) {
+      removeFromWrongBook(q.wrongKey);
+    }
+    
     fb.style.display = 'block';
     fb.style.background = correct ? 'rgba(76,175,80,0.1)' : 'rgba(244,67,54,0.1)';
     fb.style.color = correct ? '#4caf50' : '#f44336';
@@ -455,7 +524,7 @@ function renderQuiz(app) {
     } else {
       fb.innerHTML = correct
         ? `✅ 正确！<div style="margin-top:10px"><button class="btn btn--primary" onclick="window.__nextConj()">下一题 →</button></div>`
-        : `❌ 正确：${q.correct}<div style="margin-top:10px"><button class="btn btn--primary" onclick="window.__nextConj()">下一题 →</button></div>`;
+        : `❌ 正确：${q.correct}<div style="margin-top:10px; font-size:12px; color:var(--c-muted)">已加入错词本</div><div style="margin-top:10px"><button class="btn btn--primary" onclick="window.__nextConj()">下一题 →</button></div>`;
     }
   };
   window.__nextConj = () => { quizIdx++; render(); };
