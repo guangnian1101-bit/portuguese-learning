@@ -3,7 +3,7 @@
 // ============================================
 
 import { router } from '../router.js';
-import { ALL_VERBS } from '../data/conj-data.js?v=32';
+import { ALL_VERBS } from '../data/conj-data.js?v=33';
 
 const TENSES = [
   { id: 'presente', label: '现在式', cn: 'Presente do Indicativo', desc: '表示现在经常性的动作或状态' },
@@ -12,6 +12,7 @@ const TENSES = [
   { id: 'futuro', label: '将来式', cn: 'Futuro do Indicativo', desc: '表示将来要发生的动作' },
   { id: 'conj_presente', label: '虚拟式现在', cn: 'Presente do Conjuntivo', desc: '表示愿望、怀疑、可能性' },
   { id: 'condicional', label: '条件式', cn: 'Condicional', desc: '表示"将会、可能会"，相当于过去将来时' },
+  { id: 'conj_imperfeito', label: '虚拟式过去未完成', cn: 'Pretérito Imperfeito do Conjuntivo', desc: '表示过去的假设、条件，相当于"如果我当时…"' },
 ];
 
 const COMMON_VERBS = ['ser','estar','ter','ir','fazer','querer','poder','dizer','saber','ver','dar','vir'];
@@ -42,6 +43,7 @@ let searchResult = null;
 let showAllVerbs = false;
 let allVerbsFilter = '';
 let quizLevel = 'all'; // all / A1 / A2 / B1 / wrongbook
+let quizMode = 'choice'; // choice / input
 
 // 错词本
 function getWrongBook() {
@@ -224,6 +226,11 @@ function renderHome(app) {
         <button class="btn ${quizLevel==='wrongbook'?'btn--primary':'btn--ghost'}" style="padding:6px 12px; font-size:12px; background:#f44336; color:#fff" onclick="window.__setLevel('wrongbook')">📕 错词本 (${getWrongBook().length})</button>
       </div>
 
+      <div style="display:flex; gap:6px; margin-bottom:16px">
+        <button class="btn ${quizMode==='choice'?'btn--primary':'btn--ghost'}" style="padding:6px 12px; font-size:12px" onclick="window.__setMode('choice')">📝 选择题</button>
+        <button class="btn ${quizMode==='input'?'btn--primary':'btn--ghost'}" style="padding:6px 12px; font-size:12px" onclick="window.__setMode('input')">✏️ 填空</button>
+      </div>
+
       <button class="btn btn--primary btn--block" style="margin-bottom:12px" onclick="window.__startConjQuiz()">🚀 开始变位练习（10 题）</button>
 
       <button class="btn btn--ghost btn--block" style="margin-bottom:16px" onclick="window.__showAllVerbs()">📚 浏览全部动词</button>
@@ -259,6 +266,7 @@ function renderHome(app) {
   `;
   window.__startConjQuiz = () => { buildQuiz(); render(); };
   window.__setLevel = (lvl) => { quizLevel = lvl; render(); };
+  window.__setMode = (m) => { quizMode = m; render(); };
   window.__showTable = (v) => { tableVerb = v; tableTense = 'presente'; render(); };
   window.__showAllVerbs = () => { showAllVerbs = true; allVerbsFilter = ''; render(); };
   window.__doConjSearch = () => {
@@ -472,6 +480,21 @@ function renderTable(app) {
 
 function renderQuiz(app) {
   const q = quizList[quizIdx];
+  const isInput = quizMode === 'input';
+  
+  const optionsHtml = isInput ? `
+    <input id="conj-input" type="text" placeholder="输入变位形式..." 
+      style="width:100%; padding:16px; border-radius:12px; border:2px solid var(--c-border); background:var(--c-card); font-size:18px; text-align:center; box-sizing:border-box"
+      onkeydown="if(event.key==='Enter') window.__answerInput()" />
+    <button class="btn btn--primary btn--block" style="margin-top:12px" onclick="window.__answerInput()">确认答案</button>
+  ` : `
+    <div style="display:flex; flex-direction:column; gap:10px">
+      ${q.opts.map((o,i) => `
+        <button class="btn btn--ghost" style="padding:16px; font-size:16px" onclick="window.__answerConj(${i})">${o}</button>
+      `).join('')}
+    </div>
+  `;
+  
   app.innerHTML = `
     <div class="page container">
       <div style="display:flex; align-items:center; gap:12px; margin:24px 0 16px">
@@ -486,11 +509,7 @@ function renderQuiz(app) {
         <div style="font-size:20px">${q.verb} <small style="color:var(--c-muted)">（${q.verbCn}）</small></div>
       </div>
 
-      <div style="display:flex; flex-direction:column; gap:10px">
-        ${q.opts.map((o,i) => `
-          <button class="btn btn--ghost" style="padding:16px; font-size:16px" onclick="window.__answerConj(${i})">${o}</button>
-        `).join('')}
-      </div>
+      ${optionsHtml}
 
       <div id="conj-feedback" style="display:none; margin-top:16px; padding:16px; border-radius:12px; text-align:center"></div>
 
@@ -503,13 +522,13 @@ function renderQuiz(app) {
       </nav>
     </div>
   `;
+  
   window.__backConjHome = () => { quizList = []; tableVerb = null; render(); };
-  window.__answerConj = (i) => {
+  
+  function showResult(correct) {
     const fb = document.getElementById('conj-feedback');
-    const correct = i === q.ans;
     if (correct) score++;
     
-    // 错词本逻辑
     if (!correct) {
       addToWrongBook({ verb: q.verb, tense: q.tense.id, pronoun: q.pronoun.idx, answer: q.correct });
     } else if (q.wrongKey) {
@@ -526,6 +545,12 @@ function renderQuiz(app) {
         ? `✅ 正确！<div style="margin-top:10px"><button class="btn btn--primary" onclick="window.__nextConj()">下一题 →</button></div>`
         : `❌ 正确：${q.correct}<div style="margin-top:10px; font-size:12px; color:var(--c-muted)">已加入错词本</div><div style="margin-top:10px"><button class="btn btn--primary" onclick="window.__nextConj()">下一题 →</button></div>`;
     }
+  }
+  
+  window.__answerConj = (i) => showResult(i === q.ans);
+  window.__answerInput = () => {
+    const val = document.getElementById('conj-input').value.trim().toLowerCase();
+    showResult(val === q.correct.toLowerCase());
   };
   window.__nextConj = () => { quizIdx++; render(); };
 }

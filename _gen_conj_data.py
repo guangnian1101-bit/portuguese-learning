@@ -22,6 +22,7 @@ IRREGULAR = {
     'futuro':['serei','serás','será','seremos','sereis','serão'],
     'conj_presente':['seja','sejas','seja','sejamos','sejais','sejam'],
     'condicional':['seria','serias','seria','seríamos','seríeis','seriam'],
+    'conj_imperfeito':['fosse','fosses','fosse','fôssemos','fôsseis','fossem'],
   },
   'estar': {
     'presente':['estou','estás','está','estamos','estais','estão'],
@@ -46,6 +47,7 @@ IRREGULAR = {
     'futuro':['irei','irás','irá','iremos','ireis','irão'],
     'conj_presente':['vá','vás','vá','vamos','vades','vão'],
     'condicional':['iria','irias','iria','iríamos','iríeis','iriam'],
+    'conj_imperfeito':['fosse','fosses','fosse','fôssemos','fôsseis','fossem'],
   },
   'fazer': {
     'presente':['faço','fazes','faz','fazemos','fazeis','fazem'],
@@ -372,7 +374,7 @@ IRREGULAR = {
 }
 
 def conjugate_regular(verb):
-    """规则变位生成，包含全部6个时态"""
+    """规则变位生成，包含全部7个时态"""
     if verb.endswith('ar'):
         stem = verb[:-2]
         return {
@@ -382,6 +384,7 @@ def conjugate_regular(verb):
             'futuro': [verb+'ei', verb+'ás', verb+'á', verb+'emos', verb+'eis', verb+'ão'],
             'conj_presente': [stem+'e', stem+'es', stem+'e', stem+'emos', stem+'eis', stem+'em'],
             'condicional': [verb+'ia', verb+'ias', verb+'ia', verb+'íamos', verb+'íeis', verb+'iam'],
+            'conj_imperfeito': [stem+'asse', stem+'asses', stem+'asse', stem+'ássemos', stem+'ásseis', stem+'assem'],
         }
     elif verb.endswith('er'):
         stem = verb[:-2]
@@ -392,6 +395,7 @@ def conjugate_regular(verb):
             'futuro': [verb+'ei', verb+'ás', verb+'á', verb+'emos', verb+'eis', verb+'ão'],
             'conj_presente': [stem+'a', stem+'as', stem+'a', stem+'amos', stem+'ais', stem+'am'],
             'condicional': [verb+'ia', verb+'ias', verb+'ia', verb+'íamos', verb+'íeis', verb+'iam'],
+            'conj_imperfeito': [stem+'esse', stem+'esses', stem+'esse', stem+'êssemos', stem+'êsseis', stem+'essem'],
         }
     elif verb.endswith('ir'):
         stem = verb[:-2]
@@ -402,6 +406,7 @@ def conjugate_regular(verb):
             'futuro': [verb+'ei', verb+'ás', verb+'á', verb+'emos', verb+'eis', verb+'ão'],
             'conj_presente': [stem+'a', stem+'as', stem+'a', stem+'amos', stem+'ais', stem+'am'],
             'condicional': [verb+'ia', verb+'ias', verb+'ia', verb+'íamos', verb+'íeis', verb+'iam'],
+            'conj_imperfeito': [stem+'isse', stem+'isses', stem+'isse', stem+'íssemos', stem+'ísseis', stem+'issem'],
         }
     return None
 
@@ -425,7 +430,7 @@ print(f"词库动词数量: {len(verbs)}")
 print(f"手动不规则动词: {len(IRREGULAR)}")
 
 # 生成变位数据
-TENSES_LIST = ['presente', 'perfeito', 'imperfeito', 'futuro', 'conj_presente', 'condicional']
+TENSES_LIST = ['presente', 'perfeito', 'imperfeito', 'futuro', 'conj_presente', 'condicional', 'conj_imperfeito']
 
 all_conj = {}
 irregular_count = 0
@@ -446,7 +451,7 @@ js_lines.append('// 自动生成的变位数据（规则变位 + 不规则动词
 js_lines.append(f'// 共 {len(all_conj)} 个动词, {len(TENSES_LIST)} 个时态')
 js_lines.append('export const ALL_VERBS = {')
 
-TENSES_LIST = ['presente', 'perfeito', 'imperfeito', 'futuro', 'conj_presente', 'condicional']
+TENSES_LIST = ['presente', 'perfeito', 'imperfeito', 'futuro', 'conj_presente', 'condicional', 'conj_imperfeito']
 
 for v, conj in sorted(all_conj.items()):
     cn = verbs.get(v, '')
