@@ -216,7 +216,7 @@ function renderHome(app) {
         <button class="btn btn--ghost" onclick="router.navigate('/')" style="padding:8px 12px">← 返回</button>
         <h1 style="margin:0">🔄 动词变位</h1>
       </div>
-      <p style="color:var(--c-muted); margin:0 0 16px">${Object.keys(VERBS).length} 个动词 · 6 个时态 · 六人称变位表与随机练习。</p>
+      <p style="color:var(--c-muted); margin:0 0 16px">${Object.keys(VERBS).length} 个动词 · 7 个时态 · 六人称变位表与随机练习。</p>
 
       <div style="display:flex; gap:6px; margin-bottom:12px; flex-wrap:wrap">
         <button class="btn ${quizLevel==='all'?'btn--primary':'btn--ghost'}" style="padding:6px 12px; font-size:12px" onclick="window.__setLevel('all')">全部</button>
