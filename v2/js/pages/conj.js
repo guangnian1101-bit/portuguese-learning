@@ -3,8 +3,8 @@
 // ============================================
 
 import { router } from '../router.js';
+import { ALL_VERBS } from '../data/conj-data.js';
 
-// 从旧网站迁移的变位数据（12 动词 × 4 时态 × 6 人称）
 const TENSES = [
   { id: 'presente', label: '现在时', cn: 'Presente do Indicativo' },
   { id: 'imperfeito', label: '过去未完成', cn: 'Pretérito Imperfeito' },
@@ -12,20 +12,9 @@ const TENSES = [
   { id: 'futuro', label: '将来时', cn: 'Futuro do Indicativo' },
 ];
 
-const VERBS = {
-  'ser':     { cn: '是（本质）', tenses: { presente:['sou','és','é','somos','sois','são'], imperfeito:['era','eras','era','éramos','éreis','eram'], perfeito:['fui','foste','foi','fomos','fostes','foram'], futuro:['serei','serás','será','seremos','sereis','serão'] } },
-  'estar':   { cn: '在、处于', tenses: { presente:['estou','estás','está','estamos','estais','estão'], imperfeito:['estava','estavas','estava','estávamos','estáveis','estavam'], perfeito:['estive','estiveste','esteve','estivemos','estivestes','estiveram'], futuro:['estarei','estarás','estará','estaremos','estareis','estarão'] } },
-  'ter':     { cn: '有', tenses: { presente:['tenho','tens','tem','temos','tendes','têm'], imperfeito:['tinha','tinhas','tinha','tínhamos','tínheis','tinham'], perfeito:['tive','tiveste','teve','tivemos','tivestes','tiveram'], futuro:['terei','terás','terá','teremos','tereis','terão'] } },
-  'ir':      { cn: '去', tenses: { presente:['vou','vais','vai','vamos','ides','vão'], imperfeito:['ia','ias','ia','íamos','íeis','iam'], perfeito:['fui','foste','foi','fomos','fostes','foram'], futuro:['irei','irás','irá','iremos','ireis','irão'] } },
-  'fazer':   { cn: '做', tenses: { presente:['faço','fazes','faz','fazemos','fazeis','fazem'], imperfeito:['fazia','fazias','fazia','fazíamos','fazíeis','faziam'], perfeito:['fiz','fizeste','fez','fizemos','fizestes','fizeram'], futuro:['farei','farás','fará','faremos','fareis','farão'] } },
-  'querer':  { cn: '想要', tenses: { presente:['quero','queres','quer','queremos','quereis','querem'], imperfeito:['queria','querias','queria','queríamos','queríeis','queriam'], perfeito:['quis','quiseste','quis','quisemos','quisestes','quiseram'], futuro:['quererei','quererás','quererá','quereremos','querereis','quererão'] } },
-  'poder':   { cn: '能够', tenses: { presente:['posso','podes','pode','podemos','podeis','podem'], imperfeito:['podia','podias','podia','podíamos','podíeis','podiam'], perfeito:['pude','pudeste','pôde','pudemos','pudestes','puderam'], futuro:['poderei','poderás','poderá','poderemos','podereis','poderão'] } },
-  'falar':   { cn: '说', tenses: { presente:['falo','falas','fala','falamos','falais','falam'], imperfeito:['falava','falavas','falava','falávamos','faláveis','falavam'], perfeito:['falei','falaste','falou','falámos','falastes','falaram'], futuro:['falarei','falarás','falará','falaremos','falareis','falarão'] } },
-  'comer':   { cn: '吃', tenses: { presente:['como','comes','come','comemos','comeis','comem'], imperfeito:['comia','comias','comia','comíamos','comíeis','comiam'], perfeito:['comi','comeste','comeu','comemos','comestes','comeram'], futuro:['comerei','comerás','comerá','comeremos','comereis','comerão'] } },
-  'viver':   { cn: '生活、居住', tenses: { presente:['vivo','vives','vive','vivemos','viveis','vivem'], imperfeito:['vivia','vivias','vivia','vivíamos','vivíeis','viviam'], perfeito:['vivi','viveste','viveu','vivemos','vivestes','viveram'], futuro:['viverei','viverás','viverá','viveremos','vivereis','viverão'] } },
-  'beber':   { cn: '喝', tenses: { presente:['bebo','bebes','bebe','bebemos','bebeis','bebem'], imperfeito:['bebia','bebias','bebia','bebíamos','bebíeis','bebiam'], perfeito:['bebi','bebeste','bebeu','bebemos','bebestes','beberam'], futuro:['beberei','beberás','beberá','beberemos','bebereis','beberão'] } },
-  'aprender':{ cn: '学习', tenses: { presente:['aprendo','aprendes','aprende','aprendemos','aprendeis','aprendem'], imperfeito:['aprendia','aprendias','aprendia','aprendíamos','aprendíeis','aprendiam'], perfeito:['aprendi','aprendeste','aprendeu','aprendemos','aprendestes','aprenderam'], futuro:['aprenderei','aprenderás','aprenderá','aprenderemos','aprendereis','aprenderão'] } },
-};
+// 常用动词（变位表页面显示）
+const COMMON_VERBS = ['ser','estar','ter','ir','fazer','querer','poder','falar','comer','viver','beber','aprender'];
+const VERBS = ALL_VERBS;
 
 const PRONOUNS = [
   { pt: 'eu', cn: '我', idx: 0 },
@@ -98,20 +87,19 @@ export function render() {
 }
 
 function renderHome(app) {
-  const verbs = Object.keys(VERBS);
   app.innerHTML = `
     <div class="page container">
       <div style="display:flex; align-items:center; gap:12px; margin:24px 0 16px">
         <button class="btn btn--ghost" onclick="router.navigate('/')" style="padding:8px 12px">← 返回</button>
         <h1 style="margin:0">🔄 动词变位</h1>
       </div>
-      <p style="color:var(--c-muted); margin:0 0 20px">12 个常用动词 · 4 个时态 · 六人称变位表与随机练习。</p>
+      <p style="color:var(--c-muted); margin:0 0 20px">${Object.keys(VERBS).length} 个动词 · 4 个时态 · 六人称变位表与随机练习。</p>
 
       <button class="btn btn--primary btn--block" style="margin-bottom:20px" onclick="window.__startConjQuiz()">🚀 开始变位练习（10 题）</button>
 
-      <div style="font-weight:600; margin-bottom:12px">📋 变位表</div>
+      <div style="font-weight:600; margin-bottom:12px">📋 常用动词变位表</div>
       <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px">
-        ${verbs.map(v => `
+        ${COMMON_VERBS.filter(v => VERBS[v]).map(v => `
           <div class="card" style="padding:12px; cursor:pointer; text-align:center" onclick="window.__showTable('${v}')">
             <div style="font-weight:600">${v}</div>
             <div style="font-size:12px; color:var(--c-muted)">${VERBS[v].cn}</div>
