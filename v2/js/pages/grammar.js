@@ -263,6 +263,10 @@ let wrongQuizMode = false;
 let wrongQuizList = [];
 let wrongQuizIdx = 0;
 let wrongQuizScore = 0;
+let dailyQuizMode = false;
+let dailyQuizList = [];
+let dailyQuizIdx = 0;
+let dailyQuizScore = 0;
 
 // 语法点正确率统计
 function getGrammarStats() {
@@ -303,10 +307,50 @@ function removeWrongQuestion(topicId, qIdx) {
   }
 }
 
+// 语法每日打卡
+function getTodayStr() {
+  return new Date().toISOString().slice(0, 10);
+}
+function seededRandom(seed) {
+  let s = 0;
+  for (let i = 0; i < seed.length; i++) s = (s * 31 + seed.charCodeAt(i)) >>> 0;
+  return function() {
+    s = (s * 1664525 + 1013904223) >>> 0;
+    return s / 4294967296;
+  };
+}
+function getGrammarDaily() {
+  try { return JSON.parse(localStorage.getItem('grammar_daily') || '{}'); }
+  catch { return {}; }
+}
+function isGrammarTodayDone() {
+  return !!getGrammarDaily()[getTodayStr()]?.done;
+}
+function markGrammarTodayDone(score, total) {
+  const rec = getGrammarDaily();
+  rec[getTodayStr()] = { done: true, score, total, time: Date.now() };
+  localStorage.setItem('grammar_daily', JSON.stringify(rec));
+}
+function getGrammarStreak() {
+  const daily = getGrammarDaily();
+  let streak = 0;
+  const d = new Date();
+  while (true) {
+    const key = d.toISOString().slice(0, 10);
+    if (daily[key]?.done) {
+      streak++;
+      d.setDate(d.getDate() - 1);
+    } else break;
+  }
+  return streak;
+}
+
 export function render() {
   const app = document.getElementById('app');
 
-  if (wrongQuizMode) {
+  if (dailyQuizMode) {
+    renderGrammarDailyQuiz(app);
+  } else if (wrongQuizMode) {
     renderWrongQuiz(app);
   } else if (currentTopic) {
     renderTopic(app);
@@ -326,6 +370,16 @@ function renderList(app) {
         <h1 style="margin:0">📖 语法练习</h1>
       </div>
       <p style="color:var(--c-muted); margin:0 0 20px">按级别选择知识点，每个知识点配选择题练习。</p>
+
+      <div class="card" style="padding:16px; margin-bottom:16px; background:linear-gradient(135deg, #f093fb 0%, #f5576c 100%); color:#fff; cursor:pointer" onclick="window.__startGrammarDaily()">
+        <div style="display:flex; justify-content:space-between; align-items:center">
+          <div>
+            <div style="font-weight:700; font-size:16px">📅 语法每日打卡</div>
+            <div style="font-size:13px; opacity:0.9; margin-top:4px">连续打卡 ${getGrammarStreak()} 天 · 每天10题</div>
+          </div>
+          <div style="font-size:24px">${isGrammarTodayDone() ? '✅' : '🔥'}</div>
+        </div>
+      </div>
 
       ${(() => {
         const wrongTopics = getWrongTopics();
@@ -413,6 +467,27 @@ function renderList(app) {
     wrongQuizMode = true;
     wrongQuizIdx = 0;
     wrongQuizScore = 0;
+    render();
+  };
+
+  window.__startGrammarDaily = () => {
+    const rng = seededRandom(getTodayStr());
+    dailyQuizList = [];
+    // 从所有知识点里每道题都收集，然后随机抽10道
+    const allQuestions = [];
+    for (const topic of GRAMMAR) {
+      for (let i = 0; i < topic.quiz.length; i++) {
+        allQuestions.push({ topic, qIdx: i, q: topic.quiz[i] });
+      }
+    }
+    // 随机抽10道
+    for (let i = 0; i < 10 && allQuestions.length > 0; i++) {
+      const idx = Math.floor(rng() * allQuestions.length);
+      dailyQuizList.push(allQuestions.splice(idx, 1)[0]);
+    }
+    dailyQuizMode = true;
+    dailyQuizIdx = 0;
+    dailyQuizScore = 0;
     render();
   };
 }
@@ -542,6 +617,69 @@ function renderWrongQuiz(app) {
     if (wrongQuizIdx >= wrongQuizList.length) {
       alert(`错词本练习完成！得分 ${wrongQuizScore}/${wrongQuizList.length}`);
       wrongQuizMode = false;
+    }
+    render();
+  };
+}
+
+function renderGrammarDailyQuiz(app) {
+  const item = dailyQuizList[dailyQuizIdx];
+  const { topic, qIdx, q } = item;
+
+  app.innerHTML = `
+    <div class="page container">
+      <div style="display:flex; align-items:center; gap:12px; margin:24px 0 16px">
+        <button class="btn btn--ghost" onclick="window.__backFromDaily()" style="padding:8px 12px">← 退出</button>
+        <h1 style="margin:0; font-size:18px">📅 语法每日打卡</h1>
+      </div>
+
+      <div class="card" style="padding:20px; margin-bottom:16px">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px">
+          <div style="font-weight:600">练习 ${dailyQuizIdx+1}/${dailyQuizList.length}</div>
+          <div style="font-size:13px; color:var(--c-muted)">得分 ${dailyQuizScore}</div>
+        </div>
+        <div style="font-size:12px; color:var(--c-brand); margin-bottom:8px; font-weight:600">${topic.title}</div>
+        <div style="font-size:18px; margin-bottom:20px; line-height:1.5">${q.q}</div>
+        <div style="display:flex; flex-direction:column; gap:10px">
+          ${q.opts.map((o,i) => `
+            <button class="btn btn--ghost" style="padding:14px; text-align:left" onclick="window.__answerDailyGrammar(${i})">
+              ${String.fromCharCode(65+i)}. ${o}
+            </button>
+          `).join('')}
+        </div>
+        <div id="grammar-feedback" style="display:none; margin-top:16px; padding:14px; border-radius:12px; text-align:center"></div>
+      </div>
+
+      <nav class="tabbar">
+        <button class="tabbar__item" onclick="router.navigate('/')">首页</button>
+        <button class="tabbar__item" onclick="router.navigate('/learn')">学习</button>
+        <button class="tabbar__item is-active" onclick="router.navigate('/grammar')">语法</button>
+        <button class="tabbar__item" onclick="router.navigate('/conj')">变位</button>
+        <button class="tabbar__item" onclick="router.navigate('/stats')">统计</button>
+      </nav>
+    </div>
+  `;
+
+  window.__backFromDaily = () => { dailyQuizMode = false; render(); };
+  window.__answerDailyGrammar = (i) => {
+    const fb = document.getElementById('grammar-feedback');
+    const correct = i === q.ans;
+    if (correct) dailyQuizScore++;
+    recordGrammarResult(topic.id, correct);
+    fb.style.display = 'block';
+    fb.style.background = correct ? 'rgba(76,175,80,0.1)' : 'rgba(244,67,54,0.1)';
+    fb.style.color = correct ? '#4caf50' : '#f44336';
+    let dailyMsg = '';
+    if (dailyQuizIdx + 1 >= dailyQuizList.length && !isGrammarTodayDone()) {
+      markGrammarTodayDone(dailyQuizScore, dailyQuizList.length);
+      dailyMsg = `<div style="margin-top:8px; font-size:14px; color:#ff9800">🔥 打卡成功！连续 ${getGrammarStreak()} 天</div>`;
+    }
+    fb.innerHTML = (correct ? '✅ 正确！' : `❌ 正确答案：${q.opts[q.ans]}`) + dailyMsg + `<div style="margin-top:10px"><button class="btn btn--primary" onclick="window.__nextDailyGrammar()">下一题 →</button></div>`;
+  };
+  window.__nextDailyGrammar = () => {
+    dailyQuizIdx++;
+    if (dailyQuizIdx >= dailyQuizList.length) {
+      dailyQuizMode = false;
     }
     render();
   };
