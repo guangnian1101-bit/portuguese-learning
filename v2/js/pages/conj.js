@@ -3,7 +3,7 @@
 // ============================================
 
 import { router } from '../router.js';
-import { ALL_VERBS } from '../data/conj-data.js?v=34';
+import { ALL_VERBS } from '../data/conj-data.js?v=36';
 
 const TENSES = [
   { id: 'presente', label: '现在式', cn: 'Presente do Indicativo', desc: '表示现在经常性的动作或状态' },
@@ -13,10 +13,28 @@ const TENSES = [
   { id: 'conj_presente', label: '虚拟式现在', cn: 'Presente do Conjuntivo', desc: '表示愿望、怀疑、可能性' },
   { id: 'condicional', label: '条件式', cn: 'Condicional', desc: '表示"将会、可能会"，相当于过去将来时' },
   { id: 'conj_imperfeito', label: '虚拟式过去未完成', cn: 'Pretérito Imperfeito do Conjuntivo', desc: '表示过去的假设、条件，相当于"如果我当时…"' },
+  { id: 'imperativo', label: '命令式', cn: 'Imperativo', desc: '命令、请求、建议。无eu人称，tu/você/nós/vós/vocês' },
 ];
+
+// 从已有时态推导命令式
+function getImperativo(data) {
+  const v = data._verb;
+  // ser 完全不规则
+  if (v === 'ser') return ['', 'sê', 'seja', 'sejamos', 'sede', 'sejam'];
+  const pres = data.tenses.presente;
+  const conj = data.tenses.conj_presente;
+  // eu: 无；tu: pres[2]；você: pres[2]；nós: conj[3]；vós: pres[4]去s；vocês: conj[5]
+  return ['', pres[2], pres[2], conj[3], pres[4].slice(0, -1), conj[5]];
+}
 
 const COMMON_VERBS = ['ser','estar','ter','ir','fazer','querer','poder','dizer','saber','ver','dar','vir'];
 const VERBS = ALL_VERBS;
+
+// 预生成每个动词的命令式
+for (const [v, data] of Object.entries(VERBS)) {
+  data._verb = v;
+  data.tenses.imperativo = getImperativo(data);
+}
 
 const PRONOUNS = [
   { pt: 'eu', cn: '我', idx: 0 },
@@ -42,13 +60,100 @@ let tableTense = 'presente';
 let searchResult = null;
 let showAllVerbs = false;
 let allVerbsFilter = '';
-let quizLevel = 'all'; // all / A1 / A2 / B1 / wrongbook
+let quizLevel = 'all'; // all / A1 / A2 / B1 / wrongbook / favorites / daily
 let quizMode = 'choice'; // choice / input
+
+// 每日打卡
+function getTodayStr() {
+  const d = new Date();
+  return `${d.getFullYear()}-${d.getMonth()+1}-${d.getDate()}`;
+}
+function getDailyRecord() {
+  try { return JSON.parse(localStorage.getItem('conj_daily') || '{}'); }
+  catch { return {}; }
+}
+function getStreakDays() {
+  const rec = getDailyRecord();
+  let streak = 0;
+  const d = new Date();
+  // 从今天往前数
+  while (true) {
+    const key = `${d.getFullYear()}-${d.getMonth()+1}-${d.getDate()}`;
+    if (rec[key] && rec[key].done) {
+      streak++;
+      d.setDate(d.getDate() - 1);
+    } else break;
+  }
+  return streak;
+}
+function isTodayDone() {
+  const rec = getDailyRecord();
+  return !!(rec[getTodayStr()] && rec[getTodayStr()].done);
+}
+function markTodayDone(score, total) {
+  const rec = getDailyRecord();
+  rec[getTodayStr()] = { done: true, score, total, time: Date.now() };
+  localStorage.setItem('conj_daily', JSON.stringify(rec));
+}
+// 用日期做种子的随机数（确保同一天题一样）
+function seededRandom(seed) {
+  let s = 0;
+  for (let i = 0; i < seed.length; i++) s = (s * 31 + seed.charCodeAt(i)) >>> 0;
+  return () => {
+    s = (s * 1664525 + 1013904223) >>> 0;
+    return s / 4294967296;
+  };
+}
 
 // 错词本
 function getWrongBook() {
   try { return JSON.parse(localStorage.getItem('conj_wrongbook') || '[]'); }
   catch { return []; }
+}
+
+// 收藏夹
+function getFavorites() {
+  try { return JSON.parse(localStorage.getItem('conj_favorites') || '[]'); }
+  catch { return []; }
+}
+function isFavorite(v) {
+  return getFavorites().includes(v);
+}
+function toggleFavorite(v) {
+  const favs = getFavorites();
+  const idx = favs.indexOf(v);
+  if (idx >= 0) favs.splice(idx, 1);
+  else favs.push(v);
+  localStorage.setItem('conj_favorites', JSON.stringify(favs));
+  return idx < 0; // 返回是否现在是收藏状态
+}
+
+// 时态正确率统计
+function getTenseStats() {
+  try { return JSON.parse(localStorage.getItem('conj_tense_stats') || '{}'); }
+  catch { return {}; }
+}
+function recordTenseResult(tenseId, correct) {
+  const stats = getTenseStats();
+  if (!stats[tenseId]) stats[tenseId] = { total: 0, correct: 0 };
+  stats[tenseId].total++;
+  if (correct) stats[tenseId].correct++;
+  localStorage.setItem('conj_tense_stats', JSON.stringify(stats));
+}
+function getWeakestTense() {
+  const stats = getTenseStats();
+  let weakest = null;
+  let lowestRate = 1;
+  for (const [tid, s] of Object.entries(stats)) {
+    if (s.total >= 5) { // 至少答了5题才算
+      const rate = s.correct / s.total;
+      if (rate < lowestRate) {
+        lowestRate = rate;
+        weakest = tid;
+      }
+    }
+  }
+  return weakest ? { id: weakest, rate: lowestRate, stats: stats[weakest] } : null;
 }
 function addToWrongBook(item) {
   const wb = getWrongBook();
@@ -151,15 +256,28 @@ function buildQuiz() {
     }
   } else {
     let pool;
+    let rng = Math.random;
     if (quizLevel === 'A1') pool = LEVELS.A1.filter(v => VERBS[v]);
     else if (quizLevel === 'A2') pool = LEVELS.A2.filter(v => VERBS[v]);
     else if (quizLevel === 'B1') pool = LEVELS.B1.filter(v => VERBS[v]);
+    else if (quizLevel === 'favorites') {
+      pool = getFavorites().filter(v => VERBS[v]);
+      if (pool.length === 0) {
+        alert('收藏夹是空的！搜索动词后点⭐收藏吧。');
+        quizLevel = 'all';
+        return;
+      }
+    }
+    else if (quizLevel === 'daily') {
+      pool = Object.keys(VERBS);
+      rng = seededRandom(getTodayStr());
+    }
     else pool = Object.keys(VERBS);
     
     for (let i = 0; i < 10; i++) {
-      const v = pool[Math.floor(Math.random() * pool.length)];
-      const t = TENSES[Math.floor(Math.random() * TENSES.length)];
-      const p = PRONOUNS[Math.floor(Math.random() * PRONOUNS.length)];
+      const v = pool[Math.floor(rng() * pool.length)];
+      const t = TENSES[Math.floor(rng() * TENSES.length)];
+      const p = PRONOUNS[Math.floor(rng() * PRONOUNS.length)];
       const correct = VERBS[v].tenses[t.id][p.idx];
 
       const allForms = [];
@@ -175,7 +293,7 @@ function buildQuiz() {
       let guard = 0;
       while (distractors.length < 3 && guard < 50 && others.length > 0) {
         guard++;
-        const d = others[Math.floor(Math.random() * others.length)];
+        const d = others[Math.floor(rng() * others.length)];
         if (!distractors.includes(d)) distractors.push(d);
       }
 
@@ -216,7 +334,28 @@ function renderHome(app) {
         <button class="btn btn--ghost" onclick="router.navigate('/')" style="padding:8px 12px">← 返回</button>
         <h1 style="margin:0">🔄 动词变位</h1>
       </div>
-      <p style="color:var(--c-muted); margin:0 0 16px">${Object.keys(VERBS).length} 个动词 · 7 个时态 · 六人称变位表与随机练习。</p>
+      <p style="color:var(--c-muted); margin:0 0 16px">${Object.keys(VERBS).length} 个动词 · 8 个时态 · 六人称变位表与随机练习。</p>
+
+      <div class="card" style="padding:16px; margin-bottom:16px; background:linear-gradient(135deg, #667eea 0%, #764ba2 100%); color:#fff; cursor:pointer" onclick="window.__startDaily()">
+        <div style="display:flex; justify-content:space-between; align-items:center">
+          <div>
+            <div style="font-weight:700; font-size:16px">📅 每日变位打卡</div>
+            <div style="font-size:13px; opacity:0.9; margin-top:4px">连续打卡 ${getStreakDays()} 天 · 每天10题</div>
+          </div>
+          <div style="font-size:24px">${isTodayDone() ? '✅' : '🔥'}</div>
+        </div>
+      </div>
+
+      ${(() => {
+        const weak = getWeakestTense();
+        if (!weak) return '';
+        const t = TENSES.find(x => x.id === weak.id);
+        const pct = Math.round(weak.rate * 100);
+        return `<div class="card" style="padding:14px 16px; margin-bottom:16px; background:#fff3e0; border-left:4px solid #ff9800">
+          <div style="font-size:13px; color:#ff9800; font-weight:600; margin-bottom:4px">💪 薄弱环节提醒</div>
+          <div style="font-size:14px">「${t.label}」正确率只有 ${pct}%（${weak.stats.correct}/${weak.stats.total}题），多练练这个时态吧！</div>
+        </div>`;
+      })()}
 
       <div style="display:flex; gap:6px; margin-bottom:12px; flex-wrap:wrap">
         <button class="btn ${quizLevel==='all'?'btn--primary':'btn--ghost'}" style="padding:6px 12px; font-size:12px" onclick="window.__setLevel('all')">全部</button>
@@ -224,6 +363,7 @@ function renderHome(app) {
         <button class="btn ${quizLevel==='A2'?'btn--primary':'btn--ghost'}" style="padding:6px 12px; font-size:12px" onclick="window.__setLevel('A2')">A2 基础</button>
         <button class="btn ${quizLevel==='B1'?'btn--primary':'btn--ghost'}" style="padding:6px 12px; font-size:12px" onclick="window.__setLevel('B1')">B1 中级</button>
         <button class="btn ${quizLevel==='wrongbook'?'btn--primary':'btn--ghost'}" style="padding:6px 12px; font-size:12px; background:#f44336; color:#fff" onclick="window.__setLevel('wrongbook')">📕 错词本 (${getWrongBook().length})</button>
+        <button class="btn ${quizLevel==='favorites'?'btn--primary':'btn--ghost'}" style="padding:6px 12px; font-size:12px; background:#ff9800; color:#fff" onclick="window.__setLevel('favorites')">⭐ 收藏夹 (${getFavorites().length})</button>
       </div>
 
       <div style="display:flex; gap:6px; margin-bottom:16px">
@@ -265,6 +405,7 @@ function renderHome(app) {
     </div>
   `;
   window.__startConjQuiz = () => { buildQuiz(); render(); };
+  window.__startDaily = () => { quizLevel = 'daily'; buildQuiz(); render(); };
   window.__setLevel = (lvl) => { quizLevel = lvl; render(); };
   window.__setMode = (m) => { quizMode = m; render(); };
   window.__showTable = (v) => { tableVerb = v; tableTense = 'presente'; render(); };
@@ -365,7 +506,12 @@ function renderSearchResult(app) {
 
       <div style="text-align:center; margin-bottom:24px">
         <div style="font-size:14px; color:var(--c-muted); margin-bottom:8px">动词变位</div>
-        <div style="font-size:32px; font-weight:700; margin-bottom:8px">${v}</div>
+        <div style="font-size:32px; font-weight:700; margin-bottom:8px; display:flex; align-items:center; justify-content:center; gap:12px">
+          ${v}
+          <button onclick="window.__toggleFav('${v}')" style="border:none; background:none; cursor:pointer; font-size:28px; padding:4px">
+            ${isFavorite(v) ? '⭐' : '☆'}
+          </button>
+        </div>
         <div style="font-size:14px; color:var(--c-muted)">${data.cn}</div>
       </div>
 
@@ -420,6 +566,7 @@ function renderSearchResult(app) {
   `;
   window.__backConjHome = () => { searchResult = null; tableVerb = null; render(); };
   window.__setSearchTense = (tid) => { searchResult.tense = tid; render(); };
+  window.__toggleFav = (v) => { toggleFavorite(v); render(); };
   window.__practiceThisVerb = (verb) => {
     // 针对指定动词出10道填空题
     quizMode = 'input';
@@ -554,6 +701,8 @@ function renderQuiz(app) {
     const fb = document.getElementById('conj-feedback');
     if (correct) score++;
     
+    recordTenseResult(q.tense.id, correct);
+    
     if (!correct) {
       addToWrongBook({ verb: q.verb, tense: q.tense.id, pronoun: q.pronoun.idx, answer: q.correct });
     } else if (q.wrongKey) {
@@ -564,7 +713,12 @@ function renderQuiz(app) {
     fb.style.background = correct ? 'rgba(76,175,80,0.1)' : 'rgba(244,67,54,0.1)';
     fb.style.color = correct ? '#4caf50' : '#f44336';
     if (quizIdx + 1 >= quizList.length) {
-      fb.innerHTML = `${correct ? '✅' : '❌'} 完成！得分 ${score}/${quizList.length}<div style="margin-top:12px"><button class="btn btn--primary" onclick="window.__backConjHome()">返回</button></div>`;
+      let dailyMsg = '';
+      if (quizLevel === 'daily' && !isTodayDone()) {
+        markTodayDone(score, quizList.length);
+        dailyMsg = `<div style="margin-top:8px; font-size:14px; color:#ff9800">🔥 打卡成功！连续 ${getStreakDays()} 天</div>`;
+      }
+      fb.innerHTML = `${correct ? '✅' : '❌'} 完成！得分 ${score}/${quizList.length}${dailyMsg}<div style="margin-top:12px"><button class="btn btn--primary" onclick="window.__backConjHome()">返回</button></div>`;
     } else {
       fb.innerHTML = correct
         ? `✅ 正确！<div style="margin-top:10px"><button class="btn btn--primary" onclick="window.__nextConj()">下一题 →</button></div>`
