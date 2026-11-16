@@ -55,6 +55,18 @@ const GRAMMAR = [
       { q: "__ carro ali é teu.（近你）", opts: ['Este', 'Esse', 'Aquele', 'Esta'], ans: 1 },
       { q: "__ livros aqui são nossos.", opts: ['Estes', 'Esses', 'Aqueles', 'Estas'], ans: 0 },
     ]},
+  { level: 'A1', id: 'pronome-pessoal', title: '人称代词主格',
+    rule: 'eu（我）、tu（你）、ele/ela（他/她）、nós（我们）、vós（你们）、eles/elas（他们/她们）。欧葡用tu/vós，巴葡用você/vocês。',
+    examples: ['Eu sou estudante.（我是学生）', 'Nós vamos à praia.（我们去海滩）'],
+    quiz: [
+      "__ sou português.（我）",
+      "__ vais à escola?（你）",
+      "__ somos amigos.（我们）"
+    ].map((q, i) => ({
+      q,
+      opts: ['Eu', 'Tu', 'Ele', 'Nós'],
+      ans: [0, 1, 3][i]
+    }))},
 
   // ===== A2 =====
   { level: 'A2', id: 'perfeito', title: '过去完成时（Pretérito Perfeito）',
@@ -97,6 +109,14 @@ const GRAMMAR = [
       { q: "__ casa é em Lisboa.（我们的）", opts: ['A minha', 'A tua', 'A nossa', 'A sua'], ans: 2 },
       { q: "__ carro é vermelho.（他的）", opts: ['O meu', 'O teu', 'O seu', 'O nosso'], ans: 2 },
     ]},
+  { level: 'A2', id: 'pronome-reto', title: '重读人称代词（介词后）',
+    rule: '介词后用重读形式：mim（我）、ti（你）、ele/ela（他/她）、nós/vós（我们/你们）。com + mim = comigo（和我一起），com + ti = contigo。',
+    examples: ['Vou comigo.（我一起去）— 不对，是 Vou contigo.（我和你一起去）', 'Ele pensa em mim.（他想我）'],
+    quiz: [
+      { q: 'Vou __.（我和你一起去）', opts: ['com ti', 'contigo', 'com você', 'com nós'], ans: 1 },
+      { q: 'Ele pensa __.（他想我）', opts: ['em mim', 'em eu', 'me', 'mim'], ans: 0 },
+      { q: 'Esta carta é para __.（这封信是给你的）', opts: ['ti', 'te', 'você', 'si'], ans: 0 },
+    ]},
 
   // ===== B1 =====
   { level: 'B1', id: 'conjunto', title: '复合过去时（ter + 过去分词）',
@@ -131,6 +151,22 @@ const GRAMMAR = [
       { q: "A cidade __ nasci é o Porto.", opts: ['que', 'onde', 'quem', 'donde'], ans: 1 },
       { q: "A pessoa com __ falei é professora.", opts: ['que', 'onde', 'quem', 'a qual'], ans: 2 },
     ]},
+  { level: 'B1', id: 'verbo-pronominal', title: '代词式动词（-se 动词）',
+    rule: '动词原形加 -se 表示反身或相互意义：levantar-se（起床/站起来）、chamar-se（名叫）、divertir-se（玩得开心）。变位时代词放在前面：me levanto, te levantas, se levanta...',
+    examples: ['Eu me levanto às sete.（我七点起床）', 'Chamo-me João.（我叫若昂）'],
+    quiz: [
+      { q: 'Eu __ levanto cedo.（我起床）', opts: ['me', 'te', 'se', 'nos'], ans: 0 },
+      { q: 'Ela __ chama Maria.（她叫玛丽亚）', opts: ['me', 'te', 'se', 'nos'], ans: 2 },
+      { q: 'Nós __ divertimos muito.（我们玩得开心）', opts: ['me', 'te', 'se', 'nos'], ans: 3 },
+    ]},
+  { level: 'B1', id: 'posicao-pronome', title: '宾语代词的位置',
+    rule: '肯定句中代词通常放在动词前：Eu te amo（我爱你）。否定句：Não te amo。命令式肯定句中代词放在动词后并连写：Diz-me（告诉我）。',
+    examples: ['Eu te vejo amanhã.（我明天见你）', 'Dá-me o livro.（给我书）'],
+    quiz: [
+      { q: 'Eu __ amo.（我爱你）', opts: ['te', 'amo te', 'te amo', 'amo-te'], ans: 0 },
+      { q: '__ me a verdade.（告诉我真相——命令式）', opts: ['Diz', 'Diz me', 'Diz-me', 'Me diz'], ans: 2 },
+      { q: 'Não __ conheço.（我不认识你）', opts: ['te', 'conheço te', 'te conheço', 'conheço-te'], ans: 0 },
+    ]},
 
   // ===== B2 =====
   { level: 'B2', id: 'subj-imperfeito', title: '虚拟式过去未完成时',
@@ -157,6 +193,14 @@ const GRAMMAR = [
       { q: "Ela está __ o livro.", opts: ['lendo', 'lido', 'leu', 'ler'], ans: 0 },
       { q: "Nós passamos o dia __.", opts: ['conversa', 'conversando', 'conversámos', 'conversar'], ans: 1 },
     ]},
+  { level: 'B2', id: 'pronome-duplo', title: '双宾语代词',
+    rule: '同时有间接和直接宾语代词时：间接在前直接在后。me + o = mo, te + o = to, lhe + o = lho。例：Dei-lho = Deu a ele ele（我把它给了他）。',
+    examples: ['Dei-lho ontem.（我昨天把它给了他）', 'Não mo digas.（别告诉我这件事）'],
+    quiz: [
+      { q: 'Dei __ ontem.（我昨天把它给了他）', opts: ['lho', 'lhe o', 'o lhe', 'lho lhe'], ans: 0 },
+      { q: 'Não __ digas.（别告诉我这件事）', opts: ['mo', 'me o', 'o me', 'mo me'], ans: 0 },
+      { q: 'Vou dar __ amanhã.（我明天把它给你）', opts: ['to', 'te o', 'o te', 'to te'], ans: 0 },
+    ]},
 
   // ===== C1 =====
   { level: 'C1', id: 'subj-futuro', title: '虚拟式将来时',
@@ -182,6 +226,14 @@ const GRAMMAR = [
       { q: "Estou interessado __ aprender português.", opts: ['em', 'por', 'com', 'a'], ans: 0 },
       { q: "Ela está chateada __ o atraso.", opts: ['em', 'com', 'por', 'de'], ans: 1 },
       { q: "Conto __ você para ajudar.", opts: ['em', 'com', 'por', 'a'], ans: 1 },
+    ]},
+  { level: 'C1', id: 'pronome-indefinido', title: '不定代词',
+    rule: 'algum/alguma（某个/一些）；nenhum/nenhuma（没有一个）；tudo（一切）；nada（什么都没有）；alguém（某人）；ninguém（没人）。',
+    examples: ['Alguém está aqui.（有人在这）', 'Não há nada.（什么都没有）'],
+    quiz: [
+      { q: '__ está à porta.（有人在门口）', opts: ['Alguém', 'Ninguém', 'Nada', 'Tudo'], ans: 0 },
+      { q: 'Não sei __.（我什么都不知道）', opts: ['algo', 'nada', 'tudo', 'alguma'], ans: 1 },
+      { q: '__ está bem.（一切都好）', opts: ['Algo', 'Nada', 'Tudo', 'Ninguém'], ans: 2 },
     ]},
 
   // ===== C2 =====
