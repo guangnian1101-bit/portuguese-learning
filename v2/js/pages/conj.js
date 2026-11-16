@@ -638,6 +638,8 @@ function renderTable(app) {
       </div>
       <div style="margin-top:12px; font-size:13px; color:var(--c-muted)">${TENSES.find(t=>t.id===tableTense).cn}</div>
 
+      <button class="btn btn--primary btn--block" style="margin-top:16px" onclick="window.__practiceVerb('${v}')">✏️ 练这个动词（10题填空）</button>
+
       <nav class="tabbar">
         <button class="tabbar__item" onclick="router.navigate('/')">首页</button>
         <button class="tabbar__item" onclick="router.navigate('/learn')">学习</button>
