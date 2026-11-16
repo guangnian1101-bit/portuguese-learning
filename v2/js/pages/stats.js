@@ -14,6 +14,22 @@ export function render() {
   const wrongCount = Object.keys(state.wrong).length;
   const favCount = Object.keys(state.starred).length;
   
+  // 变位模块统计
+  const conjDaily = JSON.parse(localStorage.getItem('conj_daily') || '{}');
+  const conjStreak = getConjStreak(conjDaily);
+  const conjFavs = JSON.parse(localStorage.getItem('conj_favorites') || '[]');
+  const tenseStats = JSON.parse(localStorage.getItem('conj_tense_stats') || '{}');
+  
+  // 语法模块统计
+  const grammarStats = JSON.parse(localStorage.getItem('grammar_stats') || '{}');
+  let grammarTotal = 0, grammarCorrect = 0, grammarWrongTopics = 0;
+  for (const s of Object.values(grammarStats)) {
+    grammarTotal += s.total;
+    grammarCorrect += s.correct;
+    if (s.wrongQuestions && s.wrongQuestions.length > 0) grammarWrongTopics++;
+  }
+  const grammarRate = grammarTotal > 0 ? Math.round(grammarCorrect / grammarTotal * 100) : null;
+  
   // 统计最近 12 周的学习数据
   const heatmapData = generateHeatmapData(state.learned);
   
@@ -55,6 +71,62 @@ export function render() {
           上次学习：${state.lastActive || '还没开始学习'}
         </div>
       </div>
+
+      <!-- 变位模块统计 -->
+      <div class="section-title">🔤 变位练习</div>
+      <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; margin-bottom: 16px">
+        <div class="card" style="text-align: center">
+          <div style="font-size: 24px; font-weight: 700; color: #667eea">${conjStreak}</div>
+          <div style="font-size: 12px; color: var(--c-muted); margin-top: 4px">连续打卡</div>
+        </div>
+        <div class="card" style="text-align: center">
+          <div style="font-size: 24px; font-weight: 700; color: #ffc107">${conjFavs.length}</div>
+          <div style="font-size: 12px; color: var(--c-muted); margin-top: 4px">收藏动词</div>
+        </div>
+        <div class="card" style="text-align: center">
+          <div style="font-size: 24px; font-weight: 700; color: #f44336">${Object.keys(tenseStats).length}</div>
+          <div style="font-size: 12px; color: var(--c-muted); margin-top: 4px">已练时态</div>
+        </div>
+      </div>
+
+      <!-- 各时态正确率 -->
+      ${Object.keys(tenseStats).length > 0 ? `
+        <div class="card" style="margin-bottom: 24px; padding: 16px">
+          <div style="font-weight: 600; margin-bottom: 12px">各时态正确率</div>
+          ${Object.entries(tenseStats).map(([tid, s]) => {
+            const rate = Math.round(s.correct / s.total * 100);
+            const color = rate >= 80 ? '#4caf50' : rate >= 60 ? '#ff9800' : '#f44336';
+            return `
+              <div style="margin-bottom: 10px">
+                <div style="display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 4px">
+                  <span>${tid}</span>
+                  <span style="color: ${color}; font-weight: 600">${rate}% (${s.correct}/${s.total})</span>
+                </div>
+                <div style="height: 6px; background: #f0f0f0; border-radius: 3px">
+                  <div style="height: 100%; width: ${rate}%; background: ${color}; border-radius: 3px"></div>
+                </div>
+              </div>
+            `;
+          }).join('')}
+        </div>
+      ` : ''}
+
+      <!-- 语法模块统计 -->
+      <div class="section-title">📖 语法练习</div>
+      <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; margin-bottom: 24px">
+        <div class="card" style="text-align: center">
+          <div style="font-size: 24px; font-weight: 700; color: #9c27b0">${grammarRate !== null ? grammarRate + '%' : '-'}</div>
+          <div style="font-size: 12px; color: var(--c-muted); margin-top: 4px">总正确率</div>
+        </div>
+        <div class="card" style="text-align: center">
+          <div style="font-size: 24px; font-weight: 700; color: #2196f3">${grammarTotal}</div>
+          <div style="font-size: 12px; color: var(--c-muted); margin-top: 4px">已答题数</div>
+        </div>
+        <div class="card" style="text-align: center">
+          <div style="font-size: 24px; font-weight: 700; color: #ff9800">${grammarWrongTopics}</div>
+          <div style="font-size: 12px; color: var(--c-muted); margin-top: 4px">待复习点</div>
+        </div>
+      </div>
       
       <!-- 底部 Tab Bar -->
       <nav class="tabbar">
@@ -81,6 +153,22 @@ export function render() {
       </nav>
     </div>
   `;
+}
+
+// 计算变位打卡连续天数
+function getConjStreak(daily) {
+  let streak = 0;
+  const d = new Date();
+  while (true) {
+    const key = d.toISOString().slice(0, 10);
+    if (daily[key] && daily[key].done) {
+      streak++;
+      d.setDate(d.getDate() - 1);
+    } else {
+      break;
+    }
+  }
+  return streak;
 }
 
 // 生成热力图数据（最近 12 周）
