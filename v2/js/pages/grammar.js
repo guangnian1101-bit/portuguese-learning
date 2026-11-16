@@ -259,6 +259,10 @@ const GRAMMAR = [
 let currentTopic = null;
 let quizIndex = 0;
 let quizScore = 0;
+let wrongQuizMode = false;
+let wrongQuizList = [];
+let wrongQuizIdx = 0;
+let wrongQuizScore = 0;
 
 // 语法点正确率统计
 function getGrammarStats() {
@@ -267,9 +271,17 @@ function getGrammarStats() {
 }
 function recordGrammarResult(topicId, correct) {
   const stats = getGrammarStats();
-  if (!stats[topicId]) stats[topicId] = { total: 0, correct: 0 };
+  if (!stats[topicId]) stats[topicId] = { total: 0, correct: 0, wrongQuestions: [] };
   stats[topicId].total++;
-  if (correct) stats[topicId].correct++;
+  if (correct) {
+    stats[topicId].correct++;
+  } else {
+    // 记录答错的题号
+    const qIdx = quizIndex;
+    if (!stats[topicId].wrongQuestions.includes(qIdx)) {
+      stats[topicId].wrongQuestions.push(qIdx);
+    }
+  }
   localStorage.setItem('grammar_stats', JSON.stringify(stats));
 }
 function getTopicRate(topicId) {
@@ -277,11 +289,26 @@ function getTopicRate(topicId) {
   if (!s || s.total === 0) return null;
   return Math.round(s.correct / s.total * 100);
 }
+function getWrongTopics() {
+  const stats = getGrammarStats();
+  return Object.entries(stats)
+    .filter(([id, s]) => s.wrongQuestions && s.wrongQuestions.length > 0)
+    .map(([id, s]) => ({ id, ...s }));
+}
+function removeWrongQuestion(topicId, qIdx) {
+  const stats = getGrammarStats();
+  if (stats[topicId] && stats[topicId].wrongQuestions) {
+    stats[topicId].wrongQuestions = stats[topicId].wrongQuestions.filter(i => i !== qIdx);
+    localStorage.setItem('grammar_stats', JSON.stringify(stats));
+  }
+}
 
 export function render() {
   const app = document.getElementById('app');
 
-  if (currentTopic) {
+  if (wrongQuizMode) {
+    renderWrongQuiz(app);
+  } else if (currentTopic) {
     renderTopic(app);
   } else {
     renderList(app);
@@ -299,6 +326,22 @@ function renderList(app) {
         <h1 style="margin:0">📖 语法练习</h1>
       </div>
       <p style="color:var(--c-muted); margin:0 0 20px">按级别选择知识点，每个知识点配选择题练习。</p>
+
+      ${(() => {
+        const wrongTopics = getWrongTopics();
+        const totalWrong = wrongTopics.reduce((sum, t) => sum + t.wrongQuestions.length, 0);
+        if (totalWrong === 0) return '';
+        return `<div class="card" style="padding:16px; margin-bottom:20px; background:#fff3e0; border-left:4px solid #ff9800; cursor:pointer" onclick="window.__startGrammarWrong()">
+          <div style="display:flex; justify-content:space-between; align-items:center">
+            <div>
+              <div style="font-weight:600; color:#ff9800">📝 语法错词本</div>
+              <div style="font-size:13px; color:var(--c-muted); margin-top:2px">${totalWrong} 道错题待复习</div>
+            </div>
+            <span style="color:#ff9800; font-size:20px">›</span>
+          </div>
+        </div>`;
+      })()}
+
       ${levels.map(lv => {
         const topics = GRAMMAR.filter(t => t.level === lv);
         if (!topics.length) return '';
@@ -347,6 +390,29 @@ function renderList(app) {
     currentTopic = GRAMMAR.find(t => t.id === id);
     quizIndex = 0;
     quizScore = 0;
+    wrongQuizMode = false;
+    render();
+  };
+
+  window.__startGrammarWrong = () => {
+    const wrongTopics = getWrongTopics();
+    wrongQuizList = [];
+    for (const wt of wrongTopics) {
+      const topic = GRAMMAR.find(t => t.id === wt.id);
+      if (!topic) continue;
+      for (const qIdx of wt.wrongQuestions) {
+        if (topic.quiz[qIdx]) {
+          wrongQuizList.push({ topic, qIdx, q: topic.quiz[qIdx] });
+        }
+      }
+    }
+    if (wrongQuizList.length === 0) {
+      alert('错词本是空的！');
+      return;
+    }
+    wrongQuizMode = true;
+    wrongQuizIdx = 0;
+    wrongQuizScore = 0;
     render();
   };
 }
@@ -412,6 +478,70 @@ function renderTopic(app) {
     quizIndex++;
     if (quizIndex >= t.quiz.length) {
       currentTopic = null;
+    }
+    render();
+  };
+}
+
+function renderWrongQuiz(app) {
+  const item = wrongQuizList[wrongQuizIdx];
+  const { topic, qIdx, q } = item;
+
+  app.innerHTML = `
+    <div class="page container">
+      <div style="display:flex; align-items:center; gap:12px; margin:24px 0 16px">
+        <button class="btn btn--ghost" onclick="window.__backFromWrong()" style="padding:8px 12px">← 退出</button>
+        <h1 style="margin:0; font-size:18px">📝 语法错词本</h1>
+      </div>
+
+      <div class="card" style="padding:20px; margin-bottom:16px">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px">
+          <div style="font-weight:600">练习 ${wrongQuizIdx+1}/${wrongQuizList.length}</div>
+          <div style="font-size:13px; color:var(--c-muted)">得分 ${wrongQuizScore}</div>
+        </div>
+        <div style="font-size:12px; color:var(--c-brand); margin-bottom:8px; font-weight:600">${topic.title}</div>
+        <div style="font-size:18px; margin-bottom:20px; line-height:1.5">${q.q}</div>
+        <div style="display:flex; flex-direction:column; gap:10px">
+          ${q.opts.map((o,i) => `
+            <button class="btn btn--ghost" style="padding:14px; text-align:left" onclick="window.__answerWrongGrammar(${i})">
+              ${String.fromCharCode(65+i)}. ${o}
+            </button>
+          `).join('')}
+        </div>
+        <div id="grammar-feedback" style="display:none; margin-top:16px; padding:14px; border-radius:12px; text-align:center"></div>
+      </div>
+
+      <nav class="tabbar">
+        <button class="tabbar__item" onclick="router.navigate('/')">首页</button>
+        <button class="tabbar__item" onclick="router.navigate('/learn')">学习</button>
+        <button class="tabbar__item is-active" onclick="router.navigate('/grammar')">语法</button>
+        <button class="tabbar__item" onclick="router.navigate('/conj')">变位</button>
+        <button class="tabbar__item" onclick="router.navigate('/stats')">统计</button>
+      </nav>
+    </div>
+  `;
+
+  window.__backFromWrong = () => { wrongQuizMode = false; render(); };
+  window.__answerWrongGrammar = (i) => {
+    const fb = document.getElementById('grammar-feedback');
+    const correct = i === q.ans;
+    if (correct) {
+      wrongQuizScore++;
+      // 答对了就从错词本里移除
+      removeWrongQuestion(topic.id, qIdx);
+    }
+    fb.style.display = 'block';
+    fb.style.background = correct ? 'rgba(76,175,80,0.1)' : 'rgba(244,67,54,0.1)';
+    fb.style.color = correct ? '#4caf50' : '#f44336';
+    fb.innerHTML = correct
+      ? `✅ 正确！已从错词本移除<div style="margin-top:10px"><button class="btn btn--primary" onclick="window.__nextWrongGrammar()">下一题 →</button></div>`
+      : `❌ 正确答案：${q.opts[q.ans]}<div style="margin-top:10px"><button class="btn btn--primary" onclick="window.__nextWrongGrammar()">下一题 →</button></div>`;
+  };
+  window.__nextWrongGrammar = () => {
+    wrongQuizIdx++;
+    if (wrongQuizIdx >= wrongQuizList.length) {
+      alert(`错词本练习完成！得分 ${wrongQuizScore}/${wrongQuizList.length}`);
+      wrongQuizMode = false;
     }
     render();
   };
