@@ -678,7 +678,10 @@ function renderQuiz(app) {
         <div style="font-size:13px; color:var(--c-brand); margin-bottom:4px; font-weight:600">${q.tense.label} · ${q.tense.cn}</div>
         <div style="font-size:12px; color:var(--c-muted); margin-bottom:12px">${q.tense.desc}</div>
         <div style="font-size:28px; font-weight:700; margin-bottom:8px">${q.pronoun.pt} <span style="color:var(--c-muted); font-size:18px">(${q.pronoun.cn})</span></div>
-        <div style="font-size:20px">${q.verb} <small style="color:var(--c-muted)">（${q.verbCn}）</small></div>
+        <div style="font-size:20px; display:flex; align-items:center; justify-content:center; gap:10px">
+          <span>${q.verb} <small style="color:var(--c-muted)">（${q.verbCn}）</small></span>
+          <button onclick="window.__playAnswer()" style="background:none; border:none; font-size:22px; cursor:pointer; padding:4px" title="听发音">🔊</button>
+        </div>
       </div>
 
       ${optionsHtml}
@@ -696,6 +699,12 @@ function renderQuiz(app) {
   `;
   
   window.__backConjHome = () => { quizList = []; tableVerb = null; render(); };
+  window.__playAnswer = () => {
+    const utter = new SpeechSynthesisUtterance(q.correct);
+    utter.lang = 'pt-PT';
+    utter.rate = 0.8;
+    speechSynthesis.speak(utter);
+  };
   
   function showResult(correct) {
     const fb = document.getElementById('conj-feedback');
