@@ -609,6 +609,7 @@ function renderTable(app) {
       <div style="display:flex; align-items:center; gap:12px; margin:24px 0 16px">
         <button class="btn btn--ghost" onclick="window.__backConjHome()" style="padding:8px 12px">← 返回</button>
         <h1 style="margin:0; font-size:20px">${v} <span style="color:var(--c-muted); font-size:14px; font-weight:400">${data.cn}</span></h1>
+        <button onclick="window.__toggleFav('${v}')" style="background:none; border:none; font-size:24px; cursor:pointer; margin-left:auto">${isFavorite(v) ? '⭐' : '☆'}</button>
       </div>
 
       <div style="display:flex; gap:8px; margin-bottom:16px; flex-wrap:wrap">
@@ -648,6 +649,7 @@ function renderTable(app) {
   `;
   window.__backConjHome = () => { tableVerb = null; render(); };
   window.__setTense = (tid) => { tableTense = tid; render(); };
+  window.__toggleFav = (v) => { toggleFavorite(v); render(); };
 }
 
 function renderQuiz(app) {
