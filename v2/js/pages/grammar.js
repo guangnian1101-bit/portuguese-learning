@@ -260,6 +260,24 @@ let currentTopic = null;
 let quizIndex = 0;
 let quizScore = 0;
 
+// 语法点正确率统计
+function getGrammarStats() {
+  try { return JSON.parse(localStorage.getItem('grammar_stats') || '{}'); }
+  catch { return {}; }
+}
+function recordGrammarResult(topicId, correct) {
+  const stats = getGrammarStats();
+  if (!stats[topicId]) stats[topicId] = { total: 0, correct: 0 };
+  stats[topicId].total++;
+  if (correct) stats[topicId].correct++;
+  localStorage.setItem('grammar_stats', JSON.stringify(stats));
+}
+function getTopicRate(topicId) {
+  const s = getGrammarStats()[topicId];
+  if (!s || s.total === 0) return null;
+  return Math.round(s.correct / s.total * 100);
+}
+
 export function render() {
   const app = document.getElementById('app');
 
@@ -291,14 +309,25 @@ function renderList(app) {
               <span style="color:var(--c-muted); font-size:14px">${topics.length} 个知识点</span>
             </div>
             <div style="display:flex; flex-direction:column; gap:10px">
-              ${topics.map((t,i) => `
+              ${topics.map((t,i) => {
+                const rate = getTopicRate(t.id);
+                let rateBadge = '';
+                if (rate !== null) {
+                  const color = rate >= 80 ? '#4caf50' : rate >= 60 ? '#ff9800' : '#f44336';
+                  rateBadge = `<span style="font-size:12px; color:${color}; font-weight:600; margin-right:8px">${rate}%</span>`;
+                }
+                return `
                 <div class="card" style="padding:14px 16px; cursor:pointer; display:flex; justify-content:space-between; align-items:center" onclick="window.__openTopic('${t.id}')">
                   <div>
                     <div style="font-weight:600">${t.title}</div>
                     <div style="font-size:12px; color:var(--c-muted); margin-top:2px">${t.rule.slice(0,50)}…</div>
                   </div>
-                  <span style="color:var(--c-muted)">›</span>
-                </div>
+                  <div style="display:flex; align-items:center">
+                    ${rateBadge}
+                    <span style="color:var(--c-muted)">›</span>
+                  </div>
+                </div>`;
+              }).join('')}
               `).join('')}
             </div>
           </div>
@@ -371,6 +400,7 @@ function renderTopic(app) {
     const fb = document.getElementById('grammar-feedback');
     const correct = i === q.ans;
     if (correct) quizScore++;
+    recordGrammarResult(t.id, correct);
     fb.style.display = 'block';
     fb.style.background = correct ? 'rgba(76,175,80,0.1)' : 'rgba(244,67,54,0.1)';
     fb.style.color = correct ? '#4caf50' : '#f44336';
