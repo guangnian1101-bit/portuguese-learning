@@ -69,6 +69,38 @@ const SENTENCES = [
     pt: 'Desde pequeno, sonhava que um dia iria dar a volta ao mundo. Quero visitar todos os países da Europa, experimentar culturas diferentes e provar a gastronomia local. Embora isto exija muito dinheiro e tempo, acredito que, trabalhando arduamente, um dia conseguirei realizar este sonho. Agora, estou a poupar dinheiro todos os dias para preparar a viagem do futuro.',
     tip: 'desde pequeno = 从小；sonhar que = 梦想着；embora = 虽然（接虚拟式）；realizar um sonho = 实现梦想'
   },
+  {
+    id: 'compras',
+    level: 'A1',
+    title: '购物',
+    cn: '我想买一件T恤，蓝色的，中号。这件多少钱？太贵了，有没有便宜一点的？我可以用信用卡支付吗？请给我收据。',
+    pt: 'Quero comprar uma t-shirt azul, tamanho médio. Quanto custa esta? É muito cara, há mais barata? Posso pagar com cartão de crédito? Traga-me o recibo, por favor.',
+    tip: 'quanto custa? = 多少钱；barato = 便宜；caro = 贵；cartão de crédito = 信用卡'
+  },
+  {
+    id: 'tempo',
+    level: 'A2',
+    title: '谈论天气',
+    cn: '今天天气真好！阳光明媚，不冷也不热。昨天在下雨，风很大。明天预报说会多云，下午可能下雨。夏天这里经常很热，冬天比较温和。我最喜欢春天，因为花开了，天气也舒服。',
+    pt: 'Hoje o tempo está muito bom! Está sol e não está frio nem calor. Ontem chovia e ventava muito. Amanhã a previsão diz que vai estar nublado e que pode chover à tarde. No verão, costuma fazer muito calor aqui, e no inverno é ameno. Eu gosto mais da primavera, porque as flores abrem e o tempo é agradável.',
+    tip: 'está sol = 出太阳了；chover = 下雨；ventar = 刮风；previsão do tempo = 天气预报'
+  },
+  {
+    id: 'entrevista',
+    level: 'B1',
+    title: '面试',
+    cn: '我有五年的工作经验，在一家科技公司做市场营销。我擅长团队合作，也很会沟通。我会说葡萄牙语、英语和一点西班牙语。我对这个职位很感兴趣，因为贵公司在行业里很有影响力。我希望有机会能加入你们的团队。',
+    pt: 'Tenho cinco anos de experiência profissional, a trabalhar numa empresa de tecnologia em marketing. Sou bom a trabalhar em equipa e comunico muito bem. Falo português, inglês e um pouco de espanhol. Estou muito interessado nesta posição, porque a sua empresa tem muita influência no setor. Espero ter a oportunidade de me juntar à sua equipa.',
+    tip: 'experiência profissional = 工作经验；trabalhar em equipa = 团队合作；juntar-se a = 加入'
+  },
+  {
+    id: 'ambiente',
+    level: 'B2',
+    title: '环境保护',
+    cn: '环境保护是当今世界最重要的问题之一。我们必须减少塑料的使用，更多地回收利用。政府应该制定更严格的法律来限制污染。每个人都可以做一点：骑自行车代替开车，节约水电，不浪费食物。如果我们现在不采取行动，未来的世代将会承受严重的后果。',
+    pt: 'A proteção do ambiente é um dos problemas mais importantes do mundo hoje em dia. Temos de reduzir o uso de plástico e reciclar mais. Os governos devem criar leis mais rigorosas para limitar a poluição. Cada pessoa pode fazer um pouco: andar de bicicleta em vez de carro, poupar água e eletricidade, não desperdiçar comida. Se não agirmos agora, as futuras gerações irão sofrer consequências graves.',
+    tip: 'proteção do ambiente = 环境保护；ter de = 必须；em vez de = 代替；agir = 行动'
+  },
 ];
 
 let currentSentence = null;

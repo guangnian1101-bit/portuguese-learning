@@ -41,6 +41,42 @@ const READINGS = [
       { q: "Qual é o melhor título para este texto?", opts: ['Como arranjar um emprego', 'Vantagens e desvantagens do trabalho remoto', 'A história do escritório moderno', 'Dicas para ser produtivo'], ans: 1 },
     ]
   },
+  {
+    id: 'restaurante-tipico',
+    level: 'A2',
+    title: 'Um restaurante típico em Lisboa',
+    text: 'Ontem à noite, fomos jantar a um restaurante típico no Bairro Alto, em Lisboa. O restaurante é pequeno mas muito acolhedor, com paredes de pedra e mesas de madeira. O empregado foi muito simpático e recomendou-nos os pratos do dia. Eu pediu um bacalhau à brás, que é um prato tradicional português feito com bacalhau, batatas e ovos. O meu amigo pediu carne de porco à alentejana. A comida estava deliciosa e as porções eram bem servidas. Para beber, pedimos uma garrafa de vinho verde, que é leve e refrescante. No fim, pedimos a sobremesa: um pastéis de nata com café. A conta foi de 25 euros por pessoa, o que é um preço razoável para a qualidade da comida. Recomendo este restaurante a todos os que visitam Lisboa.',
+    questions: [
+      { q: "Onde fica o restaurante?", opts: ['Na Baixa', 'No Bairro Alto', 'Em Belém', 'No Alfama'], ans: 1 },
+      { q: "O que é que o autor pediu para jantar?", opts: ['Carne de porco', 'Bacalhau à brás', 'Caldo verde', 'Francesinha'], ans: 1 },
+      { q: "O que é que eles beberam?", opts: ['Vinho tinto', 'Vinho verde', 'Cerveja', 'Água'], ans: 1 },
+      { q: "Quanto custou por pessoa?", opts: ['15 euros', '20 euros', '25 euros', '30 euros'], ans: 2 },
+    ]
+  },
+  {
+    id: 'clima-portugal',
+    level: 'B1',
+    title: 'O clima em Portugal',
+    text: 'Portugal tem um dos climas mais agradáveis da Europa. No inverno, as temperaturas são suaves, raramente descem abaixo de 5 graus em Lisboa. No verão, faz calor, sobretudo no sul do país, onde as temperaturas podem chegar aos 35 ou 40 graus. A chuva concentra-se principalmente nos meses de novembro a março. O Algarve, no sul, tem mais de 300 dias de sol por ano, o que o torna um destino popular para turistas de todo o mundo. No norte do país, o clima é mais húmido e fresco, com mais chuva e invernos mais rigorosos. As serras, como a Serra da Estrela, têm neve no inverno e são um local popular para a prática de esqui. Em geral, o clima português é mediterrâneo, com verões secos e quentes e invernos chuvosos e amenos.',
+    questions: [
+      { q: "Como é o inverno em Lisboa?", opts: ['Muito frio, com neve', 'Suave, raramente abaixo de 5 graus', 'Muito chuvoso', 'Igual ao verão'], ans: 1 },
+      { q: "Quando é que chove mais em Portugal?", opts: ['De junho a agosto', 'De abril a junho', 'De novembro a março', 'De setembro a novembro'], ans: 2 },
+      { q: "Porque é que o Algarve é popular para turistas?", opts: ['Tem muitas montanhas', 'Tem mais de 300 dias de sol por ano', 'Tem neve no inverno', 'É muito barato'], ans: 1 },
+      { q: "O que é a Serra da Estrela?", opts: ['Uma praia', 'Uma serra com neve no inverno', 'Uma cidade', 'Um rio'], ans: 1 },
+    ]
+  },
+  {
+    id: 'educacao-portugal',
+    level: 'B2',
+    title: 'O sistema educativo em Portugal',
+    text: 'O sistema educativo português é dividido em vários níveis. A educação pré-escolar é opcional e destina-se a crianças dos 0 aos 5 anos. O ensino básico é obrigatório e dura 9 anos, dividido em três ciclos: o primeiro ciclo (1º-4º ano), o segundo ciclo (5º-6º ano) e o terceiro ciclo (7º-9º ano). Depois, o ensino secundário dura 3 anos (10º-12º ano) e é dividido em vias: científica-humanística, que prepara para o ensino superior, e profissional, que prepara para o mercado de trabalho. O ensino superior inclui licenciaturas (3 anos), mestrados (2 anos) e doutoramentos. As universidades mais conhecidas são a de Lisboa, a do Porto e a de Coimbra, que é a mais antiga do país, fundada em 1290. Em Portugal, a educação é gratuita no setor público, desde o ensino básico até ao ensino superior. No entanto, existem também muitas escolas e universidades privadas.',
+    questions: [
+      { q: "Até que idade é a educação obrigatória em Portugal?", opts: 'Até aos 12 anos', 'Até aos 15 anos (9º ano)', 'Até aos 18 anos (12º ano)', 'Não é obrigatória'], ans: 1 },
+      { q: "Quanto dura o ensino secundário?", opts: ['2 anos', '3 anos', '4 anos', '5 anos'], ans: 1 },
+      { q: "Qual é a universidade mais antiga de Portugal?", opts: ['Universidade de Lisboa', 'Universidade do Porto', 'Universidade de Coimbra', 'Universidade Nova de Lisboa'], ans: 2 },
+      { q: "O que é a via profissional do ensino secundário?", opts: ['Prepara para a universidade', 'Prepara para o mercado de trabalho', 'É apenas para desporto', 'É gratuita'], ans: 1 },
+    ]
+  },
 ];
 
 let currentReading = null;
