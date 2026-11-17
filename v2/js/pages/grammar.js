@@ -521,7 +521,6 @@ function renderList(app) {
                   </div>
                 </div>`;
               }).join('')}
-              `).join('')}
             </div>
           </div>
         `;
