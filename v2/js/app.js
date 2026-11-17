@@ -13,8 +13,10 @@ import { render as renderStats } from './pages/stats.js?v=38';
 import { render as renderSettings } from './pages/settings.js?v=25';
 import { render as renderCategories } from './pages/categories.js?v=25';
 import { render as renderDaily } from './pages/daily.js?v=25';
-import { render as renderGrammar } from './pages/grammar.js?v=39';
-import { render as renderConj } from './pages/conj.js?v=40';
+import { render as renderGrammar } from './pages/grammar.js?v=41';
+import { render as renderConj } from './pages/conj.js?v=41';
+import { render as renderReading } from './pages/reading.js?v=1';
+import { render as renderWriting } from './pages/writing.js?v=1';
 
 // 注册路由
 router.register('/', () => renderHome());
@@ -28,6 +30,8 @@ router.register('/categories', () => renderCategories());
 router.register('/daily', () => renderDaily());
 router.register('/grammar', () => renderGrammar());
 router.register('/conj', () => renderConj());
+router.register('/reading', () => renderReading());
+router.register('/writing', () => renderWriting());
 
 // 暴露到全局
 window.router = router;

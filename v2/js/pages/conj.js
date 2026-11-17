@@ -13,7 +13,7 @@ const TENSES = [
   { id: 'conj_presente', label: '虚拟式现在', cn: 'Presente do Conjuntivo', desc: '表示愿望、怀疑、可能性' },
   { id: 'condicional', label: '条件式', cn: 'Condicional', desc: '表示"将会、可能会"，相当于过去将来时' },
   { id: 'conj_imperfeito', label: '虚拟式过去未完成', cn: 'Pretérito Imperfeito do Conjuntivo', desc: '表示过去的假设、条件，相当于"如果我当时…"' },
-  { id: 'imperativo', label: '命令式', cn: 'Imperativo', desc: '命令、请求、建议。无eu人称，tu/você/nós/vós/vocês' },
+  { id: 'imperativo', label: '命令式', cn: 'Imperativo', desc: '命令、请求、建议。否定命令式 = não + 虚拟式现在时' },
 ];
 
 // 从已有时态推导命令式
@@ -637,6 +637,22 @@ function renderTable(app) {
         </table>
       </div>
       <div style="margin-top:12px; font-size:13px; color:var(--c-muted)">${TENSES.find(t=>t.id===tableTense).cn}</div>
+
+      ${tableTense === 'imperativo' ? `
+      <div class="card" style="padding:16px; margin-top:16px; background:#fff3e0; border-left:4px solid #ff9800">
+        <div style="font-weight:600; margin-bottom:12px; color:#ff9800">💡 否定命令式（não + 虚拟式现在时）</div>
+        <table style="width:100%; border-collapse:collapse; font-size:14px">
+          <tbody>
+            ${PRONOUNS.map((p,i) => i === 0 ? '' : `
+              <tr style="border-top:1px solid #ffe0b2">
+                <td style="padding:8px; color:var(--c-muted)">${p.pt} <small>(${p.cn})</small></td>
+                <td style="padding:8px; font-weight:600">não ${data.tenses.conj_presente[i]}</td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+      </div>
+      ` : ''}
 
       <button class="btn btn--primary btn--block" style="margin-top:16px" onclick="window.__practiceVerb('${v}')">✏️ 练这个动词（10题填空）</button>
 
