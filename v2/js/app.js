@@ -15,7 +15,7 @@ import { render as renderCategories } from './pages/categories.js?v=25';
 import { render as renderDaily } from './pages/daily.js?v=25';
 import { render as renderGrammar } from './pages/grammar.js?v=44';
 import { render as renderConj } from './pages/conj.js?v=41';
-import { render as renderReading } from './pages/reading.js?v=2';
+import { render as renderReading } from './pages/reading.js?v=3';
 import { render as renderWriting } from './pages/writing.js?v=3';
 
 // 注册路由
