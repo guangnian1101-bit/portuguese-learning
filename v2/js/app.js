@@ -13,10 +13,10 @@ import { render as renderStats } from './pages/stats.js?v=38';
 import { render as renderSettings } from './pages/settings.js?v=25';
 import { render as renderCategories } from './pages/categories.js?v=25';
 import { render as renderDaily } from './pages/daily.js?v=25';
-import { render as renderGrammar } from './pages/grammar.js?v=41';
+import { render as renderGrammar } from './pages/grammar.js?v=42';
 import { render as renderConj } from './pages/conj.js?v=41';
 import { render as renderReading } from './pages/reading.js?v=1';
-import { render as renderWriting } from './pages/writing.js?v=1';
+import { render as renderWriting } from './pages/writing.js?v=2';
 
 // 注册路由
 router.register('/', () => renderHome());

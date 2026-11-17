@@ -37,6 +37,38 @@ const SENTENCES = [
     pt: 'Eu acho que aprender uma língua estrangeira é muito importante. Em primeiro lugar, ajuda-nos a conhecer diferentes culturas. Em segundo lugar, temos mais oportunidades quando procuramos emprego. Claro que aprender uma língua requer tempo e esforço, mas o resultado vale a pena. Aconselho todos a praticar um pouco todos os dias e a não ter medo de cometer erros.',
     tip: 'em primeiro lugar = 首先；em segundo lugar = 其次；valer a pena = 值得；ter medo de = 害怕'
   },
+  {
+    id: 'restaurante',
+    level: 'A1',
+    title: '在餐厅',
+    cn: '我想预订一张两个人的桌子，晚上七点。我要一份鱼，配沙拉和土豆。请来一杯白葡萄酒。请给我账单，谢谢。',
+    pt: 'Quero reservar uma mesa para duas pessoas, às sete da noite. Quero um peixe com salada e batatas. Traga-me um copo de vinho branco. Traga-me a conta, por favor.',
+    tip: 'quero = 我想要；trazer = 带来；por favor = 请'
+  },
+  {
+    id: 'saude',
+    level: 'A2',
+    title: '健康与习惯',
+    cn: '为了保持健康，我每天早上跑步三十分钟。我很少吃垃圾食品，多吃水果和蔬菜。我每天睡八个小时，因为充足的睡眠很重要。我不抽烟，也不怎么喝酒。我觉得健康的生活方式能让人更快乐。',
+    pt: 'Para manter a saúde, eu corro trinta minutos todas as manhãs. Raramente como comida lixo e como muitas frutas e legumes. Durmo oito horas por dia, porque o sono suficiente é muito importante. Não fumo e quase não bebo álcool. Acho que um estilo de vida saudável nos faz mais felizes.',
+    tip: 'para + 动词 = 为了...；raramente = 很少；manter a saúde = 保持健康'
+  },
+  {
+    id: 'tecnologia',
+    level: 'B1',
+    title: '科技与生活',
+    cn: '现在智能手机已经成为我们生活中不可或缺的一部分。我们用它来通讯、工作、学习和娱乐。然而，专家警告说过度使用手机会影响我们的健康和人际关系。建议大家每天减少屏幕时间，多花时间和家人朋友面对面交流。',
+    pt: 'Hoje em dia, os smartphones tornaram-se uma parte indispensável das nossas vidas. Nós usamo-los para comunicar, trabalhar, estudar e entreter. No entanto, os especialistas alertam que o uso excessivo do telemóvel afeta a nossa saúde e as nossas relações interpessoais. Aconselham-nos a reduzir o tempo de ecrã todos os dias e a passar mais tempo com a família e os amigos pessoalmente.',
+    tip: 'hoje em dia = 如今；tornar-se = 变成；alertar que = 警告说；aconselhar alguém a = 建议某人做某事'
+  },
+  {
+    id: 'sonho',
+    level: 'B2',
+    title: '梦想与未来',
+    cn: '从小我就梦想着有一天能环游世界。我想参观欧洲所有的国家，体验不同的文化，品尝当地美食。虽然这需要很多钱和时间，但我相信只要努力工作，总有一天能实现这个梦想。现在我每天都在存钱，为未来的旅行做准备。',
+    pt: 'Desde pequeno, sonhava que um dia iria dar a volta ao mundo. Quero visitar todos os países da Europa, experimentar culturas diferentes e provar a gastronomia local. Embora isto exija muito dinheiro e tempo, acredito que, trabalhando arduamente, um dia conseguirei realizar este sonho. Agora, estou a poupar dinheiro todos os dias para preparar a viagem do futuro.',
+    tip: 'desde pequeno = 从小；sonhar que = 梦想着；embora = 虽然（接虚拟式）；realizar um sonho = 实现梦想'
+  },
 ];
 
 let currentSentence = null;
