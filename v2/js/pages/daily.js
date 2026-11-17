@@ -70,6 +70,8 @@ function isEligible(w) {
   if (BAD_CN.some(b => w.cn.includes(b))) return false;
   // 排除 id > 90000 的后段生僻词（医学/化学/矿业术语）
   if (w.id > 90000) return false;
+  // 动词必须以 -ar/-er/-ir 结尾（原形铁律），拦住 evitasse/arredara/gastará 等变位形式
+  if (w.pos.includes('动词') && !/^(.*)(ar|er|ir)$/.test(w.pt)) return false;
   return true;
 }
 
