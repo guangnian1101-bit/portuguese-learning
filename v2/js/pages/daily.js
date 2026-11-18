@@ -72,6 +72,12 @@ function isEligible(w) {
   if (w.id > 90000) return false;
   // 动词必须以 -ar/-er/-ir 结尾（原形铁律），拦住 evitasse/arredara/gastará 等变位形式
   if (w.pos.includes('动词') && !/^(.*)(ar|er|ir)$/.test(w.pt)) return false;
+  // 名词/形容词复数过滤：以 -s 结尾，去掉 -s 后以 -a/-o 结尾的，基本都是复数形式
+  // 拦住 diárias→diária, nativos→nativo, dardos→dardo 这类
+  if ((w.pos.includes('名词') || w.pos.includes('形容词')) && /s$/.test(w.pt)) {
+    const stem = w.pt.slice(0, -1);
+    if (/[ao]$/.test(stem)) return false;
+  }
   return true;
 }
 
